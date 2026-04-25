@@ -28,6 +28,34 @@ const ORGANIGRAMA = [
   { 
     name: "SEC. MUN. DE SALUD", 
     units: ["Dirección de Gestión Hospitalaria", "Dirección de Seguros de Salud", "Dirección de Salud Pública"] 
+  },
+  { 
+    name: "SEC. MUN. DE EDUCACIÓN Y CULTURA", 
+    units: ["Dirección de Educación", "Dirección de Culturas", "Dirección de Bibliotecas"] 
+  },
+  { 
+    name: "SEC. MUN. DE DESARROLLO HUMANO", 
+    units: ["Dirección de Género", "Dirección de Niñez y Adolescencia", "Dirección de Deportes", "Dirección de Desarrollo Social"] 
+  },
+  { 
+    name: "SEC. MUN. DE INFRAESTRUCTURA PÚBLICA", 
+    units: ["Dirección de Obras Públicas", "Dirección de Supervisión de Obras", "Dirección de Alumbrado Público"] 
+  },
+  { 
+    name: "SEC. MUN. DE MOVILIDAD URBANA", 
+    units: ["Dirección de Transporte", "Dirección de Vialidad", "Dirección de Bus Municipal"] 
+  },
+  { 
+    name: "SEC. MUN. DE SEGURIDAD CIUDADANA", 
+    units: ["Dirección de Prevención", "Dirección de Vigilancia", "Dirección de Intendencia Municipal"] 
+  },
+  { 
+    name: "SEC. MUN. DE AGUA, GESTIÓN AMBIENTAL Y RIESGOS", 
+    units: ["Dirección de Saneamiento Básico", "Dirección de Gestión de Riesgos", "Dirección de Medio Ambiente"] 
+  },
+  { 
+    name: "SEC. MUN. DE DESARROLLO ECONÓMICO", 
+    units: ["Dirección de Mypes", "Dirección de Turismo", "Dirección de Comercio y Servicios"] 
   }
 ];
 
@@ -210,6 +238,7 @@ const App = () => {
   const [reports, setReports] = useState([]);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [newMetricLabel, setNewMetricLabel] = useState('');
 
   useEffect(() => {
     const saved = localStorage.getItem('gamea-reports-v5');
@@ -222,6 +251,29 @@ const App = () => {
     setReports(updated);
     localStorage.setItem('gamea-reports-v5', JSON.stringify(updated));
     alert('Informe guardado en el archivo local.');
+  };
+
+  const handleAddMetric = () => {
+    if (!newMetricLabel.trim()) return;
+    const newMetric = {
+      id: Date.now(),
+      label: newMetricLabel,
+      value: 0,
+      status: 'warning',
+      color: '#3b82f6'
+    };
+    setData({
+      ...data,
+      indicadores: [...data.indicadores, newMetric]
+    });
+    setNewMetricLabel('');
+  };
+
+  const handleRemoveMetric = (id) => {
+    setData({
+      ...data,
+      indicadores: data.indicadores.filter(ind => ind.id !== id)
+    });
   };
 
   return (
@@ -448,17 +500,37 @@ const App = () => {
                         <select 
                           className="custom-select"
                           value={data.secretaria}
-                          onChange={e => setData({ ...data, secretaria: e.target.value })}
+                          onChange={e => {
+                            const sec = ORGANIGRAMA.find(s => s.name === e.target.value);
+                            setData({ 
+                              ...data, 
+                              secretaria: e.target.value,
+                              direccion: sec ? sec.units[0] : '' 
+                            });
+                          }}
                         >
                           {ORGANIGRAMA.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
                         </select>
                       </div>
                       <div>
-                        <label style={{ fontSize: '10px', fontWeight: '800', color: 'var(--text-dim)', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Dirección</label>
-                        <input 
-                          className="custom-input"
+                        <label style={{ fontSize: '10px', fontWeight: '800', color: 'var(--text-dim)', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Dirección / Unidad</label>
+                        <select 
+                          className="custom-select"
                           value={data.direccion}
                           onChange={e => setData({ ...data, direccion: e.target.value })}
+                        >
+                          {ORGANIGRAMA.find(s => s.name === data.secretaria)?.units.map(u => (
+                            <option key={u} value={u}>{u}</option>
+                          )) || <option value={data.direccion}>{data.direccion}</option>}
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '10px', fontWeight: '800', color: 'var(--text-dim)', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Personal Acreditado</label>
+                        <input 
+                          className="custom-input"
+                          placeholder="Nombre del responsable..."
+                          value={data.acreditado}
+                          onChange={e => setData({ ...data, acreditado: e.target.value })}
                         />
                       </div>
                     </div>
@@ -467,10 +539,16 @@ const App = () => {
 
                 <div style={{ gridColumn: 'span 8' }}>
                   <Card title="Calibración de Métricas">
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '32px' }}>
                       {data.indicadores.map(k => (
-                        <div key={k.id} style={{ padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
-                           <p style={{ fontSize: '10px', fontWeight: '900', color: 'var(--accent-blue)', textTransform: 'uppercase', marginBottom: '16px' }}>{k.label}</p>
+                        <div key={k.id} style={{ padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px solid var(--border-subtle)', position: 'relative' }}>
+                           <button 
+                             onClick={() => handleRemoveMetric(k.id)}
+                             style={{ position: 'absolute', top: '10px', right: '10px', background: 'none', border: 'none', color: 'var(--accent-red)', cursor: 'pointer', opacity: 0.5 }}
+                           >
+                             <Trash2 size={14} />
+                           </button>
+                           <p style={{ fontSize: '10px', fontWeight: '900', color: 'var(--accent-blue)', textTransform: 'uppercase', marginBottom: '16px', paddingRight: '20px' }}>{k.label}</p>
                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                              <input 
                                type="range" 
@@ -485,6 +563,19 @@ const App = () => {
                            </div>
                         </div>
                       ))}
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '16px', background: 'rgba(255,255,255,0.02)', padding: '24px', borderRadius: '16px', border: '1px dotted var(--border-subtle)' }}>
+                      <input 
+                        className="custom-input"
+                        placeholder="Nombre de la nueva métrica..."
+                        value={newMetricLabel}
+                        onChange={e => setNewMetricLabel(e.target.value)}
+                        onKeyPress={e => e.key === 'Enter' && handleAddMetric()}
+                      />
+                      <button onClick={handleAddMetric} className="btn btn-primary">
+                        <Plus size={16} /> Añadir Métrica
+                      </button>
                     </div>
                   </Card>
                 </div>
