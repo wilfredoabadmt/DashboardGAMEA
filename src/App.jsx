@@ -63,9 +63,10 @@ const SCENARIOS = {
   NORMAL: {
     label: 'Operación Normal',
     indicadores: [
-      { id: 1, label: 'Documentación Normativa', value: 85, status: 'good', color: '#3b82f6' },
-      { id: 2, label: 'Inventarios de Hardware', value: 60, status: 'warning', color: '#06b6d4' },
-      { id: 3, label: 'Códigos Fuente y Credenciales', value: 45, status: 'warning', color: '#f59e0b' }
+      { id: 1, label: 'Documentación Normativa', value: 85, status: 'good', color: '#3b82f6', vizType: 'gauge' },
+      { id: 2, label: 'Inventarios de Hardware', value: 60, status: 'warning', color: '#06b6d4', vizType: 'bar' },
+      { id: 3, label: 'Códigos Fuente y Credenciales', value: 45, status: 'warning', color: '#f59e0b', vizType: 'gauge' },
+      { id: 4, label: 'Sistemas Desarrollados', value: 92, status: 'good', color: '#8b5cf6', vizType: 'trend' }
     ],
     solicitudes: [
       { unidad: 'UASI', notas: 3, estado: 'Respuesta Parcial', color: 'emerald', icon: 'check' },
@@ -85,9 +86,10 @@ const SCENARIOS = {
   CRISIS: {
     label: 'Situación de Bloqueo',
     indicadores: [
-      { id: 1, label: 'Documentación Normativa', value: 85, status: 'good', color: '#3b82f6' },
-      { id: 2, label: 'Inventarios de Hardware', value: 60, status: 'warning', color: '#06b6d4' },
-      { id: 3, label: 'Códigos Fuente y Credenciales', value: 0, status: 'locked', color: '#ef4444' }
+      { id: 1, label: 'Documentación Normativa', value: 85, status: 'good', color: '#3b82f6', vizType: 'gauge' },
+      { id: 2, label: 'Inventarios de Hardware', value: 60, status: 'warning', color: '#06b6d4', vizType: 'bar' },
+      { id: 3, label: 'Códigos Fuente y Credenciales', value: 0, status: 'locked', color: '#ef4444', vizType: 'gauge' },
+      { id: 4, label: 'Sistemas Desarrollados', value: 10, status: 'locked', color: '#ef4444', vizType: 'trend' }
     ],
     solicitudes: [
       { unidad: 'UASI', notas: 3, estado: 'Respuesta Parcial (DAGA/127)', color: 'emerald', icon: 'check' },
@@ -115,12 +117,13 @@ const INITIAL_DATA = {
   secretaria: 'SEC. MUN. DE ADMINISTRACIÓN Y FINANZAS (SMAF)',
   direccion: 'DIRECCIÓN DEL TESORO',
   ley: 'Ley 1178 (SAFCO)',
+  isLive: false,
   ...SCENARIOS.CRISIS
 };
 
 // --- HELPER COMPONENTS ---
 
-const Card = ({ children, title, subtitle, className = "", style = {} }) => (
+const Card = ({ children, title, subtitle, className = "", style = {}, icon: Icon }) => (
   <motion.div 
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -128,12 +131,15 @@ const Card = ({ children, title, subtitle, className = "", style = {} }) => (
     style={style}
   >
     {(title || subtitle) && (
-      <div style={{ marginBottom: '24px' }}>
-        {title && <h3 style={{ fontSize: '12px', color: 'white', textTransform: 'uppercase', letterSpacing: '0.2em', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ width: '6px', height: '6px', background: 'var(--accent-blue)', borderRadius: '50%', boxShadow: 'var(--glow-blue)' }} />
-          {title}
-        </h3>}
-        {subtitle && <p style={{ fontSize: '10px', color: 'var(--text-dim)', textTransform: 'uppercase', marginTop: '4px', marginLeft: '14px', letterSpacing: '0.1em' }}>{subtitle}</p>}
+      <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {Icon && <Icon size={16} color="var(--accent-blue)" />}
+        <div>
+          {title && <h3 style={{ fontSize: '12px', color: 'white', textTransform: 'uppercase', letterSpacing: '0.2em', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ width: '6px', height: '6px', background: 'var(--accent-blue)', borderRadius: '50%', boxShadow: 'var(--glow-blue)' }} />
+            {title}
+          </h3>}
+          {subtitle && <p style={{ fontSize: '10px', color: 'var(--text-dim)', textTransform: 'uppercase', marginTop: '4px', marginLeft: '14px', letterSpacing: '0.1em' }}>{subtitle}</p>}
+        </div>
       </div>
     )}
     <div style={{ flex: 1 }}>
@@ -142,13 +148,13 @@ const Card = ({ children, title, subtitle, className = "", style = {} }) => (
   </motion.div>
 );
 
-const Gauge = ({ value, label, color, status }) => {
+const Gauge = ({ value, color, status, size = 120 }) => {
   const isLocked = status === 'locked';
   const displayColor = isLocked ? 'var(--accent-red)' : color;
   
   return (
     <div className="gauge-container">
-      <div style={{ position: 'relative', width: '120px', height: '120px' }}>
+      <div style={{ position: 'relative', width: size, height: size }}>
         {isLocked && (
           <motion.div 
             animate={{ opacity: [0.1, 0.3, 0.1] }}
@@ -175,18 +181,56 @@ const Gauge = ({ value, label, color, status }) => {
         
         <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
           {isLocked ? (
-            <>
-              <LockKeyhole size={24} color="var(--accent-red)" />
-              <span style={{ fontSize: '8px', fontWeight: '900', color: 'var(--accent-red)', textTransform: 'uppercase', marginTop: '2px' }}>Locked</span>
-            </>
+            <LockKeyhole size={24} color="var(--accent-red)" />
           ) : (
             <span style={{ fontSize: '24px', fontWeight: '900', color: 'white' }}>{value}%</span>
           )}
         </div>
       </div>
-      <span style={{ fontSize: '10px', fontWeight: '800', color: 'var(--text-muted)', textTransform: 'uppercase', textAlign: 'center', letterSpacing: '0.05em', maxWidth: '120px' }}>{label}</span>
     </div>
   );
+};
+
+const Visualizer = ({ type, value, color, label }) => {
+  const barWidth = `${value}%`;
+  
+  if (type === 'bar') {
+    return (
+      <div style={{ width: '100%', padding: '10px 0' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+          <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>PROGRESO</span>
+          <span style={{ fontSize: '10px', fontWeight: '900', color: color }}>{value}%</span>
+        </div>
+        <div style={{ height: '8px', width: '100%', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', overflow: 'hidden' }}>
+          <motion.div 
+            initial={{ width: 0 }}
+            animate={{ width: barWidth }}
+            style={{ height: '100%', background: color, boxShadow: `0 0 10px ${color}44` }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (type === 'trend') {
+    return (
+      <div style={{ width: '100%', height: '60px', display: 'flex', alignItems: 'flex-end', gap: '4px' }}>
+        {[...Array(12)].map((_, i) => {
+          const h = Math.max(10, value - (11-i) * 3 + Math.random() * 10);
+          return (
+            <motion.div 
+              key={i}
+              initial={{ height: 0 }}
+              animate={{ height: `${Math.min(100, h)}%` }}
+              style={{ flex: 1, background: i === 11 ? color : `${color}33`, borderRadius: '2px' }}
+            />
+          );
+        })}
+      </div>
+    );
+  }
+
+  return <Gauge value={value} color={color} status={value === 0 ? 'locked' : ''} size={100} />;
 };
 
 const FlowNode = ({ item, isLast }) => {
@@ -241,9 +285,20 @@ const App = () => {
   const [newMetricLabel, setNewMetricLabel] = useState('');
 
   useEffect(() => {
-    const saved = localStorage.getItem('gamea-reports-v5');
-    if (saved) setReports(JSON.parse(saved));
-  }, []);
+    let interval;
+    if (data.isLive) {
+      interval = setInterval(() => {
+        setData(prev => ({
+          ...prev,
+          indicadores: prev.indicadores.map(ind => ({
+            ...ind,
+            value: Math.min(100, Math.max(0, ind.value + (Math.random() > 0.5 ? 2 : -2)))
+          }))
+        }));
+      }, 1500);
+    }
+    return () => clearInterval(interval);
+  }, [data.isLive]);
 
   const handleSave = () => {
     const newReport = { ...data, id: Date.now().toString(), created: new Date().toISOString() };
@@ -260,7 +315,8 @@ const App = () => {
       label: newMetricLabel,
       value: 0,
       status: 'warning',
-      color: '#3b82f6'
+      color: '#3b82f6',
+      vizType: 'gauge'
     };
     setData({
       ...data,
@@ -393,71 +449,60 @@ const App = () => {
                 exit={{ opacity: 0, x: -20 }}
                 style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}
               >
-                {/* Top Row */}
+                {/* Top Row: Indicators */}
                 <div className="dashboard-grid">
-                  <Card title="KPIs de Relevamiento" style={{ gridColumn: 'span 4' }}>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', justifyContent: 'center', padding: '10px 0' }}>
-                      {data.indicadores.map(ind => (
-                        <Gauge key={ind.id} {...ind} />
-                      ))}
+                  {data.indicadores.map(k => (
+                    <div key={k.id} style={{ gridColumn: 'span 3' }}>
+                      <Card title={k.label}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '160px' }}>
+                          <Visualizer type={k.vizType} value={k.value} color={k.color} label={k.label} />
+                          <p style={{ marginTop: '16px', fontSize: '10px', fontWeight: '800', color: 'var(--text-dim)', textAlign: 'center' }}>{k.label.toUpperCase()}</p>
+                        </div>
+                      </Card>
                     </div>
-                  </Card>
+                  ))}
 
-                  <Card title="Estado de Unidades" style={{ gridColumn: 'span 8' }}>
-                    <div className="table-container">
-                      <table className="data-table">
-                        <thead>
-                          <tr>
-                            <th>Unidad</th>
-                            <th className="hidden-mobile">Recursos</th>
-                            <th>Estado</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {data.solicitudes.map((s, i) => (
-                            <tr key={i}>
-                              <td style={{ fontWeight: '800', color: 'white', textTransform: 'uppercase' }}>{s.unidad}</td>
-                              <td className="hidden-mobile">
-                                <div style={{ display: 'flex', gap: '8px', color: 'var(--accent-blue)', opacity: 0.6 }}>
-                                  <FileText size={14} />
-                                  <Database size={14} />
-                                  <Server size={14} />
-                                </div>
-                              </td>
-                              <td>
-                                <span className={`status-pill status-${s.color === 'emerald' ? 'good' : s.color === 'amber' ? 'warning' : s.color === 'red' ? 'locked' : 'warning'}`}>
-                                  {s.estado}
-                                </span>
-                              </td>
+                  <div style={{ gridColumn: 'span 12' }}>
+                    <Card title="Recopilación de Inteligencia por Unidades" icon={Activity}>
+                       <div className="table-container">
+                        <table className="data-table">
+                          <thead>
+                            <tr>
+                              <th>Unidad / Secretaría</th>
+                              <th>Estado de Transición</th>
+                              <th>Notas Enviadas</th>
+                              <th>Cumplimiento</th>
+                              <th>Acciones</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </Card>
-                </div>
-
-                {/* Bottom Row */}
-                <div className="dashboard-grid">
-                  <Card title="Flujo de Transición" style={{ gridColumn: 'span 8' }}>
-                    <div style={{ display: 'flex', width: '100%', padding: '40px 0', overflowX: 'auto' }}>
-                      {data.flujo.map((step, i) => (
-                        <FlowNode key={i} item={step} isLast={i === data.flujo.length - 1} />
-                      ))}
-                    </div>
-                  </Card>
-
-                  <Card title="Marco Legal" style={{ gridColumn: 'span 4' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                      <div style={{ padding: '16px', background: 'rgba(59, 130, 246, 0.05)', borderRadius: '16px', border: '1px solid rgba(59, 130, 246, 0.1)' }}>
-                        <p style={{ fontSize: '10px', fontWeight: '900', color: 'var(--accent-blue)', textTransform: 'uppercase', marginBottom: '8px' }}>Ley de Base</p>
-                        <p style={{ fontSize: '18px', fontWeight: '800', color: 'white' }}>{data.ley}</p>
-                      </div>
-                      <p style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: '1.6' }}>
-                        Protocolos de transparencia y control interno activos bajo normativa vigente para la mitigación de riesgos administrativos durante la transición.
-                      </p>
-                    </div>
-                  </Card>
+                          </thead>
+                          <tbody>
+                            {ORGANIGRAMA.map((sec, idx) => (
+                              <tr key={idx}>
+                                <td style={{ fontWeight: '700' }}>{sec.name}</td>
+                                <td>
+                                  <div className={`status-pill ${idx % 3 === 0 ? 'status-good' : 'status-warning'}`}>
+                                    {idx % 3 === 0 ? 'OPTIMO' : 'EN PROCESO'}
+                                  </div>
+                                </td>
+                                <td style={{ fontFamily: 'var(--font-mono)' }}>{Math.floor(Math.random() * 10) + 1}</td>
+                                <td style={{ width: '200px' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <div style={{ flex: 1, height: '4px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px' }}>
+                                      <div style={{ width: `${80 - idx * 5}%`, height: '100%', background: 'var(--accent-blue)', borderRadius: '10px' }} />
+                                    </div>
+                                    <span style={{ fontSize: '11px', fontWeight: '900' }}>{80 - idx * 5}%</span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <button className="btn btn-ghost" style={{ padding: '6px 12px', fontSize: '10px' }}>DETALLES</button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                       </div>
+                    </Card>
+                  </div>
                 </div>
 
                 {/* Alert Intelligence */}
@@ -538,8 +583,8 @@ const App = () => {
                 </div>
 
                 <div style={{ gridColumn: 'span 8' }}>
-                  <Card title="Calibración de Métricas">
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '32px' }}>
+                  <Card title="Calibración y Visualización de Métricas">
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginBottom: '32px' }}>
                       {data.indicadores.map(k => (
                         <div key={k.id} style={{ padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px solid var(--border-subtle)', position: 'relative' }}>
                            <button 
@@ -549,6 +594,26 @@ const App = () => {
                              <Trash2 size={14} />
                            </button>
                            <p style={{ fontSize: '10px', fontWeight: '900', color: 'var(--accent-blue)', textTransform: 'uppercase', marginBottom: '16px', paddingRight: '20px' }}>{k.label}</p>
+                           
+                           <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                              {['gauge', 'bar', 'trend'].map(vtype => (
+                                <button 
+                                  key={vtype}
+                                  onClick={() => setData({
+                                    ...data,
+                                    indicadores: data.indicadores.map(x => x.id === k.id ? { ...x, vizType: vtype } : x)
+                                  })}
+                                  style={{ 
+                                    padding: '4px 8px', fontSize: '9px', borderRadius: '4px', border: '1px solid var(--border-subtle)', cursor: 'pointer',
+                                    background: k.vizType === vtype ? 'var(--accent-blue)' : 'transparent',
+                                    color: k.vizType === vtype ? 'white' : 'var(--text-dim)'
+                                  }}
+                                >
+                                  {vtype.toUpperCase()}
+                                </button>
+                              ))}
+                           </div>
+
                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                              <input 
                                type="range" 
@@ -565,17 +630,29 @@ const App = () => {
                       ))}
                     </div>
 
-                    <div style={{ display: 'flex', gap: '16px', background: 'rgba(255,255,255,0.02)', padding: '24px', borderRadius: '16px', border: '1px dotted var(--border-subtle)' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', background: 'rgba(255,255,255,0.02)', padding: '24px', borderRadius: '16px', border: '1px dotted var(--border-subtle)', alignItems: 'center' }}>
                       <input 
                         className="custom-input"
+                        style={{ flex: 1, minWidth: '200px' }}
                         placeholder="Nombre de la nueva métrica..."
                         value={newMetricLabel}
                         onChange={e => setNewMetricLabel(e.target.value)}
                         onKeyPress={e => e.key === 'Enter' && handleAddMetric()}
                       />
-                      <button onClick={handleAddMetric} className="btn btn-primary">
-                        <Plus size={16} /> Añadir Métrica
-                      </button>
+                      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                        <button onClick={handleAddMetric} className="btn btn-primary">
+                          <Plus size={16} /> Añadir Métrica
+                        </button>
+                        <div style={{ width: '1px', height: '24px', background: 'var(--border-subtle)' }} />
+                        <button 
+                          onClick={() => setData({...data, isLive: !data.isLive})}
+                          className={`btn ${data.isLive ? 'btn-primary' : 'btn-ghost'}`}
+                          style={{ background: data.isLive ? 'var(--accent-emerald)' : '' }}
+                        >
+                          {data.isLive ? <Zap size={16} /> : <Zap size={16} />} 
+                          {data.isLive ? 'SIMULACIÓN ACTIVA' : 'MODO SIMULACIÓN'}
+                        </button>
+                      </div>
                     </div>
                   </Card>
                 </div>
