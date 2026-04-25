@@ -304,7 +304,85 @@ body {
   animation: slideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
-/* Utilities */
+/* Form Elements */
+.custom-input, .custom-select {
+  width: 100%;
+  padding: 14px 20px;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: white;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+  appearance: none;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.custom-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 48px;
+  cursor: pointer;
+}
+
+.custom-input:hover, .custom-select:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.custom-input:focus, .custom-select:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15), inset 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.custom-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.custom-select option {
+  background: #020617;
+  color: white;
+  padding: 12px;
+}
+
+/* Range Input Styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--accent-blue);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: var(--glow-blue);
+  border: 2px solid white;
+}
+
+/* Animations */
+@keyframes pulse-soft {
+  0% { opacity: 0.8; }
+  50% { opacity: 1; transform: scale(1.005); }
+  100% { opacity: 0.8; }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 3s infinite ease-in-out;
+}
+
+/* Utilities & Responsiveness */
 .hidden-mobile {
   display: flex;
 }
@@ -327,6 +405,10 @@ body {
   
   .dashboard-viewport {
     padding: 16px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
   }
 }
 

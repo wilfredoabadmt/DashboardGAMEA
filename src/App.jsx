@@ -284,21 +284,52 @@ const App = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [newMetricLabel, setNewMetricLabel] = useState('');
 
-  useEffect(() => {
-    let interval;
-    if (data.isLive) {
-      interval = setInterval(() => {
-        setData(prev => ({
-          ...prev,
-          indicadores: prev.indicadores.map(ind => ({
-            ...ind,
-            value: Math.min(100, Math.max(0, ind.value + (Math.random() > 0.5 ? 2 : -2)))
-          }))
-        }));
-      }, 1500);
+  const getDynamicAlert = () => {
+    const lowMetrics = data.indicadores.filter(ind => ind.value < 50);
+    if (lowMetrics.length > 0) {
+      return `ALERTA CRÍTICA: La ${data.secretaria} (${data.direccion}) presenta deficiencias en: ${lowMetrics.map(m => m.label).join(', ')}. Riesgo administrativo detectado.`;
     }
-    return () => clearInterval(interval);
-  }, [data.isLive]);
+    return `SITUACIÓN ESTABLE: ${data.secretaria} operando bajo parámetros normales. Monitoreo preventivo activo.`;
+  };
+
+  const downloadCSVTemplate = () => {
+    const headers = "id,label,value,vizType\n";
+    const rows = data.indicadores.map(ind => `${ind.id},${ind.label},${ind.value},${ind.vizType}`).join("\n");
+    const blob = new Blob([headers + rows], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    a.setAttribute('download', 'plantilla_gamea_metrics.csv');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  const handleCSVUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target.result;
+      const lines = text.split('\n').slice(1);
+      const newMetrics = lines.filter(l => l.trim()).map(line => {
+        const [id, label, value, vizType] = line.split(',');
+        return {
+          id: id || Date.now() + Math.random(),
+          label: label.replace(/"/g, '').trim(),
+          value: parseInt(value) || 0,
+          vizType: vizType?.trim() || 'gauge',
+          color: '#3b82f6'
+        };
+      });
+      setData({ ...data, indicadores: newMetrics });
+      alert('Datos cargados exitosamente desde CSV.');
+    };
+    reader.readAsText(file);
+  };
+
+  useEffect(() => {
 
   const handleSave = () => {
     const newReport = { ...data, id: Date.now().toString(), created: new Date().toISOString() };
@@ -509,20 +540,25 @@ const App = () => {
                 <motion.div 
                   className="glass-card animate-pulse-soft"
                   style={{ 
-                    padding: '24px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)',
+                    padding: '24px', 
+                    background: data.indicadores.some(i => i.value < 50) ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)', 
+                    border: `1px solid ${data.indicadores.some(i => i.value < 50) ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)'}`,
                     display: 'flex', alignItems: 'center', gap: '24px', flexDirection: 'row'
                   }}
                 >
                   <div style={{ 
-                    width: '56px', height: '56px', background: 'var(--accent-red)', borderRadius: '16px',
+                    width: '56px', height: '56px', 
+                    background: data.indicadores.some(i => i.value < 50) ? 'var(--accent-red)' : 'var(--accent-emerald)', 
+                    borderRadius: '16px',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white',
-                    boxShadow: 'var(--glow-red)', flexShrink: 0
+                    boxShadow: data.indicadores.some(i => i.value < 50) ? 'var(--glow-red)' : '0 0 20px rgba(16, 185, 129, 0.2)', 
+                    flexShrink: 0
                   }}>
-                    <AlertTriangle size={28} />
+                    {data.indicadores.some(i => i.value < 50) ? <AlertTriangle size={28} /> : <CheckCircle size={28} />}
                   </div>
                   <div>
-                    <p style={{ fontSize: '11px', fontWeight: '900', color: 'var(--accent-red)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Alert Intelligence</p>
-                    <p style={{ fontSize: '15px', fontWeight: '700', color: 'white', fontStyle: 'italic', marginTop: '4px' }}>"{data.alerta}"</p>
+                    <p style={{ fontSize: '11px', fontWeight: '900', color: data.indicadores.some(i => i.value < 50) ? 'var(--accent-red)' : 'var(--accent-emerald)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Alert Intelligence</p>
+                    <p style={{ fontSize: '15px', fontWeight: '700', color: 'white', fontStyle: 'italic', marginTop: '4px' }}>"{getDynamicAlert()}"</p>
                   </div>
                 </motion.div>
 
@@ -541,7 +577,9 @@ const App = () => {
                   <Card title="Entidad Gubernamental">
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                       <div>
-                        <label style={{ fontSize: '10px', fontWeight: '800', color: 'var(--text-dim)', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Secretaría</label>
+                        <label style={{ fontSize: '10px', fontWeight: '800', color: 'var(--text-dim)', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                          <Building2 size={12} color="var(--accent-blue)" /> Secretaría
+                        </label>
                         <select 
                           className="custom-select"
                           value={data.secretaria}
@@ -558,7 +596,9 @@ const App = () => {
                         </select>
                       </div>
                       <div>
-                        <label style={{ fontSize: '10px', fontWeight: '800', color: 'var(--text-dim)', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Dirección / Unidad</label>
+                        <label style={{ fontSize: '10px', fontWeight: '800', color: 'var(--text-dim)', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                          <MapPin size={12} color="var(--accent-blue)" /> Dirección / Unidad
+                        </label>
                         <select 
                           className="custom-select"
                           value={data.direccion}
@@ -570,7 +610,9 @@ const App = () => {
                         </select>
                       </div>
                       <div>
-                        <label style={{ fontSize: '10px', fontWeight: '800', color: 'var(--text-dim)', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Personal Acreditado</label>
+                        <label style={{ fontSize: '10px', fontWeight: '800', color: 'var(--text-dim)', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                          <UserCheck size={12} color="var(--accent-blue)" /> Personal Acreditado
+                        </label>
                         <input 
                           className="custom-input"
                           placeholder="Nombre del responsable..."
@@ -649,10 +691,19 @@ const App = () => {
                           className={`btn ${data.isLive ? 'btn-primary' : 'btn-ghost'}`}
                           style={{ background: data.isLive ? 'var(--accent-emerald)' : '' }}
                         >
-                          {data.isLive ? <Zap size={16} /> : <Zap size={16} />} 
-                          {data.isLive ? 'SIMULACIÓN ACTIVA' : 'MODO SIMULACIÓN'}
+                          <Zap size={16} /> {data.isLive ? 'SIMULACIÓN ACTIVA' : 'MODO SIMULACIÓN'}
                         </button>
                       </div>
+                    </div>
+
+                    <div style={{ marginTop: '24px', display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                      <button onClick={downloadCSVTemplate} className="btn btn-ghost" style={{ flex: 1 }}>
+                        <Download size={16} /> Descargar Plantilla CSV
+                      </button>
+                      <label className="btn btn-ghost" style={{ flex: 1, cursor: 'pointer', textAlign: 'center', justifyContent: 'center' }}>
+                        <Upload size={16} /> Cargar Datos (CSV)
+                        <input type="file" hidden accept=".csv" onChange={handleCSVUpload} />
+                      </label>
                     </div>
                   </Card>
                 </div>
