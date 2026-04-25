@@ -201,8 +201,8 @@ const FlowNode = ({ item, isLast }) => {
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
         <div style={{ 
           width: '40px', height: '40px', borderRadius: '50%', background: style.bg, color: 'white',
-          display: 'flex', alignItems: 'center', justifyCenter: 'center', border: '4px solid #020617',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.5)', zIndex: 10, justifyContent: 'center'
+          display: 'flex', alignItems: 'center', justifyContent: 'center', border: '4px solid #020617',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.5)', zIndex: 10
         }}>
           {style.icon}
         </div>
@@ -320,25 +320,35 @@ const App = () => {
         
         {/* HEADER */}
         <header style={{ 
-          position: 'sticky', top: 0, zIndex: 40, background: 'rgba(2, 6, 23, 0.8)', 
-          backdropFilter: 'blur(20px)', borderBottom: '1px solid var(--border-subtle)',
-          padding: '24px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+          position: 'sticky', top: 0, zIndex: 40, background: 'rgba(2, 6, 23, 0.95)', 
+          backdropFilter: 'blur(30px)', borderBottom: '1px solid var(--border-subtle)',
+          padding: '28px 60px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
         }}>
-          <div>
-            <h2 style={{ fontSize: '20px', fontWeight: '900', color: 'white', textTransform: 'uppercase', letterSpacing: '-0.02em' }}>{data.titulo}</h2>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '4px' }}>
-              <Building2 size={14} color="var(--accent-blue)" />
-              <p style={{ fontSize: '10px', fontWeight: '800', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.2em' }}>
-                {data.secretaria} / {data.direccion}
-              </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+            <div style={{ padding: '12px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '12px', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+              <LayoutDashboard size={24} color="var(--accent-blue)" />
+            </div>
+            <div>
+              <h2 style={{ fontSize: '24px', fontWeight: '900', color: 'white', textTransform: 'uppercase', letterSpacing: '-0.03em', lineHeight: 1 }}>{data.titulo}</h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '8px' }}>
+                <Building2 size={12} color="var(--accent-blue)" />
+                <p style={{ fontSize: '10px', fontWeight: '800', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.2em' }}>
+                  {data.secretaria} <span style={{ color: 'rgba(255,255,255,0.1)', margin: '0 8px' }}>|</span> {data.direccion}
+                </p>
+              </div>
             </div>
           </div>
-          <button onClick={handleSave} className="btn btn-primary">
-            <Save size={16} /> Guardar Informe
-          </button>
+          <div style={{ display: 'flex', gap: '16px' }}>
+            <button onClick={() => window.print()} className="btn btn-ghost" style={{ background: 'rgba(255,255,255,0.02)' }}>
+              <Download size={16} /> Exportar PDF
+            </button>
+            <button onClick={handleSave} className="btn btn-primary">
+              <Save size={16} /> Guardar Informe
+            </button>
+          </div>
         </header>
 
-        <div style={{ padding: '40px', maxWidth: '1600px', margin: '0 auto' }}>
+        <div style={{ padding: '40px 60px', width: '100%', margin: '0 auto' }}>
           <AnimatePresence mode="wait">
             
             {activeTab === 'dashboard' && (
@@ -351,15 +361,15 @@ const App = () => {
               >
                 {/* Top Row */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '32px' }}>
-                  <Card title="KPIs de Relevamiento" className="xl-col-span-5" style={{ gridColumn: 'span 5' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-around', padding: '16px 0' }}>
+                  <Card title="KPIs de Relevamiento" style={{ gridColumn: 'span 4' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center', padding: '16px 0' }}>
                       {data.indicadores.map(ind => (
                         <Gauge key={ind.id} {...ind} />
                       ))}
                     </div>
                   </Card>
 
-                  <Card title="Estado de Unidades" className="xl-col-span-7" style={{ gridColumn: 'span 7' }}>
+                  <Card title="Estado de Unidades" style={{ gridColumn: 'span 8' }}>
                     <table className="data-table">
                       <thead>
                         <tr>
