@@ -84,7 +84,7 @@ const FuturisticGauge = ({ value, label, color }) => (
           transition={{ duration: 1.5, ease: "easeOut" }}
           strokeLinecap="round"
           className="drop-shadow-[0_0_8px_var(--glow)]"
-          style={{ '--glow': color } as any}
+          style={{ '--glow': color }}
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
@@ -151,9 +151,9 @@ const App = () => {
 
   return (
     <div className="flex h-screen bg-[#030712] text-slate-200 overflow-hidden font-sans">
-      
+
       {/* --- SIDEBAR --- */}
-      <motion.aside 
+      <motion.aside
         animate={{ width: sidebarOpen ? 280 : 80 }}
         className="relative bg-slate-950/80 backdrop-blur-3xl border-r border-white/5 flex flex-col no-print z-50"
       >
@@ -178,11 +178,10 @@ const App = () => {
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center gap-4 p-4 rounded-xl transition-all ${
-                activeTab === item.id 
-                ? 'bg-blue-600/10 text-blue-400 border border-blue-500/20' 
+              className={`w-full flex items-center gap-4 p-4 rounded-xl transition-all ${activeTab === item.id
+                ? 'bg-blue-600/10 text-blue-400 border border-blue-500/20'
                 : 'text-slate-500 hover:bg-white/5 hover:text-slate-300'
-              }`}
+                }`}
             >
               <item.icon size={20} />
               {sidebarOpen && <span className="text-xs font-bold uppercase tracking-widest">{item.label}</span>}
@@ -194,7 +193,7 @@ const App = () => {
         </nav>
 
         <div className="p-4 border-t border-white/5">
-          <button 
+          <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="w-full flex items-center gap-4 p-4 text-slate-500 hover:text-white transition-colors"
           >
@@ -206,7 +205,7 @@ const App = () => {
 
       {/* --- MAIN CONTENT --- */}
       <main className="flex-1 overflow-y-auto relative custom-scroll">
-        
+
         {/* Decorative Background Elements */}
         <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-blue-600/5 blur-[120px] rounded-full -mr-40 -mt-40 pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-indigo-600/5 blur-[120px] rounded-full -ml-40 -mb-40 pointer-events-none" />
@@ -239,7 +238,7 @@ const App = () => {
 
         <div className="p-8 max-w-[1600px] mx-auto">
           <AnimatePresence mode="wait">
-            
+
             {/* --- DASHBOARD TAB --- */}
             {activeTab === 'dashboard' && (
               <motion.div
@@ -265,7 +264,7 @@ const App = () => {
                             <span className="text-white">{s.val}%</span>
                           </div>
                           <div className="h-1 bg-white/5 rounded-full overflow-hidden">
-                            <motion.div 
+                            <motion.div
                               initial={{ width: 0 }}
                               animate={{ width: `${s.val}%` }}
                               className="h-full bg-blue-500 shadow-[0_0_10px_#3b82f6]"
@@ -286,7 +285,7 @@ const App = () => {
                       <div className="flex-1 border-l border-b border-white/10 ml-12 mb-12 relative">
                         <div className="absolute -left-10 top-1/2 -rotate-90 text-[8px] font-bold text-slate-600 tracking-[0.5em]">IMPACT</div>
                         <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[8px] font-bold text-slate-600 tracking-[0.5em]">PROBABILITY</div>
-                        
+
                         {/* Grid zones */}
                         <div className="absolute inset-0 grid grid-cols-2 grid-rows-2">
                           <div className="border-r border-b border-white/5 bg-emerald-500/5" />
@@ -300,9 +299,8 @@ const App = () => {
                             key={i}
                             initial={{ scale: 0 }}
                             animate={{ scale: 1, left: `${(r.prob / 3) * 90}%`, top: `${100 - (r.imp / 3) * 90}%` }}
-                            className={`absolute -translate-x-1/2 -translate-y-1/2 p-3 rounded-full border-2 cursor-pointer transition-all hover:scale-150 z-20 group ${
-                              r.imp === 3 ? 'bg-red-600/20 border-red-500 shadow-[0_0_15px_#ef4444]' : 'bg-orange-600/20 border-orange-400 shadow-[0_0_15px_#f59e0b]'
-                            }`}
+                            className={`absolute -translate-x-1/2 -translate-y-1/2 p-3 rounded-full border-2 cursor-pointer transition-all hover:scale-150 z-20 group ${r.imp === 3 ? 'bg-red-600/20 border-red-500 shadow-[0_0_15px_#ef4444]' : 'bg-orange-600/20 border-orange-400 shadow-[0_0_15px_#f59e0b]'
+                              }`}
                           >
                             <div className="relative">
                               <span className="text-[10px] font-black text-white whitespace-nowrap absolute left-full ml-4 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 border border-white/10 px-3 py-1 rounded-md">
@@ -366,9 +364,9 @@ const App = () => {
 
                 {/* Print Export */}
                 <div className="no-print pt-10 flex justify-center">
-                   <button onClick={() => window.print()} className="bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 text-white px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.4em] shadow-2xl transition-all hover:-translate-y-1 active:scale-95 flex items-center gap-4">
-                     <Download size={20} /> Generate PDF Strategic Report
-                   </button>
+                  <button onClick={() => window.print()} className="bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 text-white px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.4em] shadow-2xl transition-all hover:-translate-y-1 active:scale-95 flex items-center gap-4">
+                    <Download size={20} /> Generate PDF Strategic Report
+                  </button>
                 </div>
               </motion.div>
             )}
@@ -387,9 +385,9 @@ const App = () => {
                     <div className="space-y-6">
                       <div>
                         <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Secretaría Municipal</label>
-                        <select 
-                          value={data.secretaria} 
-                          onChange={e => setData({...data, secretaria: e.target.value})}
+                        <select
+                          value={data.secretaria}
+                          onChange={e => setData({ ...data, secretaria: e.target.value })}
                           className="w-full bg-slate-950 border border-white/10 rounded-xl p-3 text-xs font-bold text-white focus:ring-2 ring-blue-600/40 outline-none"
                         >
                           {ORGANIGRAMA.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
@@ -397,18 +395,18 @@ const App = () => {
                       </div>
                       <div>
                         <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Unidad Operativa</label>
-                        <input 
-                          value={data.direccion} 
-                          onChange={e => setData({...data, direccion: e.target.value})}
-                          className="w-full bg-slate-950 border border-white/10 rounded-xl p-3 text-xs font-bold text-white outline-none" 
+                        <input
+                          value={data.direccion}
+                          onChange={e => setData({ ...data, direccion: e.target.value })}
+                          className="w-full bg-slate-950 border border-white/10 rounded-xl p-3 text-xs font-bold text-white outline-none"
                         />
                       </div>
                       <div>
                         <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-2">Acreditado Responsable</label>
-                        <input 
-                          value={data.acreditado} 
-                          onChange={e => setData({...data, acreditado: e.target.value})}
-                          className="w-full bg-slate-950 border border-white/10 rounded-xl p-3 text-xs font-bold text-white outline-none" 
+                        <input
+                          value={data.acreditado}
+                          onChange={e => setData({ ...data, acreditado: e.target.value })}
+                          className="w-full bg-slate-950 border border-white/10 rounded-xl p-3 text-xs font-bold text-white outline-none"
                         />
                       </div>
                     </div>
@@ -420,7 +418,7 @@ const App = () => {
                     <p className="text-[11px] text-blue-100 mb-6 leading-relaxed">Fast-track your dashboard setup with CSV data ingestion.</p>
                     <input type="file" ref={fileInputRef} onChange={handleImport} className="hidden" accept=".csv" />
                     <button onClick={() => fileInputRef.current.click()} className="w-full bg-white text-blue-700 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl hover:bg-blue-50 transition-colors">
-                      <Upload size={14}/> Upload CSV
+                      <Upload size={14} /> Upload CSV
                     </button>
                   </div>
                 </div>
@@ -430,30 +428,30 @@ const App = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {data.indicadores.map(k => (
                         <div key={k.id} className="bg-slate-950/60 border border-white/5 p-6 rounded-2xl relative group">
-                          <button 
-                            onClick={() => setData({...data, indicadores: data.indicadores.filter(x => x.id !== k.id)})}
+                          <button
+                            onClick={() => setData({ ...data, indicadores: data.indicadores.filter(x => x.id !== k.id) })}
                             className="absolute top-4 right-4 text-slate-700 hover:text-red-500 transition-colors"
                           >
-                            <Trash2 size={14}/>
+                            <Trash2 size={14} />
                           </button>
-                          <input 
-                            value={k.label} 
-                            onChange={e => setData({...data, indicadores: data.indicadores.map(x => x.id === k.id ? {...x, label: e.target.value.toUpperCase()} : x)})} 
-                            className="bg-transparent border-none text-[10px] font-black text-blue-500 uppercase outline-none mb-4 w-full tracking-widest" 
+                          <input
+                            value={k.label}
+                            onChange={e => setData({ ...data, indicadores: data.indicadores.map(x => x.id === k.id ? { ...x, label: e.target.value.toUpperCase() } : x) })}
+                            className="bg-transparent border-none text-[10px] font-black text-blue-500 uppercase outline-none mb-4 w-full tracking-widest"
                           />
                           <div className="flex items-center gap-6">
-                            <input 
-                              type="range" 
-                              value={k.value} 
-                              onChange={e => setData({...data, indicadores: data.indicadores.map(x => x.id === k.id ? {...x, value: parseInt(e.target.value)} : x)})} 
-                              className="flex-1 accent-blue-600 h-1.5" 
+                            <input
+                              type="range"
+                              value={k.value}
+                              onChange={e => setData({ ...data, indicadores: data.indicadores.map(x => x.id === k.id ? { ...x, value: parseInt(e.target.value) } : x) })}
+                              className="flex-1 accent-blue-600 h-1.5"
                             />
                             <span className="text-lg font-black text-white tabular-nums">{k.value}%</span>
                           </div>
                         </div>
                       ))}
-                      <button 
-                        onClick={() => setData({...data, indicadores: [...data.indicadores, {id: Date.now(), label: 'NEW KPI', value: 0, color: '#3b82f6'}]})}
+                      <button
+                        onClick={() => setData({ ...data, indicadores: [...data.indicadores, { id: Date.now(), label: 'NEW KPI', value: 0, color: '#3b82f6' }] })}
                         className="border-2 border-dashed border-slate-800 rounded-2xl p-6 flex flex-col items-center justify-center text-slate-600 hover:text-blue-500 hover:border-blue-500/40 transition-all"
                       >
                         <PlusCircle size={32} />
@@ -486,13 +484,13 @@ const App = () => {
                       <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest truncate">{r.secretaria}</p>
                     </div>
                     <div className="flex gap-2">
-                      <button 
+                      <button
                         onClick={() => { setData(r); setCurrentId(r.id); setActiveTab('dashboard'); }}
                         className="flex-1 bg-white text-slate-950 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-blue-400 transition-colors flex items-center justify-center gap-2"
                       >
                         <Eye size={14} /> View HUD
                       </button>
-                      <button 
+                      <button
                         onClick={() => {
                           const filtered = reports.filter(item => item.id !== r.id);
                           saveToLocal(filtered);
