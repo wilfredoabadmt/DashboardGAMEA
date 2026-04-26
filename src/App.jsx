@@ -63,10 +63,24 @@ const SCENARIOS = {
   NORMAL: {
     label: 'Operación Normal',
     indicadores: [
-      { id: 1, label: 'Documentación Normativa', value: 85, status: 'good', color: '#3b82f6', vizType: 'gauge' },
-      { id: 2, label: 'Inventarios de Hardware', value: 60, status: 'warning', color: '#06b6d4', vizType: 'bar' },
-      { id: 3, label: 'Códigos Fuente y Credenciales', value: 45, status: 'warning', color: '#f59e0b', vizType: 'gauge' },
-      { id: 4, label: 'Sistemas Desarrollados', value: 92, status: 'good', color: '#8b5cf6', vizType: 'trend' }
+      { id: 1, label: 'Documentación Normativa', value: 85, status: 'good', color: '#3b82f6', vizType: 'gauge', params: [
+        { id: 101, label: 'Manuales de Funciones', done: true },
+        { id: 102, label: 'Reglamentos Internos', done: true },
+        { id: 103, label: 'POA Actualizado', done: false }
+      ]},
+      { id: 2, label: 'Inventarios de Hardware', value: 60, status: 'warning', color: '#06b6d4', vizType: 'bar', params: [
+        { id: 201, label: 'Activos Fijos Registrados', done: true },
+        { id: 202, label: 'Estado de Servidores', done: false }
+      ]},
+      { id: 3, label: 'Códigos Fuente y Credenciales', value: 45, status: 'warning', color: '#f59e0b', vizType: 'gauge', params: [
+        { id: 301, label: 'Repositorios Git', done: true },
+        { id: 302, label: 'Contraseñas de Servidor', done: false },
+        { id: 303, label: 'API Keys de Producción', done: false }
+      ]},
+      { id: 4, label: 'Sistemas Desarrollados', value: 92, status: 'good', color: '#8b5cf6', vizType: 'trend', params: [
+        { id: 401, label: 'Módulo Administrativo', done: true },
+        { id: 402, label: 'Módulo de Trámites', done: true }
+      ]}
     ],
     solicitudes: [
       { unidad: 'UASI', notas: 3, estado: 'Respuesta Parcial', color: 'emerald', icon: 'check' },
@@ -86,10 +100,23 @@ const SCENARIOS = {
   CRISIS: {
     label: 'Situación de Bloqueo',
     indicadores: [
-      { id: 1, label: 'Documentación Normativa', value: 85, status: 'good', color: '#3b82f6', vizType: 'gauge' },
-      { id: 2, label: 'Inventarios de Hardware', value: 60, status: 'warning', color: '#06b6d4', vizType: 'bar' },
-      { id: 3, label: 'Códigos Fuente y Credenciales', value: 0, status: 'locked', color: '#ef4444', vizType: 'gauge' },
-      { id: 4, label: 'Sistemas Desarrollados', value: 10, status: 'locked', color: '#ef4444', vizType: 'trend' }
+      { id: 1, label: 'Documentación Normativa', value: 85, status: 'good', color: '#3b82f6', vizType: 'gauge', params: [
+        { id: 101, label: 'Manuales de Funciones', done: true },
+        { id: 102, label: 'Reglamentos Internos', done: true },
+        { id: 103, label: 'POA Actualizado', done: false }
+      ]},
+      { id: 2, label: 'Inventarios de Hardware', value: 60, status: 'warning', color: '#06b6d4', vizType: 'bar', params: [
+        { id: 201, label: 'Activos Fijos Registrados', done: true },
+        { id: 202, label: 'Estado de Servidores', done: false }
+      ]},
+      { id: 3, label: 'Códigos Fuente y Credenciales', value: 0, status: 'locked', color: '#ef4444', vizType: 'gauge', params: [
+        { id: 301, label: 'Repositorios Git', done: false },
+        { id: 302, label: 'Contraseñas de Servidor', done: false }
+      ]},
+      { id: 4, label: 'Sistemas Desarrollados', value: 10, status: 'locked', color: '#ef4444', vizType: 'trend', params: [
+        { id: 401, label: 'Core Banking', done: false },
+        { id: 402, label: 'Módulo de Pagos', done: false }
+      ]}
     ],
     solicitudes: [
       { unidad: 'UASI', notas: 3, estado: 'Respuesta Parcial (DAGA/127)', color: 'emerald', icon: 'check' },
@@ -123,21 +150,72 @@ const INITIAL_DATA = {
 
 // --- HELPER COMPONENTS ---
 
-const Card = ({ children, title, subtitle, className = "", style = {}, icon: Icon }) => (
-  <motion.div 
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    className={`glass-card ${className}`}
-    style={style}
-  >
-    {(title || subtitle) && (
-      <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-        {Icon && <Icon size={16} color="var(--accent-blue)" />}
-        <div>
-          {title && <h3 style={{ fontSize: '12px', color: 'white', textTransform: 'uppercase', letterSpacing: '0.2em', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '6px', height: '6px', background: 'var(--accent-blue)', borderRadius: '50%', boxShadow: 'var(--glow-blue)' }} />
-            {title}
-          </h3>}
+const DetailModal = ({ item, onClose }) => {
+  if (!item) return null;
+  
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      style={{ 
+        position: 'fixed', inset: 0, zIndex: 1000, 
+        background: 'rgba(2, 6, 23, 0.9)', backdropFilter: 'blur(20px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px'
+      }}
+      onClick={onClose}
+    >
+      <motion.div 
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        className="glass-card"
+        style={{ width: '100%', maxWidth: '600px', border: '1px solid var(--accent-blue)', boxShadow: '0 0 50px rgba(59, 130, 246, 0.2)' }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
+          <div>
+            <p style={{ fontSize: '10px', fontWeight: '900', color: 'var(--accent-blue)', textTransform: 'uppercase', letterSpacing: '0.2em' }}>Detalles de Inteligencia</p>
+            <h2 style={{ fontSize: '24px', fontWeight: '900', color: 'white', marginTop: '4px' }}>{item.label}</h2>
+          </div>
+          <button onClick={onClose} className="btn btn-ghost" style={{ padding: '8px' }}>
+            <X size={24} />
+          </button>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {(item.params || []).map(p => (
+            <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid var(--border-subtle)' }}>
+              <div style={{ 
+                width: '24px', height: '24px', borderRadius: '6px', 
+                background: p.done ? 'var(--accent-emerald)' : 'rgba(255,255,255,0.05)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white'
+              }}>
+                {p.done && <Check size={14} strokeWidth={3} />}
+              </div>
+              <span style={{ fontSize: '14px', color: p.done ? 'white' : 'var(--text-dim)', fontWeight: p.done ? '600' : '400', flex: 1 }}>{p.label}</span>
+              <span style={{ fontSize: '10px', fontWeight: '900', color: p.done ? 'var(--accent-emerald)' : 'var(--accent-amber)' }}>
+                {p.done ? 'COMPLETADO' : 'PENDIENTE'}
+              </span>
+            </div>
+          ))}
+          {(!item.params || item.params.length === 0) && (
+             <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-dim)' }}>
+               No se han definido parámetros para esta métrica.
+             </div>
+          )}
+        </div>
+
+        <div style={{ marginTop: '40px', paddingTop: '24px', borderTop: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <p style={{ fontSize: '10px', fontWeight: '800', color: 'var(--text-dim)' }}>CUMPLIMIENTO TOTAL</p>
+            <p style={{ fontSize: '20px', fontWeight: '900', color: 'white' }}>{item.value}%</p>
+          </div>
+          <button onClick={onClose} className="btn btn-primary">Entendido</button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
           {subtitle && <p style={{ fontSize: '10px', color: 'var(--text-dim)', textTransform: 'uppercase', marginTop: '4px', marginLeft: '14px', letterSpacing: '0.1em' }}>{subtitle}</p>}
         </div>
       </div>
@@ -283,7 +361,13 @@ const App = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [newMetricLabel, setNewMetricLabel] = useState('');
+  const [selectedDetail, setSelectedDetail] = useState(null);
 
+  const calculateCompliance = (params = []) => {
+    if (params.length === 0) return 0;
+    const done = params.filter(p => p.done).length;
+    return Math.round((done / params.length) * 100);
+  };
   const getDynamicAlert = () => {
     const lowMetrics = data.indicadores.filter(ind => ind.value < 50);
     if (lowMetrics.length > 0) {
@@ -320,7 +404,8 @@ const App = () => {
           label: label.replace(/"/g, '').trim(),
           value: parseInt(value) || 0,
           vizType: vizType?.trim() || 'gauge',
-          color: '#3b82f6'
+          color: '#3b82f6',
+          params: []
         };
       });
       setData({ ...data, indicadores: newMetrics });
@@ -347,7 +432,8 @@ const App = () => {
       value: 0,
       status: 'warning',
       color: '#3b82f6',
-      vizType: 'gauge'
+      vizType: 'gauge',
+      params: []
     };
     setData({
       ...data,
@@ -488,6 +574,13 @@ const App = () => {
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '160px' }}>
                           <Visualizer type={k.vizType} value={k.value} color={k.color} label={k.label} />
                           <p style={{ marginTop: '16px', fontSize: '10px', fontWeight: '800', color: 'var(--text-dim)', textAlign: 'center' }}>{k.label.toUpperCase()}</p>
+                          <button 
+                            onClick={() => setSelectedDetail(k)}
+                            className="btn btn-ghost" 
+                            style={{ marginTop: '16px', padding: '6px 12px', fontSize: '9px', width: '100%', justifyContent: 'center' }}
+                          >
+                            VER DETALLES
+                          </button>
                         </div>
                       </Card>
                     </div>
@@ -525,7 +618,21 @@ const App = () => {
                                   </div>
                                 </td>
                                 <td>
-                                  <button className="btn btn-ghost" style={{ padding: '6px 12px', fontSize: '10px' }}>DETALLES</button>
+                                  <button 
+                                    className="btn btn-ghost" 
+                                    style={{ padding: '6px 12px', fontSize: '10px' }}
+                                    onClick={() => setSelectedDetail({
+                                      label: sec.name,
+                                      value: 80 - idx * 5,
+                                      params: [
+                                        { id: 1, label: 'Documentación Técnica', done: idx % 2 === 0 },
+                                        { id: 2, label: 'Inventario Físico', done: idx % 3 === 0 },
+                                        { id: 3, label: 'Certificación Legal', done: true }
+                                      ]
+                                    })}
+                                  >
+                                    DETALLES
+                                  </button>
                                 </td>
                               </tr>
                             ))}
@@ -748,6 +855,15 @@ const App = () => {
           GAMEA STRATEGIC HUD v2.7.0 // SECURITY LEVEL 4
         </p>
       </div>
+
+      <AnimatePresence>
+        {selectedDetail && (
+          <DetailModal 
+            item={selectedDetail} 
+            onClose={() => setSelectedDetail(null)} 
+          />
+        )}
+      </AnimatePresence>
 
     </div>
   );
