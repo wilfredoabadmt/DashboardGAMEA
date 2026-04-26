@@ -377,9 +377,12 @@ const App = () => {
   };
 
   const downloadCSVTemplate = () => {
-    const headers = "id,label,value,vizType\n";
-    const rows = data.indicadores.map(ind => `${ind.id},${ind.label},${ind.value},${ind.vizType}`).join("\n");
-    const blob = new Blob([headers + rows], { type: 'text/csv' });
+    const headers = "id,label,value,vizType,params\n";
+    const rows = data.indicadores.map(ind => {
+      const paramsStr = (ind.params || []).map(p => `${p.label}:${p.done ? 1 : 0}`).join('|');
+      return `${ind.id},"${ind.label}",${ind.value},${ind.vizType},"${paramsStr}"`;
+    }).join("\n");
+    const blob = new Blob([headers + rows], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.setAttribute('hidden', '');
@@ -398,18 +401,30 @@ const App = () => {
       const text = event.target.result;
       const lines = text.split('\n').slice(1);
       const newMetrics = lines.filter(l => l.trim()).map(line => {
-        const [id, label, value, vizType] = line.split(',');
+        // Basic CSV parser handle quotes for labels/params
+        const parts = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
+        const id = parts[0];
+        const label = parts[1]?.replace(/"/g, '') || 'Sin Etiqueta';
+        const value = parseInt(parts[2]) || 0;
+        const vizType = parts[3]?.trim() || 'gauge';
+        const paramsRaw = parts[4]?.replace(/"/g, '') || '';
+        
+        const params = paramsRaw ? paramsRaw.split('|').map((p, i) => {
+          const [pLabel, pStatus] = p.split(':');
+          return { id: Date.now() + i, label: pLabel, done: pStatus === '1' };
+        }) : [];
+
         return {
           id: id || Date.now() + Math.random(),
-          label: label.replace(/"/g, '').trim(),
-          value: parseInt(value) || 0,
-          vizType: vizType?.trim() || 'gauge',
+          label,
+          value: params.length > 0 ? calculateCompliance(params) : value,
+          vizType,
           color: '#3b82f6',
-          params: []
+          params
         };
       });
       setData({ ...data, indicadores: newMetrics });
-      alert('Datos cargados exitosamente desde CSV.');
+      alert('Datos con parámetros cargados exitosamente.');
     };
     reader.readAsText(file);
   };
