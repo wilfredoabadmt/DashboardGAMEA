@@ -2,13 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   AlertTriangle, CheckCircle, Clock, BarChart3, FileText, ShieldAlert,
-  UserCheck, Eye, Edit3, Server, Database, Lock, Download,
+  UserCheck, Eye, Edit3, Server, Database, Lock, Download, Check,
   Gavel, Briefcase, Users, TrendingUp, Trash2, PlusCircle,
   XCircle, Info, Scale, Activity, Building2, Save, FolderOpen, Loader2,
   Upload, FileUp, Sparkles, Plus, Minus, FileSpreadsheet, Layers,
   ChevronRight, Zap, Target, PieChart, LineChart, Globe, Terminal, Search,
   LayoutDashboard, History, Settings, LogOut, Menu, X, ArrowRight, MousePointer2,
-  LockKeyhole, AlertCircle, Hand, ChevronDown
+  LockKeyhole, AlertCircle, Hand, ChevronDown, MapPin
 } from 'lucide-react';
 import { fetchDashboardConfig, saveDashboardConfig, fetchIndicadores, syncIndicadores } from './lib/db';
 
