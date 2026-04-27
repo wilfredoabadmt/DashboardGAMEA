@@ -10,6 +10,8 @@ import {
   LayoutDashboard, History, Settings, LogOut, Menu, X, ArrowRight, MousePointer2,
   LockKeyhole, AlertCircle, Hand, ChevronDown
 } from 'lucide-react';
+import { fetchDashboardConfig, saveDashboardConfig, fetchIndicadores, syncIndicadores } from './lib/db';
+
 
 // --- DATA CONSTANTS ---
 const ORGANIGRAMA = [
@@ -216,6 +218,20 @@ const DetailModal = ({ item, onClose }) => {
     </motion.div>
   );
 };
+
+const Card = ({ title, subtitle, icon: Icon, children }) => (
+  <motion.div 
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    className="glass-card"
+    style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+  >
+    {title && (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '16px' }}>
+        {Icon && <div style={{ padding: '8px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px' }}><Icon size={18} color="var(--accent-blue)" /></div>}
+        <div>
+          <h3 style={{ fontSize: '12px', fontWeight: '900', color: 'white', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{title}</h3>
           {subtitle && <p style={{ fontSize: '10px', color: 'var(--text-dim)', textTransform: 'uppercase', marginTop: '4px', marginLeft: '14px', letterSpacing: '0.1em' }}>{subtitle}</p>}
         </div>
       </div>
@@ -227,6 +243,7 @@ const DetailModal = ({ item, onClose }) => {
 );
 
 const Gauge = ({ value, color, status, size = 120 }) => {
+
   const isLocked = status === 'locked';
   const displayColor = isLocked ? 'var(--accent-red)' : color;
   
@@ -430,14 +447,48 @@ const App = () => {
   };
 
   useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [config, indicadores] = await Promise.all([
+          fetchDashboardConfig(),
+          fetchIndicadores()
+        ]);
+        
+        if (config || indicadores.length > 0) {
+          setData(prev => ({
+            ...prev,
+            ...(config || {}),
+            indicadores: indicadores.length > 0 ? indicadores.map(ind => ({
+              ...ind,
+              vizType: ind.viz_type // Map snake_case from DB to camelCase
+            })) : prev.indicadores
+          }));
+        }
+      } catch (error) {
+        console.error('Error loading data from Supabase:', error);
+      }
+    };
+    loadData();
+  }, []);
 
-  const handleSave = () => {
-    const newReport = { ...data, id: Date.now().toString(), created: new Date().toISOString() };
-    const updated = [...reports, newReport];
-    setReports(updated);
-    localStorage.setItem('gamea-reports-v5', JSON.stringify(updated));
-    alert('Informe guardado en el archivo local.');
+  const handleSave = async () => {
+    try {
+      await Promise.all([
+        saveDashboardConfig(data),
+        syncIndicadores(data.indicadores)
+      ]);
+      
+      const newReport = { ...data, id: Date.now().toString(), created: new Date().toISOString() };
+      const updated = [...reports, newReport];
+      setReports(updated);
+      localStorage.setItem('gamea-reports-v5', JSON.stringify(updated));
+      alert('¡Dashboard sincronizado con Supabase exitosamente!');
+    } catch (error) {
+      console.error('Error saving to Supabase:', error);
+      alert('Error al guardar en la base de datos.');
+    }
   };
+
 
   const handleAddMetric = () => {
     if (!newMetricLabel.trim()) return;
