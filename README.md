@@ -1,8 +1,8 @@
 # 🏛️ GAMEA: Tablero Estratégico de Transición Gubernamental 2026
 
-### Gestión de Fiscalización y Relevamiento —— Elieser Roca Tancara
+### Gestión de Fiscalización y Relevamiento —— Eliser Roca Tancara
 
-Este sistema de alta fidelidad ha sido diseñado específicamente para la administración del **Alcalde Electo de El Alto, Elieser Roca**, como herramienta central para la recepción de activos, procesos y documentación de la gestión saliente de la **Alcaldesa Eva Copa**.
+Este sistema de alta fidelidad ha sido diseñado específicamente para la administración del **Alcalde Electo de El Alto, Eliser Roca**, como herramienta central para la recepción de activos, procesos y documentación de la gestión saliente de la **Alcaldesa Eva Copa**.
 
 ## 📊 Propósito del Proyecto
 

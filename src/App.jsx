@@ -22,7 +22,7 @@ const TerminalConsole = () => {
     { text: 'SYSTEM ALPHA v2.7.0 BOOTING...', type: 'info' },
     { text: 'CONNECTING TO GAMEA SECURE NODES...', type: 'info' },
     { text: 'IDENTIFYING TRANSITION ASSETS...', type: 'info' },
-    { text: 'ACCESS GRANTED: MAYOR ELECT ELIESER ROCA OFFICE', type: 'success' },
+    { text: 'ACCESS GRANTED: MAYOR ELECT ELISER ROCA OFFICE', type: 'success' },
   ]);
 
   useEffect(() => {
@@ -202,7 +202,7 @@ const App = () => {
           {(!sidebarCollapsed || mobileMenuOpen) && (
             <div style={{ overflow: 'hidden' }}>
               <h1 style={{ fontSize: '14px', fontWeight: '900', color: 'white', textTransform: 'uppercase', letterSpacing: '0.1em' }}>TRANSICIÓN GAMEA</h1>
-              <p style={{ fontSize: '8px', color: 'var(--text-dim)', fontWeight: '800', textTransform: 'uppercase' }}>Gestión Elieser Roca</p>
+              <p style={{ fontSize: '8px', color: 'var(--text-dim)', fontWeight: '800', textTransform: 'uppercase' }}>Gestión Eliser Roca</p>
             </div>
           )}
         </div>
@@ -287,7 +287,7 @@ const App = () => {
                 <p style={{ fontSize: '9px', color: 'var(--accent-cyan)', fontWeight: '700' }}>ALCALDE ELECTO</p>
               </div>
               <div style={{ width: '36px', height: '36px', borderRadius: '50%', border: '2px solid var(--accent-cyan)', overflow: 'hidden' }}>
-                <img src="https://i.pravatar.cc/100?u=elieser" alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src="https://i.pravatar.cc/100?u=eliser" alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
             </div>
           </div>
@@ -344,7 +344,7 @@ const App = () => {
 
       <div className="hidden-mobile" style={{ position: 'fixed', bottom: '24px', right: '32px', zIndex: 100, pointerEvents: 'none' }}>
         <p style={{ fontSize: '8px', fontWeight: '900', color: 'rgba(255,255,255,0.1)', letterSpacing: '0.5em', textTransform: 'uppercase' }}>
-          GAMEA TRANSITION HUD v2.7.0 // MAYOR ELECT ELIESER ROCA
+          GAMEA TRANSITION HUD v2.7.0 // MAYOR ELECT ELISER ROCA
         </p>
       </div>
 

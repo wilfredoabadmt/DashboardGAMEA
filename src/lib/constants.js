@@ -232,10 +232,10 @@ export const SCENARIOS = {
 
 export const INITIAL_DATA = {
   titulo: 'TABLERO DE TRANSICIÓN GUBERNAMENTAL GAMEA',
-  subtitulo: 'SISTEMA DE CONTROL Y FISCALIZACIÓN - GESTIÓN ELIESER ROCA',
+  subtitulo: 'SISTEMA DE CONTROL Y FISCALIZACIÓN - GESTIÓN ELISER ROCA',
   fecha: new Date().toISOString().split('T')[0],
   acreditado: 'Equipo de Transición Estratégica',
-  alcalde_electo: 'Elieser Roca Tancara',
+  alcalde_electo: 'Eliser Roca Tancara',
   alcaldesa_saliente: 'Eva Copa Murga',
   institucion: 'Gobierno Autónomo Municipal de El Alto',
   isLive: false,

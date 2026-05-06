@@ -52,7 +52,7 @@ const PanelControlScreen = ({ data }) => {
   const [filterSec, setFilterSec] = useState('ALL');
 
   const dashboardData = data || {
-    alcalde_electo: 'Elieser Roca Tancara',
+    alcalde_electo: 'Eliser Roca Tancara',
     alcaldesa_saliente: 'Eva Copa Murga',
     indicadores: [],
     procesos: [],
