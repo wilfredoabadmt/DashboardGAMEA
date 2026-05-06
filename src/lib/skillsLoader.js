@@ -40,8 +40,6 @@ function parseFrontmatter(content) {
  */
 export async function loadSkills() {
   try {
-    // Importa dinámicamente los metadatos de skills
-    // Esta es una aproximación que funciona en tiempo de build
     const skillsMetadata = {
       'ab-test-setup': {
         name: 'ab-test-setup',
@@ -109,15 +107,69 @@ export async function loadSkills() {
         category: 'marketing',
         version: '1.0.0'
       },
-      'paid-ads': {
-        name: 'paid-ads',
-        description: 'Estrategia y optimización de campañas pagadas',
+      'email-sequence': {
+        name: 'email-sequence',
+        description: 'Diseña secuencias de correo automatizadas',
+        category: 'marketing',
+        version: '1.0.0'
+      },
+      'form-cro': {
+        name: 'form-cro',
+        description: 'Optimiza formularios para mayor conversión',
+        category: 'marketing',
+        version: '1.0.0'
+      },
+      'free-tool-strategy': {
+        name: 'free-tool-strategy',
+        description: 'Estrategia de herramientas gratuitas para captación',
+        category: 'marketing',
+        version: '1.0.0'
+      },
+      'launch-strategy': {
+        name: 'launch-strategy',
+        description: 'Planificación de lanzamientos de productos',
+        category: 'marketing',
+        version: '1.0.0'
+      },
+      'marketing-ideas': {
+        name: 'marketing-ideas',
+        description: 'Generación de ideas creativas de marketing',
+        category: 'marketing',
+        version: '1.0.0'
+      },
+      'marketing-psychology': {
+        name: 'marketing-psychology',
+        description: 'Aplicación de psicología al marketing',
+        category: 'marketing',
+        version: '1.0.0'
+      },
+      'onboarding-cro': {
+        name: 'onboarding-cro',
+        description: 'Optimización del proceso de bienvenida',
         category: 'marketing',
         version: '1.0.0'
       },
       'page-cro': {
         name: 'page-cro',
         description: 'Optimiza páginas para conversión',
+        category: 'marketing',
+        version: '1.0.0'
+      },
+      'paid-ads': {
+        name: 'paid-ads',
+        description: 'Estrategia y optimización de campañas pagadas',
+        category: 'marketing',
+        version: '1.0.0'
+      },
+      'paywall-upgrade-cro': {
+        name: 'paywall-upgrade-cro',
+        description: 'Optimización de muros de pago y upgrades',
+        category: 'marketing',
+        version: '1.0.0'
+      },
+      'popup-cro': {
+        name: 'popup-cro',
+        description: 'Optimización de popups y captación',
         category: 'marketing',
         version: '1.0.0'
       },
@@ -139,9 +191,51 @@ export async function loadSkills() {
         category: 'marketing',
         version: '1.0.0'
       },
+      'referral-program': {
+        name: 'referral-program',
+        description: 'Diseña programas de referidos efectivos',
+        category: 'marketing',
+        version: '1.0.0'
+      },
+      'revops': {
+        name: 'revops',
+        description: 'Optimización de operaciones de ingresos',
+        category: 'marketing',
+        version: '1.0.0'
+      },
+      'sales-enablement': {
+        name: 'sales-enablement',
+        description: 'Capacitación y herramientas para ventas',
+        category: 'marketing',
+        version: '1.0.0'
+      },
+      'schema-markup': {
+        name: 'schema-markup',
+        description: 'Implementación de datos estructurados',
+        category: 'marketing',
+        version: '1.0.0'
+      },
       'seo-audit': {
         name: 'seo-audit',
         description: 'Audita y diagnostica problemas SEO',
+        category: 'marketing',
+        version: '1.0.0'
+      },
+      'signup-flow-cro': {
+        name: 'signup-flow-cro',
+        description: 'Optimización del flujo de registro',
+        category: 'marketing',
+        version: '1.0.0'
+      },
+      'site-architecture': {
+        name: 'site-architecture',
+        description: 'Optimización de arquitectura web',
+        category: 'marketing',
+        version: '1.0.0'
+      },
+      'social-content': {
+        name: 'social-content',
+        description: 'Estrategia de contenido para redes sociales',
         category: 'marketing',
         version: '1.0.0'
       }
