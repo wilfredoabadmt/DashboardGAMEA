@@ -12,7 +12,6 @@ import GabineteOrganigramaScreen from './components/screens/GabineteOrganigramaS
 import SeguimientoScreen from './components/screens/SeguimientoScreen';
 import ReportesScreen from './components/screens/ReportesScreen';
 import CargaInformacionScreen from './components/screens/CargaInformacionScreen';
-import SkillsPanel from './components/SkillsPanel';
 
 // Lib & Constants
 import { fetchDashboardConfig, saveDashboardConfig, fetchIndicadores, syncIndicadores } from './lib/db';
@@ -225,10 +224,6 @@ const App = () => {
             <FileText size={18} />
             {(!sidebarCollapsed || mobileMenuOpen) && <span>REPORTES PRENSA</span>}
           </button>
-          <button onClick={() => { setActiveTab('habilidades'); setMobileMenuOpen(false); }} className={`nav-item ${activeTab === 'habilidades' ? 'active' : ''}`}>
-            <Settings size={18} />
-            {(!sidebarCollapsed || mobileMenuOpen) && <span>CONFIGURACIÓN</span>}
-          </button>
           <button onClick={() => { setActiveTab('carga'); setMobileMenuOpen(false); }} className={`nav-item ${activeTab === 'carga' ? 'active' : ''}`}>
             <Upload size={18} />
             {(!sidebarCollapsed || mobileMenuOpen) && <span>CARGA DIGITAL</span>}
@@ -322,12 +317,6 @@ const App = () => {
             {activeTab === 'reportes' && (
               <motion.div key="reportes" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 <ReportesScreen />
-              </motion.div>
-            )}
-
-            {activeTab === 'habilidades' && (
-              <motion.div key="habilidades" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                <SkillsPanel />
               </motion.div>
             )}
 
