@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, Users, Activity, FileText, Upload, Terminal as TerminalIcon,
-  LogOut, Menu, Search, AlertCircle, Settings, Info, X
+  LogOut, Menu, Search, AlertCircle, Settings, Info, ShieldAlert
 } from 'lucide-react';
 import Papa from 'papaparse';
 
@@ -21,28 +21,28 @@ import { INITIAL_DATA } from './lib/constants';
 const TerminalConsole = () => {
   const [lines, setLines] = useState([
     { text: 'SYSTEM ALPHA v2.7.0 BOOTING...', type: 'info' },
-    { text: 'CONNECTING TO SUPABASE CLUSTER...', type: 'info' },
-    { text: 'AUTHENTICATING LEVEL 4 ACCESS...', type: 'info' },
-    { text: 'ACCESS GRANTED: WELCOME WILFREDO ABAD', type: 'success' },
+    { text: 'CONNECTING TO GAMEA SECURE NODES...', type: 'info' },
+    { text: 'IDENTIFYING TRANSITION ASSETS...', type: 'info' },
+    { text: 'ACCESS GRANTED: MAYOR ELECT ELIESER ROCA OFFICE', type: 'success' },
   ]);
 
   useEffect(() => {
     const commands = [
-      'SCANNING NETWORK NODES...',
-      'ENCRYPTING DATA PACKETS...',
-      'SYNCING REPOSITORIES...',
-      'CHECKING SYSTEM INTEGRITY...',
-      'FETCHING LATEST UPDATES FROM SMAF...',
-      'ALERT: SEC_OBRAS DELAY DETECTED',
-      'MONITORING ACTIVE SESSIONS...',
-      'OPTIMIZING DATABASE QUERIES...',
+      'SCANNING SMAF DATABASES...',
+      'VERIFYING ASSETS AT ALMACENES CENTRALES...',
+      'SYNCING PLANILLAS RRHH - GESTIÓN COPA...',
+      'ANALYZING DEFICIENCIES IN UASI...',
+      'FETCHING AUDIT REPORTS FROM TRANSPARENCIA...',
+      'ALERT: MISSING CREDENTIALS FOR CATASTRO DB',
+      'VALIDATING DIGITAL SIGNATURES...',
+      'PREPARING PRESS REPORT MODULES...',
     ];
 
     const interval = setInterval(() => {
       const randomCmd = commands[Math.floor(Math.random() * commands.length)];
       setLines(prev => [...prev.slice(-15), { 
         text: `[${new Date().toLocaleTimeString()}] ${randomCmd}`, 
-        type: randomCmd.includes('ALERT') ? 'error' : 'info' 
+        type: randomCmd.includes('ALERT') || randomCmd.includes('MISSING') ? 'error' : 'info' 
       }]);
     }, 3000);
 
@@ -85,7 +85,7 @@ const TerminalConsole = () => {
       </div>
 
       <div style={{ position: 'absolute', bottom: '32px', right: '32px', textAlign: 'right' }}>
-        <p style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: '800' }}>SYS_ACCESS_PORT: 8080</p>
+        <p style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: '800' }}>NOD_ID: GAMEA_EL_ALTO_01</p>
         <p style={{ fontSize: '10px', color: 'var(--accent-red)', fontWeight: '800' }}>RESTRICTED ACCESS AREA</p>
       </div>
     </div>
@@ -113,7 +113,9 @@ const App = () => {
             ...(config || {}),
             indicadores: indicadores.length > 0 ? indicadores.map(ind => ({
               ...ind,
-              vizType: ind.viz_type
+              vizType: ind.viz_type,
+              falencias: ind.falencias || 0,
+              virtudes: ind.virtudes || 0
             })) : prev.indicadores
           }));
         }
@@ -126,19 +128,6 @@ const App = () => {
     loadData();
   }, []);
 
-  const handleSave = async () => {
-    try {
-      await Promise.all([
-        saveDashboardConfig(data),
-        syncIndicadores(data.indicadores)
-      ]);
-      alert('¡Dashboard sincronizado con Supabase exitosamente!');
-    } catch (error) {
-      console.error('Error saving to Supabase:', error);
-      alert('Error al guardar en la base de datos.');
-    }
-  };
-
   const handleCSVUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -146,21 +135,39 @@ const App = () => {
     Papa.parse(file, {
       header: true,
       dynamicTyping: true,
+      skipEmptyLines: true,
       complete: (results) => {
-        const newMetrics = results.data.filter(row => row.label).map(row => ({
-          id: row.id || Date.now() + Math.random(),
-          label: row.label,
-          value: row.value || 0,
-          vizType: row.vizType || 'gauge',
-          color: row.color || '#3b82f6',
-          params: row.params ? row.params.split('|').map((p, i) => {
-            const [pLabel, pStatus] = p.split(':');
-            return { id: Date.now() + i, label: pLabel, done: pStatus === '1' };
-          }) : []
-        }));
+        // Simple mapping: if CSV has 'type' column, we can distinguish between indicators and processes
+        const rows = results.data;
         
-        setData({ ...data, indicadores: newMetrics });
-        alert('Métricas cargadas exitosamente via CSV.');
+        const newIndicadores = rows.filter(r => r.tipo === 'indicador').map(r => ({
+          id: Date.now() + Math.random(),
+          label: r.nombre || r.label,
+          value: r.valor || r.value || 0,
+          falencias: r.falencias || 0,
+          virtudes: r.virtudes || 0,
+          color: r.color || '#3b82f6',
+          vizType: 'gauge'
+        }));
+
+        const newProcesos = rows.filter(r => r.tipo === 'proceso').map(r => ({
+          secretaria: r.secretaria,
+          proceso: r.proceso,
+          estado: r.estado || 'Normal',
+          falencias: r.falencias_detalle || 'Ninguna',
+          virtudes: r.virtudes_detalle || 'N/A'
+        }));
+
+        if (newIndicadores.length > 0 || newProcesos.length > 0) {
+          setData(prev => ({
+            ...prev,
+            indicadores: newIndicadores.length > 0 ? newIndicadores : prev.indicadores,
+            procesos: newProcesos.length > 0 ? newProcesos : prev.procesos
+          }));
+          alert('Datos de transición cargados exitosamente.');
+        } else {
+          alert('No se encontraron datos válidos. Use las columnas: tipo, nombre, valor, falencias, virtudes.');
+        }
       },
       error: (error) => {
         console.error('Error parsing CSV:', error);
@@ -174,7 +181,7 @@ const App = () => {
       <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-main)' }}>
         <div style={{ textAlign: 'center' }}>
           <Activity size={48} className="animate-spin" color="var(--accent-cyan)" />
-          <p style={{ marginTop: '24px', fontWeight: '800', letterSpacing: '0.2em', color: 'var(--text-dim)' }}>CARGANDO SISTEMA ALPHA...</p>
+          <p style={{ marginTop: '24px', fontWeight: '800', letterSpacing: '0.2em', color: 'var(--text-dim)' }}>SISTEMA DE TRANSICIÓN GAMEA...</p>
         </div>
       </div>
     );
@@ -187,16 +194,16 @@ const App = () => {
       <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''} ${mobileMenuOpen ? 'active' : ''} no-print`}>
         <div style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div style={{ 
-            width: '40px', height: '40px', background: '#fff',
-            borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 0 20px rgba(255,255,255,0.1)', flexShrink: 0
+            width: '40px', height: '40px', background: 'var(--accent-cyan)',
+            borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 0 20px rgba(34, 211, 238, 0.3)', flexShrink: 0
           }}>
-            <div style={{ width: '20px', height: '20px', background: '#020617', clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }} />
+            <ShieldAlert size={24} color="#020617" />
           </div>
           {(!sidebarCollapsed || mobileMenuOpen) && (
             <div style={{ overflow: 'hidden' }}>
-              <h1 style={{ fontSize: '14px', fontWeight: '900', color: 'white', textTransform: 'uppercase', letterSpacing: '0.1em' }}>SISTEMA ALPHA</h1>
-              <p style={{ fontSize: '8px', color: 'var(--text-dim)', fontWeight: '800', textTransform: 'uppercase' }}>Admin Gubernamental</p>
+              <h1 style={{ fontSize: '14px', fontWeight: '900', color: 'white', textTransform: 'uppercase', letterSpacing: '0.1em' }}>TRANSICIÓN GAMEA</h1>
+              <p style={{ fontSize: '8px', color: 'var(--text-dim)', fontWeight: '800', textTransform: 'uppercase' }}>Gestión Elieser Roca</p>
             </div>
           )}
         </div>
@@ -204,38 +211,44 @@ const App = () => {
         <nav style={{ flex: 1, marginTop: '32px' }}>
           <button onClick={() => { setActiveTab('dashboard'); setMobileMenuOpen(false); }} className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}>
             <LayoutDashboard size={18} />
-            {(!sidebarCollapsed || mobileMenuOpen) && <span>PANEL DE CONTROL</span>}
+            {(!sidebarCollapsed || mobileMenuOpen) && <span>PANEL ESTRATÉGICO</span>}
           </button>
           <button onClick={() => { setActiveTab('gabinete'); setMobileMenuOpen(false); }} className={`nav-item ${activeTab === 'gabinete' ? 'active' : ''}`}>
             <Users size={18} />
-            {(!sidebarCollapsed || mobileMenuOpen) && <span>GABINETE</span>}
+            {(!sidebarCollapsed || mobileMenuOpen) && <span>ESTRUCTURA GAMEA</span>}
           </button>
           <button onClick={() => { setActiveTab('seguimiento'); setMobileMenuOpen(false); }} className={`nav-item ${activeTab === 'seguimiento' ? 'active' : ''}`}>
             <Activity size={18} />
-            {(!sidebarCollapsed || mobileMenuOpen) && <span>SEGUIMIENTO</span>}
+            {(!sidebarCollapsed || mobileMenuOpen) && <span>MONITOR ALERTAS</span>}
           </button>
           <button onClick={() => { setActiveTab('reportes'); setMobileMenuOpen(false); }} className={`nav-item ${activeTab === 'reportes' ? 'active' : ''}`}>
             <FileText size={18} />
-            {(!sidebarCollapsed || mobileMenuOpen) && <span>REPORTES</span>}
+            {(!sidebarCollapsed || mobileMenuOpen) && <span>REPORTES PRENSA</span>}
           </button>
           <button onClick={() => { setActiveTab('habilidades'); setMobileMenuOpen(false); }} className={`nav-item ${activeTab === 'habilidades' ? 'active' : ''}`}>
             <Settings size={18} />
-            {(!sidebarCollapsed || mobileMenuOpen) && <span>HABILIDADES</span>}
+            {(!sidebarCollapsed || mobileMenuOpen) && <span>CONFIGURACIÓN</span>}
           </button>
           <button onClick={() => { setActiveTab('carga'); setMobileMenuOpen(false); }} className={`nav-item ${activeTab === 'carga' ? 'active' : ''}`}>
             <Upload size={18} />
-            {(!sidebarCollapsed || mobileMenuOpen) && <span>CARGA</span>}
+            {(!sidebarCollapsed || mobileMenuOpen) && <span>CARGA DIGITAL</span>}
           </button>
           <button onClick={() => { setActiveTab('terminal'); setMobileMenuOpen(false); }} className={`nav-item ${activeTab === 'terminal' ? 'active' : ''}`}>
             <TerminalIcon size={18} />
-            {(!sidebarCollapsed || mobileMenuOpen) && <span>TERMINAL</span>}
+            {(!sidebarCollapsed || mobileMenuOpen) && <span>SISTEMA CORE</span>}
           </button>
         </nav>
 
         <div style={{ padding: '16px', borderTop: '1px solid var(--border-subtle)' }}>
-          <button onClick={() => alert('Cerrando sesión...')} className="nav-item" style={{ color: 'var(--text-dim)' }}>
-            <LogOut size={18} />
-            {(!sidebarCollapsed || mobileMenuOpen) && <span>CERRAR SESIÓN</span>}
+           <input 
+            type="file" 
+            accept=".csv" 
+            id="csv-upload-main" 
+            style={{ display: 'none' }} 
+            onChange={handleCSVUpload}
+          />
+          <button onClick={() => document.getElementById('csv-upload-main').click()} className="btn btn-ghost" style={{ width: '100%', fontSize: '10px', justifyContent: 'center' }}>
+            <Upload size={14} /> {(!sidebarCollapsed || mobileMenuOpen) && 'CARGAR CSV'}
           </button>
         </div>
       </aside>
@@ -254,19 +267,10 @@ const App = () => {
               <Menu size={20} />
             </button>
             
-            <div style={{ position: 'relative', maxWidth: '400px', width: '100%' }}>
-              <Search size={16} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-dim)' }} />
-              <input 
-                type="text" 
-                placeholder="Buscar expedientes..." 
-                className="custom-input" 
-                style={{ paddingLeft: '48px', height: '40px', fontSize: '12px' }}
-              />
-            </div>
-
-            <div style={{ flex: 1, textAlign: 'center' }}>
-              <h2 style={{ fontSize: '16px', fontWeight: '900', color: 'var(--accent-cyan)', textTransform: 'uppercase', letterSpacing: '0.2em' }}>
-                {activeTab.toUpperCase()}
+            <div style={{ flex: 1 }}>
+              <p style={{ fontSize: '10px', fontWeight: '900', color: 'var(--text-dim)', textTransform: 'uppercase' }}>GOBIERNO AUTÓNOMO MUNICIPAL DE EL ALTO</p>
+              <h2 style={{ fontSize: '16px', fontWeight: '900', color: 'white', letterSpacing: '0.1em' }}>
+                {activeTab.toUpperCase()} —— <span style={{ color: 'var(--accent-cyan)' }}>TRANSICIÓN 2026</span>
               </h2>
             </div>
           </div>
@@ -274,18 +278,21 @@ const App = () => {
           <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
             <div style={{ display: 'flex', gap: '16px', color: 'var(--text-dim)' }}>
               <motion.div whileHover={{ color: 'white' }} style={{ cursor: 'pointer', position: 'relative' }}>
-                <div style={{ position: 'absolute', top: -2, right: -2, width: '8px', height: '8px', background: 'var(--accent-cyan)', borderRadius: '50%', border: '2px solid #020617' }} />
+                <div style={{ position: 'absolute', top: -2, right: -2, width: '8px', height: '8px', background: 'var(--accent-red)', borderRadius: '50%', border: '2px solid #020617' }} />
                 <AlertCircle size={20} />
               </motion.div>
               <motion.div whileHover={{ color: 'white' }} style={{ cursor: 'pointer' }}><Settings size={20} /></motion.div>
-              <motion.div whileHover={{ color: 'white' }} style={{ cursor: 'pointer' }}><Info size={20} /></motion.div>
             </div>
             
             <div style={{ width: '1px', height: '24px', background: 'var(--border-subtle)' }} />
             
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '50%', border: '2px solid var(--accent-cyan)', overflow: 'hidden' }}>
-                <img src="https://i.pravatar.cc/100?u=wilfredo" alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <div style={{ textAlign: 'right', className: 'hidden-mobile' }}>
+                <p style={{ fontSize: '11px', fontWeight: '800', color: 'white' }}>{data.alcalde_electo}</p>
+                <p style={{ fontSize: '9px', color: 'var(--accent-cyan)', fontWeight: '700' }}>ALCALDE ELECTO</p>
+              </div>
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', border: '2px solid var(--accent-cyan)', overflow: 'hidden' }}>
+                <img src="https://i.pravatar.cc/100?u=elieser" alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
             </div>
           </div>
@@ -296,7 +303,7 @@ const App = () => {
             
             {activeTab === 'dashboard' && (
               <motion.div key="dashboard" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                <PanelControlScreen />
+                <PanelControlScreen data={data} />
               </motion.div>
             )}
 
@@ -334,8 +341,8 @@ const App = () => {
                <motion.div key="terminal" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
                   <div style={{ maxWidth: '900px', margin: '0 auto' }}>
                     <div style={{ marginBottom: '32px' }}>
-                      <h2 style={{ fontSize: '48px', fontWeight: '900', color: 'white', letterSpacing: '-0.02em' }}>Terminal de Sistema</h2>
-                      <p style={{ color: 'var(--text-muted)', marginTop: '8px', fontSize: '14px' }}>Consola de comandos para operaciones de bajo nivel y monitoreo de red.</p>
+                      <h2 style={{ fontSize: '48px', fontWeight: '900', color: 'white', letterSpacing: '-0.02em' }}>Core System Alpha</h2>
+                      <p style={{ color: 'var(--text-muted)', marginTop: '8px', fontSize: '14px' }}>Centro de monitoreo de activos digitales y auditoría de red institucional.</p>
                     </div>
                     <TerminalConsole />
                   </div>
@@ -348,7 +355,7 @@ const App = () => {
 
       <div className="hidden-mobile" style={{ position: 'fixed', bottom: '24px', right: '32px', zIndex: 100, pointerEvents: 'none' }}>
         <p style={{ fontSize: '8px', fontWeight: '900', color: 'rgba(255,255,255,0.1)', letterSpacing: '0.5em', textTransform: 'uppercase' }}>
-          GAMEA STRATEGIC HUD v2.7.0 // SECURITY LEVEL 4
+          GAMEA TRANSITION HUD v2.7.0 // MAYOR ELECT ELIESER ROCA
         </p>
       </div>
 

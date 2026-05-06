@@ -46,90 +46,57 @@ export const ORGANIGRAMA = [
 ];
 
 export const SCENARIOS = {
-  NORMAL: {
-    label: 'Operación Normal',
+  TRANSICION_REAL: {
+    label: 'Transición Oficial 2026',
     indicadores: [
-      { id: 1, label: 'Documentación Normativa', value: 85, status: 'good', color: '#3b82f6', vizType: 'gauge', params: [
-        { id: 101, label: 'Manuales de Funciones', done: true },
-        { id: 102, label: 'Reglamentos Internos', done: true },
-        { id: 103, label: 'POA Actualizado', done: false }
+      { id: 1, label: 'Documentación Legal', value: 78, status: 'good', color: '#3b82f6', vizType: 'gauge', falencias: 12, virtudes: 45, params: [
+        { id: 101, label: 'Actas de Recepción', done: true },
+        { id: 102, label: 'Resoluciones Administrativas', done: true },
+        { id: 103, label: 'Contratos Vigentes', done: false }
       ]},
-      { id: 2, label: 'Inventarios de Hardware', value: 60, status: 'warning', color: '#06b6d4', vizType: 'bar', params: [
-        { id: 201, label: 'Activos Fijos Registrados', done: true },
-        { id: 202, label: 'Estado de Servidores', done: false }
+      { id: 2, label: 'Gestión Financiera', value: 52, status: 'warning', color: '#06b6d4', vizType: 'bar', falencias: 34, virtudes: 18, params: [
+        { id: 201, label: 'Conciliaciones Bancarias', done: true },
+        { id: 202, label: 'Deuda Flotante', done: false },
+        { id: 203, label: 'Presupuesto Ejecutado', done: false }
       ]},
-      { id: 3, label: 'Códigos Fuente y Credenciales', value: 45, status: 'warning', color: '#f59e0b', vizType: 'gauge', params: [
-        { id: 301, label: 'Repositorios Git', done: true },
-        { id: 302, label: 'Contraseñas de Servidor', done: false },
-        { id: 303, label: 'API Keys de Producción', done: false }
+      { id: 3, label: 'Sistemas y Datos', value: 35, status: 'locked', color: '#ef4444', vizType: 'gauge', falencias: 56, virtudes: 5, params: [
+        { id: 301, label: 'Base de Datos Catastro', done: true },
+        { id: 302, label: 'Credenciales Servidores', done: false },
+        { id: 303, label: 'Backups 2021-2025', done: false }
       ]},
-      { id: 4, label: 'Sistemas Desarrollados', value: 92, status: 'good', color: '#8b5cf6', vizType: 'trend', params: [
-        { id: 401, label: 'Módulo Administrativo', done: true },
-        { id: 402, label: 'Módulo de Trámites', done: true }
+      { id: 4, label: 'Recursos Humanos', value: 88, status: 'good', color: '#8b5cf6', vizType: 'trend', falencias: 8, virtudes: 62, params: [
+        { id: 401, label: 'Planillas Salariales', done: true },
+        { id: 402, label: 'Files de Personal', done: true }
       ]}
     ],
-    solicitudes: [
-      { unidad: 'UASI', notas: 3, estado: 'Respuesta Parcial', color: 'emerald', icon: 'check' },
-      { unidad: 'TESORO', notas: 2, estado: 'En Revisión', color: 'blue', icon: 'clock' },
-      { unidad: 'RRHH', notas: 4, estado: 'Pendiente', color: 'dim', icon: 'minus' },
-      { unidad: 'ACTIVOS FIJOS', notas: 1, estado: 'Completado', color: 'emerald', icon: 'check' }
-    ],
-    flujo: [
-      { label: 'Comisión TIC', status: 'done' },
-      { label: 'Notas', status: 'done' },
-      { label: 'Tesoro', status: 'process' },
-      { label: 'RRHH', status: 'pending' },
-      { label: 'SMAF', status: 'pending' }
-    ],
-    alerta: 'Operaciones de relevamiento en curso. No se detectan bloqueos críticos actualmente.'
-  },
-  CRISIS: {
-    label: 'Situación de Bloqueo',
-    indicadores: [
-      { id: 1, label: 'Documentación Normativa', value: 85, status: 'good', color: '#3b82f6', vizType: 'gauge', params: [
-        { id: 101, label: 'Manuales de Funciones', done: true },
-        { id: 102, label: 'Reglamentos Internos', done: true },
-        { id: 103, label: 'POA Actualizado', done: false }
-      ]},
-      { id: 2, label: 'Inventarios de Hardware', value: 60, status: 'warning', color: '#06b6d4', vizType: 'bar', params: [
-        { id: 201, label: 'Activos Fijos Registrados', done: true },
-        { id: 202, label: 'Estado de Servidores', done: false }
-      ]},
-      { id: 3, label: 'Códigos Fuente y Credenciales', value: 0, status: 'locked', color: '#ef4444', vizType: 'gauge', params: [
-        { id: 301, label: 'Repositorios Git', done: false },
-        { id: 302, label: 'Contraseñas de Servidor', done: false }
-      ]},
-      { id: 4, label: 'Sistemas Desarrollados', value: 10, status: 'locked', color: '#ef4444', vizType: 'trend', params: [
-        { id: 401, label: 'Core Banking', done: false },
-        { id: 402, label: 'Módulo de Pagos', done: false }
-      ]}
+    procesos: [
+      { secretaria: 'SMAF', proceso: 'Auditoría de Cajas', estado: 'Alerta', falencias: 'Faltante de documentación en caja chica Q4', virtudes: 'Digitalización completa de comprobantes' },
+      { secretaria: 'INFRAESTRUCTURA', proceso: 'Pavimentado Av. 6 de Marzo', estado: 'Retrasado', falencias: 'Falta de planillas de avance físico', virtudes: 'Materiales en almacén verificados' },
+      { secretaria: 'SALUD', proceso: 'Suministro Hospitales', estado: 'Óptimo', falencias: 'Mantenimiento de equipos preventivo', virtudes: 'Stock de medicamentos al 95%' }
     ],
     solicitudes: [
-      { unidad: 'UASI', notas: 3, estado: 'Respuesta Parcial (DAGA/127)', color: 'emerald', icon: 'check' },
-      { unidad: 'TESORO', notas: 2, estado: 'Negada Directa (Director)', color: 'red', icon: 'x' },
-      { unidad: 'RRHH', notas: 2, estado: 'Negada (Firma Sr. Yapuchura)', color: 'red', icon: 'x' },
-      { unidad: 'ACTIVOS FIJOS', notas: 5, estado: 'Puntos 5/20 Bloqueados', color: 'amber', icon: 'alert' }
+      { unidad: 'TESORO', notas: 3, estado: 'Pendiente', color: 'blue', icon: 'clock' },
+      { unidad: 'PLANIFICACIÓN', notas: 2, estado: 'Completado', color: 'emerald', icon: 'check' },
+      { unidad: 'TIC', notas: 5, estado: 'Bloqueado', color: 'red', icon: 'x' }
     ],
     flujo: [
-      { label: 'Comisión TIC', status: 'done' },
-      { label: 'Notas', status: 'done' },
-      { label: 'Tesoro', status: 'blocked', sub: 'RECHAZO DIRECTO' },
-      { label: 'RRHH', status: 'blocked', sub: 'RECHAZO DIRECTOR' },
-      { label: 'SMAF', status: 'pending' }
+      { label: 'Recepción Inicial', status: 'done' },
+      { label: 'Carga de Datos', status: 'process' },
+      { label: 'Análisis de Falencias', status: 'pending' },
+      { label: 'Informe de Prensa', status: 'pending' }
     ],
-    alerta: 'Sin Backups de últimas 5 gestiones en sistemas críticos de TESORO/RRHH. Negativa taxativa a entregar Credenciales de Alta Jerarquía.'
+    alerta: 'Se ha detectado inconsistencia en el 40% de las credenciales de sistemas críticos entregadas por la gestión saliente.'
   }
 };
 
 export const INITIAL_DATA = {
-  titulo: 'TABLERO ESTRATÉGICO TIC: TRANSICIÓN GAMEA 2026',
-  subtitulo: 'INFORME EJECUTIVO DE RELEVAMIENTO TECNOLÓGICO Y RIESGOS',
+  titulo: 'TABLERO DE TRANSICIÓN GUBERNAMENTAL GAMEA',
+  subtitulo: 'SISTEMA DE CONTROL Y FISCALIZACIÓN - GESTIÓN ELIESER ROCA',
   fecha: new Date().toISOString().split('T')[0],
-  acreditado: 'Wilfredo Abad Mancilla Terán',
-  alcalde: 'Elieser Roca Tancara',
-  secretaria: 'SEC. MUN. DE ADMINISTRACIÓN Y FINANZAS (SMAF)',
-  direccion: 'DIRECCIÓN DEL TESORO',
-  ley: 'Ley 1178 (SAFCO)',
+  acreditado: 'Equipo de Transición Estratégica',
+  alcalde_electo: 'Elieser Roca Tancara',
+  alcaldesa_saliente: 'Eva Copa Murga',
+  institucion: 'Gobierno Autónomo Municipal de El Alto',
   isLive: false,
-  ...SCENARIOS.CRISIS
+  ...SCENARIOS.TRANSICION_REAL
 };

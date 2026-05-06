@@ -1,324 +1,213 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { 
-  Building2, ShieldAlert, Activity, Gavel, CheckCircle, Loader2, Terminal 
+  Shield, AlertTriangle, CheckCircle, Clock, 
+  TrendingUp, TrendingDown, FileSearch, Building2,
+  AlertOctagon, BadgeCheck, FileText, Download, BarChart3
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
-const Card = ({ title, subtitle, icon: Icon, children }) => (
-  <motion.div 
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    className="glass-card"
-    style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-  >
-    {title && (
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '16px' }}>
-        {Icon && <div style={{ padding: '8px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px' }}><Icon size={18} color="var(--accent-blue)" /></div>}
-        <div>
-          <h3 style={{ fontSize: '12px', fontWeight: '900', color: 'white', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{title}</h3>
-          {subtitle && <p style={{ fontSize: '10px', color: 'var(--text-dim)', textTransform: 'uppercase', marginTop: '4px', marginLeft: '14px', letterSpacing: '0.1em' }}>{subtitle}</p>}
-        </div>
-      </div>
-    )}
-    <div style={{ flex: 1 }}>
-      {children}
-    </div>
-  </motion.div>
-);
-
-const Gauge = ({ value, color, status, size = 120 }) => {
-  const isLocked = status === 'locked';
-  const displayColor = isLocked ? 'var(--accent-red)' : color;
-  
-  return (
-    <div className="gauge-container">
-      <div style={{ position: 'relative', width: size, height: size }}>
-        {isLocked && (
-          <motion.div 
-            animate={{ opacity: [0.1, 0.3, 0.1] }}
-            transition={{ repeat: Infinity, duration: 2 }}
-            style={{ position: 'absolute', inset: 0, background: 'var(--accent-red)', filter: 'blur(20px)', borderRadius: '50%' }}
-          />
-        )}
-        
-        <svg className="gauge-svg" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="45" fill="transparent" stroke="rgba(255,255,255,0.05)" strokeWidth="8" />
-          <motion.circle
-            cx="50" cy="50" r="45"
-            fill="transparent"
-            stroke={displayColor}
-            strokeWidth="8"
-            strokeDasharray="283"
-            initial={{ strokeDashoffset: 283 }}
-            animate={{ strokeDashoffset: 283 - (283 * (isLocked ? 100 : value)) / 100 }}
-            transition={{ duration: 1.5, ease: "easeOut" }}
-            strokeLinecap="round"
-            style={{ filter: `drop-shadow(0 0 5px ${displayColor})` }}
-          />
-        </svg>
-        
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-          {isLocked ? (
-            <span style={{ fontSize: '24px', fontWeight: '900', color: 'var(--accent-red)' }}>🔒</span>
-          ) : (
-            <span style={{ fontSize: '24px', fontWeight: '900', color: 'white' }}>{value}%</span>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const Visualizer = ({ type, value, color, label }) => {
-  const barWidth = `${value}%`;
-  
-  if (type === 'bar') {
-    return (
-      <div style={{ width: '100%', padding: '10px 0' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-          <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{label}</span>
-          <span style={{ fontSize: '10px', fontWeight: '900', color: color }}>{value}%</span>
-        </div>
-        <div style={{ height: '8px', width: '100%', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', overflow: 'hidden' }}>
-          <motion.div 
-            initial={{ width: 0 }}
-            animate={{ width: barWidth }}
-            style={{ height: '100%', background: color, boxShadow: `0 0 10px ${color}44` }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  if (type === 'trend') {
-    return (
-      <div style={{ width: '100%', height: '60px', display: 'flex', alignItems: 'flex-end', gap: '4px' }}>
-        {[...Array(12)].map((_, i) => {
-          const h = Math.max(10, value - (11-i) * 3 + Math.random() * 10);
-          return (
-            <motion.div 
-              key={i}
-              initial={{ height: 0 }}
-              animate={{ height: `${Math.min(100, h)}%` }}
-              style={{ flex: 1, background: i === 11 ? color : `${color}33`, borderRadius: '2px' }}
-            />
-          );
-        })}
-      </div>
-    );
-  }
-
-  return <Gauge value={value} color={color} status={value === 0 ? 'locked' : ''} size={100} />;
-};
-
-const FlowNode = ({ item, isLast }) => {
-  const statusStyles = {
-    done: { bg: 'var(--accent-emerald)', icon: <CheckCircle size={14} /> },
-    process: { bg: 'var(--accent-blue)', icon: <Loader2 size={14} className="animate-spin" /> },
-    blocked: { bg: 'var(--accent-red)', icon: <Activity size={14} /> },
-    pending: { bg: '#1e293b', icon: <Activity size={14} /> }
+const Card = ({ title, subtitle, icon: Icon, children, accent = "blue" }) => {
+  const accentColors = {
+    blue: "var(--accent-blue)",
+    cyan: "var(--accent-cyan)",
+    red: "var(--accent-red)",
+    emerald: "var(--accent-emerald)",
+    purple: "var(--accent-purple)",
+    amber: "var(--accent-amber)"
   };
 
-  const style = statusStyles[item.status];
-
   return (
-    <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
-        <div style={{ 
-          width: '40px', height: '40px', borderRadius: '50%', background: style.bg, color: 'white',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', border: '4px solid #020617',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.5)', zIndex: 10
-        }}>
-          {style.icon}
-        </div>
-        <div style={{ position: 'absolute', top: '48px', whiteSpace: 'nowrap', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <span style={{ fontSize: '9px', fontWeight: '900', color: 'white', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{item.label}</span>
-          {item.sub && <span style={{ fontSize: '7px', fontWeight: '900', color: 'var(--accent-red)', textTransform: 'uppercase', marginTop: '2px' }} className="animate-pulse">{item.sub}</span>}
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      className="glass-card"
+      style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '16px' }}>
+        {Icon && (
+          <div style={{ 
+            padding: '10px', 
+            background: `${accentColors[accent]}22`, 
+            borderRadius: '10px',
+            border: `1px solid ${accentColors[accent]}44`
+          }}>
+            <Icon size={20} color={accentColors[accent]} />
+          </div>
+        )}
+        <div>
+          <h3 style={{ fontSize: '13px', fontWeight: '900', color: 'white', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{title}</h3>
+          {subtitle && <p style={{ fontSize: '10px', color: 'var(--text-dim)', textTransform: 'uppercase', marginTop: '4px', letterSpacing: '0.05em' }}>{subtitle}</p>}
         </div>
       </div>
-      {!isLast && (
-        <div style={{ flex: 1, height: '2px', background: 'rgba(255,255,255,0.05)', margin: '0 8px', position: 'relative', minWidth: '20px' }}>
-          {item.status === 'done' && <div style={{ position: 'absolute', inset: 0, background: 'var(--accent-emerald)' }} />}
-          {item.status === 'process' && (
-            <motion.div 
-              animate={{ left: ['-100%', '100%'] }}
-              transition={{ repeat: Infinity, duration: 1.5 }}
-              style={{ position: 'absolute', top: 0, bottom: 0, width: '50%', background: 'linear-gradient(90deg, transparent, var(--accent-blue), transparent)' }}
-            />
-          )}
-        </div>
-      )}
-    </div>
+      <div style={{ flex: 1 }}>
+        {children}
+      </div>
+    </motion.div>
   );
 };
 
-const PanelControlScreen = () => {
-  const logs = [
-    { time: "10:42:01", type: "SYS", msg: "INIT DATA SYNC PROCESS...", color: "var(--accent-cyan)" },
-    { time: "10:42:05", type: "SEC_FIN", msg: "Paquete de nóminas VERIFICADO", color: "var(--accent-emerald)" },
-    { time: "10:45:12", type: "SEC_SAL", msg: "Actualizando inventario hospitales...", color: "var(--accent-blue)" },
-    { time: "10:46:00", type: "ERR", msg: "SEC_OBRAS: Firma digital faltante en Anexo B.", color: "var(--accent-red)" },
-    { time: "10:48:33", type: "SYS", msg: "Compilando reporte global...", color: "var(--text-dim)" },
-    { time: "10:50:12", type: "SEC_TIC", msg: "Sincronización con Supabase: OK", color: "var(--accent-emerald)" },
-  ];
+const PanelControlScreen = ({ data }) => {
+  const dashboardData = data || {
+    alcalde_electo: 'Elieser Roca Tancara',
+    alcaldesa_saliente: 'Eva Copa Murga',
+    institucion: 'GAMEA - El Alto',
+    indicadores: [],
+    procesos: [],
+    alerta: 'Cargando información del sistema...'
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div style={{ maxWidth: '600px' }}>
-          <h2 style={{ fontSize: '48px', fontWeight: '900', color: 'white', letterSpacing: '-0.02em', fontFamily: 'var(--font-display)' }}>Panel de Control</h2>
-          <p style={{ color: 'var(--text-muted)', marginTop: '8px', fontSize: '14px', lineHeight: 1.6 }}>
-            Monitoreo estratégico y técnico del proceso de transición administrativa. Visualización de métricas críticas y flujo documental en tiempo real.
-          </p>
-        </div>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <div style={{ textAlign: 'right' }}>
-            <p style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: '800', letterSpacing: '0.1em' }}>ESTADO DEL SISTEMA</p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-emerald)', boxShadow: '0 0 10px var(--accent-emerald)' }} />
-              <span style={{ fontSize: '12px', fontWeight: '700', color: 'white' }}>EN LÍNEA</span>
-            </div>
+      
+      {/* Header Info */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', background: 'rgba(255,255,255,0.02)', padding: '24px', borderRadius: '20px', border: '1px solid var(--border-subtle)' }}>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ fontSize: '10px', fontWeight: '900', color: 'var(--accent-cyan)', background: 'rgba(34, 211, 238, 0.1)', padding: '4px 10px', borderRadius: '4px' }}>TRANSICIÓN 2026</span>
+            <span style={{ fontSize: '10px', fontWeight: '900', color: 'var(--text-dim)' }}>EL ALTO, BOLIVIA</span>
           </div>
+          <h2 style={{ fontSize: '32px', fontWeight: '900', color: 'white', marginTop: '12px', letterSpacing: '-0.02em' }}>
+            {dashboardData.alcalde_electo} <span style={{ color: 'var(--text-dim)', fontWeight: '400' }}>vs</span> {dashboardData.alcaldesa_saliente}
+          </h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '4px' }}>Informe de Auditoría y Relevamiento de Activos Municipales</p>
+        </div>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button className="btn btn-ghost"><Download size={14} /> EXPORTAR AUDITORÍA</button>
+          <button className="btn btn-primary" style={{ background: 'white', color: '#020617' }}><FileText size={14} /> INFORME DE PRENSA</button>
         </div>
       </div>
 
       <div className="dashboard-grid">
-        <div style={{ gridColumn: 'span 4' }}>
-          <Card title="CUMPLIMIENTO GLOBAL" subtitle="PROGRESO DE TRANSICIÓN">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center', padding: '10px 0' }}>
-               <Gauge value={82} color="var(--accent-cyan)" size={180} />
-               <div style={{ textAlign: 'center' }}>
-                 <p style={{ fontSize: '12px', color: 'var(--text-dim)', fontWeight: '800', letterSpacing: '0.1em' }}>META Q1: 95%</p>
-                 <p style={{ color: 'var(--accent-emerald)', fontSize: '11px', fontWeight: '900', marginTop: '4px' }}>+5.2% VS SEMANA ANTERIOR</p>
-               </div>
+        
+        {/* Progress Stats */}
+        <div style={{ gridColumn: 'span 12', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
+          {[
+            { label: 'PROCESOS AUDITADOS', value: '1,420', sub: '+12 hoy', icon: FileSearch, color: 'cyan' },
+            { label: 'FALENCIAS DETECTADAS', value: '428', sub: 'Críticas: 45', icon: AlertOctagon, color: 'red' },
+            { label: 'VIRTUDES / LOGROS', value: '892', sub: 'Tasa: 62%', icon: BadgeCheck, color: 'emerald' },
+            { label: 'ESTADO DE RECEPCIÓN', value: '64%', sub: 'En proceso', icon: Clock, color: 'amber' },
+          ].map((stat, i) => (
+            <div key={i} className="glass-card" style={{ padding: '24px', borderLeft: `4px solid var(--accent-${stat.color})` }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <p style={{ fontSize: '10px', fontWeight: '900', color: 'var(--text-dim)', letterSpacing: '0.1em' }}>{stat.label}</p>
+                <stat.icon size={16} color={`var(--accent-${stat.color})`} />
+              </div>
+              <h4 style={{ fontSize: '28px', fontWeight: '900', color: 'white', margin: '12px 0 4px' }}>{stat.value}</h4>
+              <p style={{ fontSize: '11px', fontWeight: '700', color: `var(--accent-${stat.color})` }}>{stat.sub}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Main Indicators Area */}
+        <div style={{ gridColumn: 'span 8' }}>
+          <Card title="RELEVAMIENTO POR SECRETARÍA" subtitle="Métricas de cumplimiento y transparencia" icon={BarChart3}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginTop: '12px' }}>
+              {dashboardData.indicadores.map((ind) => (
+                <div key={ind.id} style={{ padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                    <span style={{ fontSize: '12px', fontWeight: '800', color: 'white' }}>{ind.label}</span>
+                    <span style={{ fontSize: '14px', fontWeight: '900', color: ind.color }}>{ind.value}%</span>
+                  </div>
+                  <div style={{ height: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', overflow: 'hidden', marginBottom: '16px' }}>
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${ind.value}%` }}
+                      transition={{ duration: 1, ease: "easeOut" }}
+                      style={{ height: '100%', background: ind.color, boxShadow: `0 0 10px ${ind.color}44` }} 
+                    />
+                  </div>
+                  <div style={{ display: 'flex', gap: '16px' }}>
+                    <div style={{ flex: 1, textAlign: 'center' }}>
+                      <p style={{ fontSize: '9px', color: 'var(--text-dim)', fontWeight: '800' }}>FALENCIAS</p>
+                      <p style={{ fontSize: '13px', color: 'var(--accent-red)', fontWeight: '700' }}>{ind.falencias || 0}</p>
+                    </div>
+                    <div style={{ width: '1px', background: 'var(--border-subtle)' }} />
+                    <div style={{ flex: 1, textAlign: 'center' }}>
+                      <p style={{ fontSize: '9px', color: 'var(--text-dim)', fontWeight: '800' }}>VIRTUDES</p>
+                      <p style={{ fontSize: '13px', color: 'var(--accent-emerald)', fontWeight: '700' }}>{ind.virtudes || 0}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </Card>
         </div>
 
+        {/* Alerts & Critical Info */}
         <div style={{ gridColumn: 'span 4' }}>
-          <Card title="EXPEDIENTES VALIDADOS" subtitle="INTEGRIDAD DE DATOS">
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', height: '100%', justifyContent: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
-                  <span style={{ fontSize: '64px', fontWeight: '900', color: 'white', fontFamily: 'var(--font-display)' }}>2,458</span>
-                  <span style={{ fontSize: '14px', color: 'var(--text-dim)', fontWeight: '700' }}>unid.</span>
+          <Card title="ALERTAS DE TRANSICIÓN" subtitle="Riesgos detectados en tiempo real" icon={AlertTriangle} accent="red">
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ padding: '16px', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.1)', borderRadius: '12px' }}>
+                   <p style={{ fontSize: '12px', color: 'white', lineHeight: 1.5 }}>
+                     {dashboardData.alerta}
+                   </p>
                 </div>
-                <div style={{ padding: '16px', background: 'rgba(16, 185, 129, 0.05)', borderRadius: '16px', border: '1px solid rgba(16, 185, 129, 0.1)' }}>
-                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                     <p style={{ fontSize: '10px', color: 'var(--accent-emerald)', fontWeight: '900' }}>NIVEL DE CONFIANZA</p>
-                     <CheckCircle size={12} color="var(--accent-emerald)" />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '8px' }}>
+                   <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                      <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-red)' }} />
+                      <span style={{ fontSize: '12px', color: 'var(--text-main)' }}>Fuga de activos en SMAF</span>
                    </div>
-                   <p style={{ fontSize: '18px', color: 'white', fontWeight: '800', marginTop: '4px' }}>99.8% Nominal</p>
+                   <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                      <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-amber)' }} />
+                      <span style={{ fontSize: '12px', color: 'var(--text-main)' }}>Inconsistencia en RRHH</span>
+                   </div>
+                   <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                      <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-blue)' }} />
+                      <span style={{ fontSize: '12px', color: 'var(--text-main)' }}>Retraso en entrega de llaves UASI</span>
+                   </div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
-                   <span style={{ color: 'var(--text-dim)', fontWeight: '600' }}>Pendientes de firma</span>
-                   <span style={{ color: 'white', fontWeight: '800' }}>142</span>
-                </div>
+                <button className="btn btn-primary" style={{ width: '100%', marginTop: 'auto', background: 'var(--accent-red)', border: 'none' }}>
+                  NOTIFICAR FISCALÍA
+                </button>
              </div>
           </Card>
         </div>
 
-        <div style={{ gridColumn: 'span 4' }}>
-          <Card title="RECURSOS TIC" subtitle="RELEVAMIENTO DE ACTIVOS">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                 <div>
-                   <p style={{ fontSize: '24px', fontWeight: '900', color: 'white' }}>128</p>
-                   <p style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: '800' }}>SISTEMAS</p>
-                 </div>
-                 <div style={{ textAlign: 'right' }}>
-                   <p style={{ fontSize: '24px', fontWeight: '900', color: 'white' }}>1.4k</p>
-                   <p style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: '800' }}>EQUIPOS</p>
-                 </div>
-               </div>
-               <div style={{ height: '1px', background: 'var(--border-subtle)' }} />
-               <Visualizer type="bar" value={65} color="var(--accent-blue)" label="BACKUPS" />
-               <Visualizer type="bar" value={40} color="var(--accent-amber)" label="LICENCIAS" />
-               <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-                 <div style={{ flex: 1, padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid var(--border-subtle)', textAlign: 'center' }}>
-                    <p style={{ fontSize: '14px', fontWeight: '900', color: 'white' }}>12</p>
-                    <p style={{ fontSize: '8px', color: 'var(--accent-red)', fontWeight: '800', marginTop: '2px' }}>CRÍTICOS</p>
-                 </div>
-                 <div style={{ flex: 1, padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid var(--border-subtle)', textAlign: 'center' }}>
-                    <p style={{ fontSize: '14px', fontWeight: '900', color: 'white' }}>85</p>
-                    <p style={{ fontSize: '8px', color: 'var(--accent-emerald)', fontWeight: '800', marginTop: '2px' }}>ESTABLES</p>
-                 </div>
-               </div>
-            </div>
-          </Card>
-        </div>
-
+        {/* Processes Analysis Table */}
         <div style={{ gridColumn: 'span 12' }}>
-          <Card title="FLUJO DE DOCUMENTACIÓN CRÍTICA" subtitle="ESTADO DE TRAMITACIÓN INTER-SECRETARIAL">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '100%', padding: '20px 40px 60px' }}>
-              {[
-                { label: 'UASI', status: 'done' },
-                { label: 'TESORO', status: 'done' },
-                { label: 'SMAF', status: 'process' },
-                { label: 'DESPACHO', status: 'pending' },
-                { label: 'COMISIÓN TIC', status: 'pending' }
-              ].map((step, i, arr) => (
-                <FlowNode key={step.label} item={step} isLast={i === arr.length - 1} />
-              ))}
-            </div>
-          </Card>
+           <Card title="ANÁLISIS DE PROCESOS POR OFICINA" subtitle="Detalle de falencias y virtudes encontradas" icon={FileText} accent="cyan">
+              <div style={{ overflowX: 'auto', marginTop: '16px' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                      <th style={{ padding: '16px', fontSize: '10px', color: 'var(--text-dim)', fontWeight: '900' }}>SECRETARÍA / DIRECCIÓN</th>
+                      <th style={{ padding: '16px', fontSize: '10px', color: 'var(--text-dim)', fontWeight: '900' }}>PROCESO / TRÁMITE</th>
+                      <th style={{ padding: '16px', fontSize: '10px', color: 'var(--text-dim)', fontWeight: '900' }}>ESTADO</th>
+                      <th style={{ padding: '16px', fontSize: '10px', color: 'var(--text-dim)', fontWeight: '900' }}>FALENCIAS ENCONTRADAS</th>
+                      <th style={{ padding: '16px', fontSize: '10px', color: 'var(--text-dim)', fontWeight: '900' }}>VIRTUDES / ACIERTOS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(dashboardData.procesos || []).map((p, i) => (
+                      <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)', transition: 'background 0.2s' }}>
+                        <td style={{ padding: '16px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <Building2 size={14} color="var(--accent-cyan)" />
+                            <span style={{ fontSize: '13px', fontWeight: '700', color: 'white' }}>{p.secretaria}</span>
+                          </div>
+                        </td>
+                        <td style={{ padding: '16px', fontSize: '13px', color: 'var(--text-main)' }}>{p.proceso}</td>
+                        <td style={{ padding: '16px' }}>
+                           <span style={{ 
+                             fontSize: '9px', fontWeight: '900', padding: '4px 8px', borderRadius: '4px',
+                             background: p.estado === 'Alerta' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 211, 238, 0.1)',
+                             color: p.estado === 'Alerta' ? 'var(--accent-red)' : 'var(--accent-cyan)',
+                             border: `1px solid ${p.estado === 'Alerta' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(34, 211, 238, 0.2)'}`
+                           }}>
+                             {p.estado.toUpperCase()}
+                           </span>
+                        </td>
+                        <td style={{ padding: '16px', fontSize: '12px', color: 'var(--accent-red)', opacity: 0.8, maxWidth: '250px' }}>{p.falencias}</td>
+                        <td style={{ padding: '16px', fontSize: '12px', color: 'var(--accent-emerald)', opacity: 0.8, maxWidth: '250px' }}>{p.virtudes}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+           </Card>
         </div>
 
-        <div style={{ gridColumn: 'span 8' }}>
-          <Card title="Entrega de Activos por Secretaría" subtitle="RANKING DE CUMPLIMIENTO">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', padding: '10px 0' }}>
-              {[
-                { name: 'SEC. MUN. DE ADMINISTRACIÓN Y FINANZAS', val: 95, color: 'var(--accent-emerald)', icon: Building2 },
-                { name: 'SEC. MUN. DE GESTIÓN INSTITUCIONAL', val: 88, color: 'var(--accent-cyan)', icon: ShieldAlert },
-                { name: 'SEC. MUN. DE SALUD', val: 76, color: 'var(--accent-blue)', icon: Activity },
-                { name: 'SEC. MUN. DE INFRAESTRUCTURA PÚBLICA', val: 42, color: 'var(--accent-amber)', icon: Gavel },
-                { name: 'SEC. MUN. DE SEGURIDAD CIUDADANA', val: 31, color: 'var(--accent-red)', icon: ShieldAlert },
-              ].map(sec => (
-                <div key={sec.name} style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                  <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <sec.icon size={16} color={sec.color} />
-                  </div>
-                  <span style={{ flex: 1, fontSize: '13px', color: 'var(--text-main)', fontWeight: '600' }}>{sec.name}</span>
-                  <div style={{ width: '200px', height: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', overflow: 'hidden' }}>
-                    <motion.div initial={{ width: 0 }} animate={{ width: `${sec.val}%` }} style={{ height: '100%', background: sec.color, boxShadow: `0 0 10px ${sec.color}44` }} />
-                  </div>
-                  <span style={{ width: '45px', textAlign: 'right', fontSize: '13px', fontWeight: '900', color: 'white' }}>{sec.val}%</span>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </div>
-
-        <div style={{ gridColumn: 'span 4' }}>
-          <div className="glass-card" style={{ background: '#020617', border: '1px solid var(--border-subtle)', height: '100%', padding: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ display: 'flex', gap: '4px' }}>
-                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ff5f56' }} />
-                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ffbd2e' }} />
-                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#27c93f' }} />
-                </div>
-                <span style={{ fontSize: '10px', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', letterSpacing: '0.1em' }}>TRANSITION_MONITOR.LOG</span>
-              </div>
-              <Terminal size={14} color="var(--text-dim)" />
-            </div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', display: 'flex', flexDirection: 'column', gap: '14px', maxHeight: '340px', overflowY: 'auto', paddingRight: '10px' }} className="custom-scrollbar">
-              {logs.map((log, i) => (
-                <div key={i} style={{ opacity: i === logs.length - 1 ? 1 : 0.6, borderLeft: `2px solid ${log.color}`, paddingLeft: '12px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
-                    <span style={{ color: log.color, fontWeight: '800', fontSize: '9px' }}>{log.type}</span>
-                    <span style={{ color: 'var(--text-dim)', fontSize: '9px' }}>{log.time}</span>
-                  </div>
-                  <span style={{ color: 'white', lineHeight: 1.4 }}>{log.msg}</span>
-                </div>
-              ))}
-              <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px', paddingLeft: '14px' }}>
-                <span style={{ color: 'var(--accent-cyan)' }}>{'>'}</span>
-                <span className="animate-pulse" style={{ color: 'var(--text-dim)' }}>Sincronizando con Supabase...</span>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
