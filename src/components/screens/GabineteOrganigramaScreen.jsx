@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
-  Building2, Activity, Search, Target, Layers, ChevronRight, ChevronDown, Download, Plus 
+  Building2, Activity, Search, Target, Layers, ChevronRight, ChevronDown, Download, Plus, Map, Network
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ORGANIGRAMA } from '../../lib/constants';
 
 const Card = ({ title, subtitle, icon: Icon, children }) => (
   <motion.div 
@@ -17,7 +18,7 @@ const Card = ({ title, subtitle, icon: Icon, children }) => (
         {Icon && <div style={{ padding: '8px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px' }}><Icon size={18} color="var(--accent-blue)" /></div>}
         <div>
           <h3 style={{ fontSize: '12px', fontWeight: '900', color: 'white', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{title}</h3>
-          {subtitle && <div style={{ fontSize: '10px', color: 'var(--text-dim)', textTransform: 'uppercase', marginTop: '4px', marginLeft: '14px', letterSpacing: '0.1em' }}>{subtitle}</div>}
+          {subtitle && <div style={{ fontSize: '10px', color: 'var(--text-dim)', textTransform: 'uppercase', marginTop: '4px', letterSpacing: '0.1em' }}>{subtitle}</div>}
         </div>
       </div>
     )}
@@ -28,79 +29,73 @@ const Card = ({ title, subtitle, icon: Icon, children }) => (
 );
 
 const GabineteOrganigramaScreen = () => {
+  const [selectedSecId, setSelectedSecId] = useState(ORGANIGRAMA[0].id);
+  const [selectedNode, setSelectedNode] = useState(null);
+
+  const selectedSec = ORGANIGRAMA.find(s => s.id === selectedSecId);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <p style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: '800' }}>SYS.ORG.04 —— ESTRUCTURA GUBERNAMENTAL</p>
-          <h2 style={{ fontSize: '48px', fontWeight: '900', color: 'white', letterSpacing: '-0.02em', marginTop: '4px' }}>Gestión de Organigrama</h2>
+          <p style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: '800' }}>SYS.ORG.04 —— GESTIÓN JERÁRQUICA GAMEA</p>
+          <h2 style={{ fontSize: '48px', fontWeight: '900', color: 'white', letterSpacing: '-0.02em', marginTop: '4px' }}>Estructura Institucional</h2>
         </div>
         <div style={{ display: 'flex', gap: '12px' }}>
-          <button className="btn btn-ghost"><Download size={14} /> EXPORTAR</button>
-          <button className="btn btn-primary" style={{ background: 'white', color: '#020617' }}><Plus size={14} /> NUEVO NODO</button>
+          <button className="btn btn-ghost"><Map size={14} /> VISTA MAPA</button>
+          <button className="btn btn-primary" style={{ background: 'white', color: '#020617' }}><Plus size={14} /> NUEVA UNIDAD</button>
         </div>
       </div>
 
       <div className="dashboard-grid">
         <div style={{ gridColumn: 'span 3' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div className="glass-card" style={{ padding: '20px' }}>
-              <p style={{ fontSize: '10px', fontWeight: '900', color: 'var(--text-dim)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Building2 size={12} /> SELECCIONAR SECRETARÍA
-              </p>
-              <div style={{ padding: '16px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
-                <div>
-                  <p style={{ fontSize: '14px', fontWeight: '700', color: 'white' }}>Innovación y Tecnología</p>
-                  <p style={{ fontSize: '9px', color: 'var(--text-dim)', marginTop: '2px' }}>ID: SEC-INT-001</p>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                  <ChevronDown size={14} color="var(--text-dim)" />
-                </div>
-              </div>
+            <div className="glass-card" style={{ padding: '24px' }}>
+              <p className="section-label"><Building2 size={12} /> SECRETARÍA MUNICIPAL</p>
+              <select 
+                className="custom-input" 
+                style={{ marginTop: '12px' }}
+                value={selectedSecId}
+                onChange={(e) => setSelectedSecId(e.target.value)}
+              >
+                {ORGANIGRAMA.map(sec => (
+                  <option key={sec.id} value={sec.id}>{sec.name}</option>
+                ))}
+              </select>
             </div>
 
-            <Card title="INSPECCIÓN DE NODO" subtitle={<span style={{ color: 'var(--accent-cyan)', background: 'rgba(34, 211, 238, 0.1)', padding: '2px 6px', borderRadius: '4px', fontSize: '8px' }}>● ACTIVO</span>}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '16px', background: 'rgba(34, 211, 238, 0.05)', borderRadius: '12px', border: '1px solid rgba(34, 211, 238, 0.2)' }}>
-                  <div style={{ padding: '8px', background: 'var(--accent-cyan)', borderRadius: '8px', color: '#020617' }}><Activity size={18} /></div>
-                  <div>
-                    <p style={{ fontSize: '9px', fontWeight: '900', color: 'var(--accent-cyan)' }}>DIRECCIÓN GENERAL</p>
-                    <p style={{ fontSize: '14px', fontWeight: '700', color: 'white' }}>Dir. de Transformación Digital</p>
+            <Card title="DETALLE DE SELECCIÓN" subtitle={<span style={{ color: 'var(--accent-cyan)', background: 'rgba(34, 211, 238, 0.1)', padding: '2px 6px', borderRadius: '4px', fontSize: '8px' }}>● INSPECCIÓN ACTIVA</span>}>
+              {selectedNode ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center', padding: '16px', background: 'rgba(34, 211, 238, 0.05)', borderRadius: '12px', border: '1px solid rgba(34, 211, 238, 0.2)' }}>
+                    <div style={{ padding: '8px', background: 'var(--accent-cyan)', borderRadius: '8px', color: '#020617' }}><Network size={18} /></div>
+                    <div>
+                      <p style={{ fontSize: '9px', fontWeight: '900', color: 'var(--accent-cyan)' }}>{selectedNode.type}</p>
+                      <p style={{ fontSize: '14px', fontWeight: '700', color: 'white' }}>{selectedNode.name}</p>
+                    </div>
                   </div>
-                </div>
-                
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                  <div>
-                    <p style={{ fontSize: '9px', color: 'var(--text-dim)', fontWeight: '800' }}>TITULAR</p>
-                    <p style={{ fontSize: '13px', color: 'white', fontWeight: '600', marginTop: '4px' }}>Dra. Elena Rostova</p>
+                  
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div>
+                      <p style={{ fontSize: '9px', color: 'var(--text-dim)', fontWeight: '800' }}>TIPO</p>
+                      <p style={{ fontSize: '13px', color: 'white', fontWeight: '600', marginTop: '4px' }}>{selectedNode.type}</p>
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '9px', color: 'var(--text-dim)', fontWeight: '800' }}>RELEVAMIENTO</p>
+                      <p style={{ fontSize: '13px', color: 'var(--accent-emerald)', fontWeight: '600', marginTop: '4px' }}>90%</p>
+                    </div>
                   </div>
-                  <div>
-                    <p style={{ fontSize: '9px', color: 'var(--text-dim)', fontWeight: '800' }}>PRESUPUESTO</p>
-                    <p style={{ fontSize: '13px', color: 'white', fontWeight: '600', marginTop: '4px' }}>$14.2M</p>
-                  </div>
-                  <div>
-                    <p style={{ fontSize: '9px', color: 'var(--text-dim)', fontWeight: '800' }}>PERSONAL</p>
-                    <p style={{ fontSize: '13px', color: 'white', fontWeight: '600', marginTop: '4px' }}>142 FTEs</p>
-                  </div>
-                  <div>
-                    <p style={{ fontSize: '9px', color: 'var(--text-dim)', fontWeight: '800' }}>NIVEL</p>
-                    <p style={{ fontSize: '13px', color: 'white', fontWeight: '600', marginTop: '4px' }}>L2</p>
-                  </div>
-                </div>
 
-                <div>
-                  <p style={{ fontSize: '9px', color: 'var(--text-dim)', fontWeight: '800', marginBottom: '12px' }}>ATRIBUCIONES CLAVE</p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    <div style={{ display: 'flex', gap: '8px', fontSize: '12px', color: 'var(--text-main)' }}>✓ Implementación de gobierno electrónico.</div>
-                    <div style={{ display: 'flex', gap: '8px', fontSize: '12px', color: 'var(--text-main)' }}>✓ Ciberseguridad estatal.</div>
+                  <div style={{ display: 'flex', gap: '12px', marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--border-subtle)' }}>
+                    <button className="btn btn-primary" style={{ flex: 1, fontSize: '10px', height: '36px' }}>VER EXPEDIENTE</button>
                   </div>
                 </div>
-
-                <div style={{ display: 'flex', gap: '12px', marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--border-subtle)' }}>
-                  <button className="btn btn-ghost" style={{ flex: 1, fontSize: '10px', height: '36px' }}>EDITAR NODO</button>
-                  <button className="btn btn-ghost" style={{ flex: 1, fontSize: '10px', height: '36px', color: 'var(--accent-red)', borderColor: 'rgba(239, 68, 68, 0.2)' }}>SUSPENDER</button>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '40px 0', opacity: 0.5 }}>
+                   <Target size={32} style={{ margin: '0 auto 16px' }} />
+                   <p style={{ fontSize: '12px' }}>Seleccione un nodo en el organigrama para ver detalles.</p>
                 </div>
-              </div>
+              )}
             </Card>
           </div>
         </div>
@@ -114,88 +109,100 @@ const GabineteOrganigramaScreen = () => {
              backgroundImage: 'radial-gradient(rgba(34, 211, 238, 0.05) 1px, transparent 1px)',
              backgroundSize: '30px 30px'
            }}>
-             <div style={{ position: 'absolute', top: '24px', left: '24px', display: 'flex', gap: '16px', alignItems: 'center' }}>
-                <span style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: '800' }}>VISTA: JERÁRQUICA</span>
+             <div style={{ position: 'absolute', top: '24px', left: '24px', display: 'flex', gap: '16px', alignItems: 'center', zIndex: 10 }}>
+                <span style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: '800' }}>VISTA: DESGLOSE OPERATIVO</span>
                 <div style={{ width: '1px', height: '12px', background: 'var(--border-subtle)' }} />
-                <span style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: '800' }}>ZOOM: 100%</span>
-             </div>
-             <div style={{ position: 'absolute', top: '20px', right: '20px', display: 'flex', gap: '8px' }}>
-                <button className="btn btn-ghost" style={{ padding: '8px', background: 'rgba(2, 6, 23, 0.8)' }}><Search size={16} /></button>
-                <button className="btn btn-ghost" style={{ padding: '8px', background: 'rgba(2, 6, 23, 0.8)' }}><Target size={16} /></button>
-                <button className="btn btn-ghost" style={{ padding: '8px', background: 'rgba(2, 6, 23, 0.8)' }}><Layers size={16} /></button>
+                <span style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: '800' }}>SECRETARÍA: {selectedSec?.id}</span>
              </div>
 
-             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '100px 0' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '60px' }}>
-                   {/* Level 1 */}
-                   <div style={{ padding: '24px', background: 'rgba(2, 6, 23, 0.8)', border: '1px solid var(--border-subtle)', borderRadius: '12px', width: '320px', textAlign: 'center', position: 'relative' }}>
-                      <Building2 size={24} color="white" style={{ margin: '0 auto 16px', opacity: 0.5 }} />
-                      <p style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: '800' }}>SECRETARÍA</p>
-                      <p style={{ fontSize: '18px', fontWeight: '800', color: 'white', marginTop: '4px' }}>Innovación y Tecnología</p>
-                      <p style={{ fontSize: '9px', color: 'var(--text-dim)', marginTop: '8px' }}>TITULAR: ING. M. VALDEZ</p>
-                   </div>
-                   
-                   {/* Connection Line */}
-                   <div style={{ width: '2px', height: '60px', background: 'var(--border-subtle)', position: 'relative' }}>
-                      <div style={{ position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', width: '800px', height: '1px', background: 'var(--border-subtle)' }} />
-                   </div>
+             <div style={{ padding: '100px 40px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '60px' }}>
+                {/* Level 1: Secretariat */}
+                <motion.div 
+                  layoutId="sec-root"
+                  onClick={() => setSelectedNode({ name: selectedSec.name, type: 'SECRETARÍA' })}
+                  style={{ 
+                    padding: '24px', background: 'rgba(2, 6, 23, 0.8)', border: '1px solid var(--accent-cyan)', 
+                    borderRadius: '16px', width: '380px', textAlign: 'center', cursor: 'pointer',
+                    boxShadow: '0 0 30px rgba(34, 211, 238, 0.05)'
+                  }}
+                >
+                  <Building2 size={24} color="var(--accent-cyan)" style={{ margin: '0 auto 16px' }} />
+                  <p style={{ fontSize: '10px', color: 'var(--accent-cyan)', fontWeight: '900', letterSpacing: '0.1em' }}>SECRETARÍA MUNICIPAL</p>
+                  <p style={{ fontSize: '18px', fontWeight: '800', color: 'white', marginTop: '6px' }}>{selectedSec.name}</p>
+                </motion.div>
 
-                   {/* Level 2 */}
-                   <div style={{ display: 'flex', gap: '40px' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
-                        <div style={{ width: '1px', height: '20px', background: 'var(--border-subtle)' }} />
-                        <div style={{ padding: '20px', background: 'rgba(2, 6, 23, 0.8)', border: '1px solid var(--border-subtle)', borderRadius: '12px', width: '240px', textAlign: 'center' }}>
-                          <p style={{ fontSize: '9px', color: 'var(--text-dim)', fontWeight: '800' }}>SUBSECRETARÍA</p>
-                          <p style={{ fontSize: '15px', fontWeight: '700', color: 'white', marginTop: '4px' }}>Gobierno Digital</p>
-                        </div>
+                {/* Level 2: Directorates */}
+                <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap', justifyContent: 'center', position: 'relative', width: '100%' }}>
+                  {/* Lines container (simplified) */}
+                  <div style={{ position: 'absolute', top: '-30px', left: '50%', transform: 'translateX(-50%)', width: '100%', height: '30px', display: 'flex', justifyContent: 'center' }}>
+                     <div style={{ width: '2px', height: '100%', background: 'var(--border-subtle)' }} />
+                  </div>
+
+                  {selectedSec.direcciones.map((dir, idx) => (
+                    <div key={dir.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '30px' }}>
+                      <div style={{ width: '1px', height: '30px', background: 'var(--border-subtle)' }} />
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.1 }}
+                        onClick={() => setSelectedNode({ name: dir.name, type: 'DIRECCIÓN' })}
+                        style={{ 
+                          padding: '16px 20px', background: 'rgba(2, 6, 23, 0.8)', border: '1px solid var(--border-subtle)', 
+                          borderRadius: '12px', width: '240px', textAlign: 'center', cursor: 'pointer'
+                        }}
+                        whileHover={{ borderColor: 'var(--accent-cyan)', scale: 1.02 }}
+                      >
+                        <p style={{ fontSize: '9px', color: 'var(--text-dim)', fontWeight: '900' }}>DIRECCIÓN</p>
+                        <p style={{ fontSize: '14px', fontWeight: '700', color: 'white', marginTop: '4px' }}>{dir.name}</p>
+                      </motion.div>
+
+                      {/* Level 3: Units (nested) */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {dir.unidades.map((uni, uIdx) => (
+                          <motion.div 
+                            key={uni}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: (idx * 0.1) + (uIdx * 0.05) }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedNode({ name: uni, type: 'UNIDAD OPERATIVA' });
+                            }}
+                            style={{ 
+                              padding: '10px 16px', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid var(--border-subtle)', 
+                              borderRadius: '8px', width: '200px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                              cursor: 'pointer'
+                            }}
+                            whileHover={{ background: 'rgba(255, 255, 255, 0.05)', borderColor: 'var(--accent-blue)' }}
+                          >
+                             <div style={{ textAlign: 'left' }}>
+                               <p style={{ fontSize: '8px', color: 'var(--text-dim)', fontWeight: '800' }}>UNIDAD</p>
+                               <p style={{ fontSize: '12px', fontWeight: '600', color: 'white' }}>{uni}</p>
+                             </div>
+                             <ChevronRight size={14} color="var(--text-dim)" />
+                          </motion.div>
+                        ))}
                       </div>
-
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
-                        <div style={{ width: '1px', height: '20px', background: 'var(--accent-cyan)' }} />
-                        <div style={{ padding: '20px', background: 'rgba(34, 211, 238, 0.1)', border: '2px solid var(--accent-cyan)', borderRadius: '12px', width: '280px', textAlign: 'center', boxShadow: '0 0 30px rgba(34, 211, 238, 0.15)' }}>
-                          <p style={{ fontSize: '9px', color: 'var(--accent-cyan)', fontWeight: '800' }}>DIRECCIÓN GENERAL</p>
-                          <p style={{ fontSize: '16px', fontWeight: '800', color: 'white', marginTop: '4px' }}>Transformación Digital</p>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '12px' }}>
-                             <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent-cyan)' }} />
-                             <p style={{ fontSize: '9px', color: 'var(--accent-cyan)', fontWeight: '800' }}>SELECCIONADO</p>
-                          </div>
-                        </div>
-                        
-                        <div style={{ width: '1px', height: '40px', background: 'var(--border-subtle)' }} />
-                        
-                        <div style={{ padding: '16px', background: 'rgba(2, 6, 23, 0.8)', border: '1px solid var(--border-subtle)', borderRadius: '12px', width: '220px', textAlign: 'center', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <div style={{ textAlign: 'left' }}>
-                            <p style={{ fontSize: '8px', color: 'var(--text-dim)', fontWeight: '800' }}>UNIDAD</p>
-                            <p style={{ fontSize: '13px', fontWeight: '600', color: 'white' }}>Innovación Abierta</p>
-                          </div>
-                          <ChevronRight size={14} color="var(--text-dim)" />
-                        </div>
-                      </div>
-
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
-                        <div style={{ width: '1px', height: '20px', background: 'var(--border-subtle)' }} />
-                        <div style={{ padding: '20px', background: 'rgba(2, 6, 23, 0.8)', border: '1px solid var(--border-subtle)', borderRadius: '12px', width: '240px', textAlign: 'center' }}>
-                          <p style={{ fontSize: '9px', color: 'var(--text-dim)', fontWeight: '800' }}>SUBSECRETARÍA</p>
-                          <p style={{ fontSize: '15px', fontWeight: '700', color: 'white', marginTop: '4px' }}>Infraestructura Tecnológica</p>
-                        </div>
-                      </div>
-                   </div>
-                </div>
-             </div>
-
-             <div style={{ position: 'absolute', bottom: '24px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '24px', background: 'rgba(2, 6, 23, 0.8)', padding: '12px 24px', borderRadius: '40px', border: '1px solid var(--border-subtle)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                   <div style={{ width: '12px', height: '12px', border: '1px solid var(--border-subtle)', borderRadius: '2px' }} />
-                   <span style={{ fontSize: '9px', color: 'var(--text-dim)', fontWeight: '800' }}>NODO ESTÁNDAR</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                   <div style={{ width: '12px', height: '12px', background: 'var(--accent-cyan)', borderRadius: '2px' }} />
-                   <span style={{ fontSize: '9px', color: 'var(--text-dim)', fontWeight: '800' }}>NODO ACTIVO</span>
+                    </div>
+                  ))}
                 </div>
              </div>
            </div>
         </div>
       </div>
+
+      <style>{`
+        .section-label {
+          font-size: 10px; 
+          fontWeight: 900; 
+          color: var(--text-dim); 
+          display: flex; 
+          alignItems: center; 
+          gap: 8px;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+        }
+      `}</style>
     </div>
   );
 };

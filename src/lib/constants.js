@@ -1,47 +1,77 @@
 export const ORGANIGRAMA = [
   { 
-    name: "DESPACHO ALCALDE", 
-    units: ["Auditoría Interna", "Dirección de Transparencia", "Asesoría Estratégica", "Dirección de Comunicación", "Dirección de Relaciones Públicas"] 
-  },
-  { 
+    id: "SEC-SMAF",
     name: "SEC. MUN. DE ADMINISTRACIÓN Y FINANZAS (SMAF)", 
-    units: ["Dirección Administrativa", "Dirección del Tesoro", "Dirección de Recursos Humanos", "Dirección de Contabilidad", "Dirección de Activos Fijos", "UASI"] 
+    direcciones: [
+      {
+        id: "DIR-ADMIN",
+        name: "Dirección Administrativa",
+        unidades: ["Unidad de Servicios Generales", "Unidad de Almacenes", "Unidad de Activos Fijos"]
+      },
+      {
+        id: "DIR-TESORO",
+        name: "Dirección del Tesoro",
+        unidades: ["Unidad de Programación Financiera", "Unidad de Contabilidad", "Unidad de Crédito Público"]
+      },
+      {
+        id: "DIR-RRHH",
+        name: "Dirección de Recursos Humanos",
+        unidades: ["Unidad de Planillas", "Unidad de Escalafón", "Unidad de Bienestar Social"]
+      }
+    ]
   },
   { 
+    id: "SEC-SMGI",
     name: "SEC. MUN. DE GESTIÓN INSTITUCIONAL", 
-    units: ["Dirección de Asesoría Legal", "Dirección de Planificación", "Dirección de Tecnologías de Información (TIC)"] 
+    direcciones: [
+      {
+        id: "DIR-LEGAL",
+        name: "Dirección de Asesoría Legal",
+        unidades: ["Unidad de Procesos Penales", "Unidad de Contrataciones", "Unidad Normativa"]
+      },
+      {
+        id: "DIR-PLAN",
+        name: "Dirección de Planificación",
+        unidades: ["Unidad de Seguimiento POA", "Unidad de Inversión Pública", "Unidad de Estadísticas"]
+      },
+      {
+        id: "DIR-TIC",
+        name: "Dirección de Tecnologías de Información (TIC)",
+        unidades: ["Unidad de Desarrollo de Sistemas", "Unidad de Infraestructura", "Unidad de Soporte Técnico"]
+      }
+    ]
   },
   { 
+    id: "SEC-SMS",
     name: "SEC. MUN. DE SALUD", 
-    units: ["Dirección de Gestión Hospitalaria", "Dirección de Seguros de Salud", "Dirección de Salud Pública"] 
+    direcciones: [
+      {
+        id: "DIR-HOSP",
+        name: "Dirección de Gestión Hospitalaria",
+        unidades: ["Unidad de Hospitales de 2do Nivel", "Unidad de Centros de Salud", "Unidad de Farmacia"]
+      },
+      {
+        id: "DIR-SP",
+        name: "Dirección de Salud Pública",
+        unidades: ["Unidad de Epidemiología", "Unidad de Zoonosis", "Unidad de Saneamiento"]
+      }
+    ]
   },
   { 
-    name: "SEC. MUN. DE EDUCACIÓN Y CULTURA", 
-    units: ["Dirección de Educación", "Dirección de Culturas", "Dirección de Bibliotecas"] 
-  },
-  { 
-    name: "SEC. MUN. DE DESARROLLO HUMANO", 
-    units: ["Dirección de Género", "Dirección de Niñez y Adolescencia", "Dirección de Deportes", "Dirección de Desarrollo Social"] 
-  },
-  { 
+    id: "SEC-SMIP",
     name: "SEC. MUN. DE INFRAESTRUCTURA PÚBLICA", 
-    units: ["Dirección de Obras Públicas", "Dirección de Supervisión de Obras", "Dirección de Alumbrado Público"] 
-  },
-  { 
-    name: "SEC. MUN. DE MOVILIDAD URBANA", 
-    units: ["Dirección de Transporte", "Dirección de Vialidad", "Dirección de Bus Municipal"] 
-  },
-  { 
-    name: "SEC. MUN. DE SEGURIDAD CIUDADANA", 
-    units: ["Dirección de Prevención", "Dirección de Vigilancia", "Dirección de Intendencia Municipal"] 
-  },
-  { 
-    name: "SEC. MUN. DE AGUA, GESTIÓN AMBIENTAL Y RIESGOS", 
-    units: ["Dirección de Saneamiento Básico", "Dirección de Gestión de Riesgos", "Dirección de Medio Ambiente"] 
-  },
-  { 
-    name: "SEC. MUN. DE DESARROLLO ECONÓMICO", 
-    units: ["Dirección de Mypes", "Dirección de Turismo", "Dirección de Comercio y Servicios"] 
+    direcciones: [
+      {
+        id: "DIR-OP",
+        name: "Dirección de Obras Públicas",
+        unidades: ["Unidad de Pavimentos", "Unidad de Puentes", "Unidad de Equipamiento"]
+      },
+      {
+        id: "DIR-SUPER",
+        name: "Dirección de Supervisión de Obras",
+        unidades: ["Unidad de Control de Calidad", "Unidad de Fiscalización", "Unidad de Auditoría Técnica"]
+      }
+    ]
   }
 ];
 
