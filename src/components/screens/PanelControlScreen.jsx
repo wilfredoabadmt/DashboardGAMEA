@@ -88,8 +88,8 @@ const PanelControlScreen = ({ data }) => {
            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(2, 6, 23, 0.5)', padding: '8px 16px', borderRadius: '12px', border: '1px solid var(--border-subtle)' }}>
               <Filter size={14} color="var(--accent-cyan)" />
               <select 
-                className="custom-input" 
-                style={{ border: 'none', background: 'none', padding: 0, height: 'auto', fontSize: '12px', width: '200px' }}
+                className="custom-select" 
+                style={{ border: 'none', background: 'none', padding: 0, height: 'auto', fontSize: '12px', width: '220px' }}
                 value={filterSec}
                 onChange={(e) => setFilterSec(e.target.value)}
               >

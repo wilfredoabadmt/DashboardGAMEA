@@ -57,7 +57,7 @@ const CargaInformacionScreen = () => {
                 <div>
                   <label className="input-label">1. SELECCIONE SECRETARÍA MUNICIPAL</label>
                   <select 
-                    className="custom-input"
+                    className="custom-select"
                     value={formData.secretaria}
                     onChange={(e) => {
                       setFormData({...formData, secretaria: e.target.value});
@@ -75,7 +75,7 @@ const CargaInformacionScreen = () => {
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
                       <label className="input-label">2. SELECCIONE DIRECCIÓN</label>
                       <select 
-                        className="custom-input"
+                        className="custom-select"
                         value={formData.direccion}
                         onChange={(e) => {
                           setFormData({...formData, direccion: e.target.value});
@@ -95,7 +95,7 @@ const CargaInformacionScreen = () => {
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
                       <label className="input-label">3. SELECCIONE UNIDAD</label>
                       <select 
-                        className="custom-input"
+                        className="custom-select"
                         value={formData.unidad}
                         onChange={(e) => setFormData({...formData, unidad: e.target.value})}
                       >
@@ -144,7 +144,7 @@ const CargaInformacionScreen = () => {
                 <div>
                   <label className="input-label">GESTIÓN RELEVAMIENTO</label>
                   <select 
-                    className="custom-input"
+                    className="custom-select"
                     value={formData.gestion}
                     onChange={(e) => setFormData({...formData, gestion: e.target.value})}
                   >
@@ -158,7 +158,7 @@ const CargaInformacionScreen = () => {
                 <div>
                   <label className="input-label">TIPO DE ACTIVO / DOC</label>
                   <select 
-                    className="custom-input"
+                    className="custom-select"
                     value={formData.tipoDocumento}
                     onChange={(e) => setFormData({...formData, tipoDocumento: e.target.value})}
                   >

@@ -53,7 +53,7 @@ const GabineteOrganigramaScreen = () => {
             <div className="glass-card" style={{ padding: '24px' }}>
               <p className="section-label"><Building2 size={12} /> SECRETARÍA MUNICIPAL</p>
               <select 
-                className="custom-input" 
+                className="custom-select" 
                 style={{ marginTop: '12px' }}
                 value={selectedSecId}
                 onChange={(e) => setSelectedSecId(e.target.value)}

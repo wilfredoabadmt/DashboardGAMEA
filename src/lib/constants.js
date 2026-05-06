@@ -42,6 +42,27 @@ export const ORGANIGRAMA = [
     ]
   },
   { 
+    id: "SEC-SMIP",
+    name: "SEC. MUN. DE INFRAESTRUCTURA PÚBLICA", 
+    direcciones: [
+      {
+        id: "DIR-OP",
+        name: "Dirección de Obras Públicas",
+        unidades: ["Unidad de Pavimentos", "Unidad de Puentes", "Unidad de Equipamiento"]
+      },
+      {
+        id: "DIR-SUPER",
+        name: "Dirección de Supervisión de Obras",
+        unidades: ["Unidad de Control de Calidad", "Unidad de Fiscalización", "Unidad de Auditoría Técnica"]
+      },
+      {
+        id: "DIR-PROY",
+        name: "Dirección de Proyectos Municipales",
+        unidades: ["Unidad de Diseño", "Unidad de Presupuestos", "Unidad de Topografía"]
+      }
+    ]
+  },
+  { 
     id: "SEC-SMS",
     name: "SEC. MUN. DE SALUD", 
     direcciones: [
@@ -58,18 +79,108 @@ export const ORGANIGRAMA = [
     ]
   },
   { 
-    id: "SEC-SMIP",
-    name: "SEC. MUN. DE INFRAESTRUCTURA PÚBLICA", 
+    id: "SEC-SMDS",
+    name: "SEC. MUN. DE DESARROLLO SOCIAL", 
     direcciones: [
       {
-        id: "DIR-OP",
-        name: "Dirección de Obras Públicas",
-        unidades: ["Unidad de Pavimentos", "Unidad de Puentes", "Unidad de Equipamiento"]
+        id: "DIR-GEN",
+        name: "Dirección de Género",
+        unidades: ["Unidad de la Mujer", "Unidad de Adulto Mayor", "Unidad de Discapacidad"]
       },
       {
-        id: "DIR-SUPER",
-        name: "Dirección de Supervisión de Obras",
-        unidades: ["Unidad de Control de Calidad", "Unidad de Fiscalización", "Unidad de Auditoría Técnica"]
+        id: "DIR-NIÑEZ",
+        name: "Dirección de la Niñez y Adolescencia",
+        unidades: ["Unidad de Defensorías", "Unidad de Albergues", "Unidad de Prevención"]
+      },
+      {
+        id: "DIR-DEPORTES",
+        name: "Dirección de Deportes",
+        unidades: ["Unidad de Escuelas Deportivas", "Unidad de Infraestructura Deportiva", "Unidad de Eventos"]
+      }
+    ]
+  },
+  { 
+    id: "SEC-SMEEP",
+    name: "SEC. MUN. DE EDUCACIÓN Y CULTURA", 
+    direcciones: [
+      {
+        id: "DIR-EDU",
+        name: "Dirección de Educación",
+        unidades: ["Unidad de Desayuno Escolar", "Unidad de Mantenimiento Escolar", "Unidad de Mobiliario"]
+      },
+      {
+        id: "DIR-CULT",
+        name: "Dirección de Culturas",
+        unidades: ["Unidad de Teatros", "Unidad de Museos", "Unidad de Patrimonio Histórico"]
+      }
+    ]
+  },
+  { 
+    id: "SEC-SMM",
+    name: "SEC. MUN. DE MOVILIDAD URBANA", 
+    direcciones: [
+      {
+        id: "DIR-TRAF",
+        name: "Dirección de Tráfico y Vialidad",
+        unidades: ["Unidad de Señalización", "Unidad de Semáforos", "Unidad de Educación Vial"]
+      },
+      {
+        id: "DIR-TRANSP",
+        name: "Dirección de Transporte",
+        unidades: ["Unidad de Rutas y Recorridos", "Unidad de Terminales", "Unidad de Control"]
+      }
+    ]
+  },
+  { 
+    id: "SEC-SMSEG",
+    name: "SEC. MUN. DE SEGURIDAD CIUDADANA", 
+    direcciones: [
+      {
+        id: "DIR-SEG",
+        name: "Dirección de Seguridad Pública",
+        unidades: ["Unidad de Monitoreo (Cámaras)", "Unidad de Módulos Policiales", "Unidad de Prevención"]
+      },
+      {
+        id: "DIR-INT",
+        name: "Dirección de Intendencia Municipal",
+        unidades: ["Unidad de Inocuidad Alimentaria", "Unidad de Control de Mercados", "Unidad de Pesas y Medidas"]
+      }
+    ]
+  },
+  { 
+    id: "SEC-SMDA",
+    name: "SEC. MUN. DE DESARROLLO ECONÓMICO", 
+    direcciones: [
+      {
+        id: "DIR-MICRO",
+        name: "Dirección de Desarrollo Productivo",
+        unidades: ["Unidad de Microempresas", "Unidad de Ferias y Mercados", "Unidad de Capacitación"]
+      },
+      {
+        id: "DIR-TUR",
+        name: "Dirección de Turismo",
+        unidades: ["Unidad de Promoción Turística", "Unidad de Guías", "Unidad de Atractivos"]
+      },
+      {
+        id: "DIR-AGRO",
+        name: "Dirección de Desarrollo Agropecuario",
+        unidades: ["Unidad de Distritos Rurales", "Unidad de Riego", "Unidad de Sanidad Animal"]
+      }
+    ]
+  },
+  { 
+    id: "SEC-SMMA",
+    name: "SEC. MUN. DE AGUA, SANEAMIENTO Y M.A.", 
+    direcciones: [
+      {
+        id: "DIR-MA",
+        name: "Dirección de Medio Ambiente",
+        unidades: ["Unidad de Control Ambiental", "Unidad de Áreas Verdes", "Unidad de Forestación"]
+      },
+      {
+        id: "DIR-SANE",
+        name: "Dirección de Saneamiento Básico",
+        unidades: ["Unidad de Alcantarillado", "Unidad de Drenaje Pluvial", "Unidad de Limpieza"]
       }
     ]
   }
