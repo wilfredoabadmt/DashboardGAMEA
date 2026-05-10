@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ORGANIGRAMA } from './lib/constants';
+import { supabase } from './lib/supabase';
 
 // ============================================================================
 // COMPONENTES ATÓMICOS & UTILIDADES
@@ -533,136 +534,222 @@ const HierarchyView = () => {
   );
 };
 
-const EditorView = ({ data, setData, indicadores, setIndicadores, onImport, onDownloadCSV }) => (
-  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-    {/* LEFT PANEL: CONFIG */}
-    <div className="lg:col-span-4 space-y-6">
-      <div className="glass-card p-8 rounded-3xl">
-        <h3 className="text-lg font-black text-white mb-8 uppercase tracking-wider flex items-center gap-3">
-          <Settings size={20} className="text-brand-400" />
-          General
-        </h3>
-        <div className="space-y-6">
-          {[
-            { label: 'Título del Reporte', key: 'titulo' },
-            { label: 'Subtítulo / Contexto', key: 'subtitulo' },
-            { label: 'Secretaría Municipal', key: 'secretaria' },
-            { label: 'Dirección / Unidad', key: 'direccion' },
-            { label: 'Nombre del Responsable', key: 'acreditado' },
-            { label: 'Alcalde Electo', key: 'alcalde' },
-          ].map(field => (
-            <div key={field.key}>
-              <label className="text-[10px] font-black text-slate-500 block mb-2 uppercase tracking-widest">{field.label}</label>
-              <input
-                type="text"
-                value={data[field.key]}
-                onChange={e => setData({...data, [field.key]: e.target.value})}
-                className="w-full bg-slate-900/50 border border-white/5 rounded-xl p-4 text-sm text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all placeholder:text-slate-700"
-              />
+const EditorView = ({ 
+  data, setData, indicadores, setIndicadores, onImport, onDownloadCSV,
+  secretarias, direcciones, unidades,
+  selectedSec, setSelectedSec,
+  selectedDir, setSelectedDir,
+  selectedUni, setSelectedUni
+}) => {
+  const isSelectionComplete = selectedSec && selectedDir && selectedUni;
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      {/* LEFT PANEL: SELECTION & CONFIG */}
+      <div className="lg:col-span-4 space-y-6">
+        <div className="glass-card p-8 rounded-3xl border-brand-500/20">
+          <h3 className="text-lg font-black text-white mb-8 uppercase tracking-wider flex items-center gap-3">
+            <Building2 size={20} className="text-brand-400" />
+            Ubicación Institucional
+          </h3>
+          <div className="space-y-6">
+            <div>
+              <label className="text-[10px] font-black text-slate-500 block mb-2 uppercase tracking-widest">Secretaría Municipal</label>
+              <select
+                value={selectedSec}
+                onChange={e => { setSelectedSec(e.target.value); setSelectedDir(''); setSelectedUni(''); }}
+                className="w-full bg-slate-900/50 border border-white/5 rounded-xl p-4 text-sm text-white focus:border-brand-500 outline-none appearance-none"
+              >
+                <option value="">Seleccione Secretaría...</option>
+                {secretarias.map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
+              </select>
             </div>
-          ))}
-          <div>
-            <label className="text-[10px] font-black text-slate-500 block mb-2 uppercase tracking-widest">Alerta Principal</label>
-            <textarea
-              value={data.alerta}
-              onChange={e => setData({...data, alerta: e.target.value})}
-              rows={3}
-              className="w-full bg-slate-900/50 border border-white/5 rounded-xl p-4 text-sm text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all resize-none"
-            />
+
+            <div>
+              <label className="text-[10px] font-black text-slate-500 block mb-2 uppercase tracking-widest">Dirección</label>
+              <select
+                value={selectedDir}
+                onChange={e => { setSelectedDir(e.target.value); setSelectedUni(''); }}
+                disabled={!selectedSec}
+                className="w-full bg-slate-900/50 border border-white/5 rounded-xl p-4 text-sm text-white focus:border-brand-500 outline-none appearance-none disabled:opacity-30"
+              >
+                <option value="">Seleccione Dirección...</option>
+                {direcciones.map(d => <option key={d.id} value={d.id}>{d.nombre}</option>)}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-[10px] font-black text-slate-500 block mb-2 uppercase tracking-widest">Unidad</label>
+              <select
+                value={selectedUni}
+                onChange={e => setSelectedUni(e.target.value)}
+                disabled={!selectedDir}
+                className="w-full bg-slate-900/50 border border-white/5 rounded-xl p-4 text-sm text-white focus:border-brand-500 outline-none appearance-none disabled:opacity-30"
+              >
+                <option value="">Seleccione Unidad...</option>
+                {unidades.map(u => <option key={u.id} value={u.id}>{u.nombre}</option>)}
+              </select>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="glass-card p-8 rounded-3xl bg-brand-500/5 border-brand-500/20">
-        <h4 className="text-sm font-black text-white mb-2 uppercase tracking-wider">Gestión de Datos</h4>
-        <p className="text-xs text-slate-500 mb-6 font-medium">Automatiza la carga de indicadores mediante archivos CSV estructurados.</p>
-        <div className="grid grid-cols-2 gap-3">
-          <button onClick={onDownloadCSV} className="px-4 py-3 bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 border border-white/5">
-            <Download size={16} /> Plantilla
-          </button>
-          <button onClick={() => document.getElementById('csv-input').click()} className="px-4 py-3 bg-brand-600 hover:bg-brand-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-brand-600/20">
-            <Upload size={16} /> Importar
-          </button>
-          <input id="csv-input" type="file" accept=".csv" onChange={onImport} className="hidden" />
-        </div>
-      </div>
-    </div>
-
-    {/* RIGHT PANEL: INDICATORS */}
-    <div className="lg:col-span-8">
-      <div className="glass-card p-8 rounded-3xl h-full">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h3 className="text-lg font-black text-white uppercase tracking-wider flex items-center gap-3">
-              <Activity size={20} className="text-brand-400" />
-              Editor de Indicadores
-            </h3>
-            <p className="text-xs text-slate-500 font-medium mt-1">Personaliza las métricas visuales del dashboard.</p>
-          </div>
-          <button
-            onClick={() => setIndicadores([...indicadores, { id: Date.now(), label: 'NUEVO INDICADOR', value: 50, color: '#38abf8' }])}
-            className="px-6 py-2.5 bg-brand-600 hover:bg-brand-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-brand-600/20 hover:scale-105"
+        {isSelectionComplete && (
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glass-card p-8 rounded-3xl"
           >
-            <PlusCircle size={16} /> Añadir
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 overflow-y-auto max-h-[800px] pr-2 custom-scrollbar">
-          {indicadores.map(ind => (
-            <div key={ind.id} className="bg-slate-900/50 p-6 rounded-2xl border border-white/5 hover:border-brand-500/30 transition-all group">
-              <div className="flex items-center justify-between mb-6">
-                <input
-                  type="text"
-                  value={ind.label}
-                  onChange={e => setIndicadores(indicadores.map(x => x.id === ind.id ? {...x, label: e.target.value.toUpperCase()} : x))}
-                  className="bg-transparent text-sm font-black text-white border-b border-transparent focus:border-brand-500 outline-none w-full mr-4"
-                />
-                <button
-                  onClick={() => setIndicadores(indicadores.filter(x => x.id !== ind.id))}
-                  className="p-2 text-slate-600 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
-                >
-                  <Trash2 size={18} />
-                </button>
-              </div>
-              
-              <div className="space-y-6">
-                <div className="flex items-center gap-6">
+            <h3 className="text-lg font-black text-white mb-8 uppercase tracking-wider flex items-center gap-3">
+              <Settings size={20} className="text-brand-400" />
+              General
+            </h3>
+            <div className="space-y-6">
+              {[
+                { label: 'Título del Reporte', key: 'titulo' },
+                { label: 'Subtítulo / Contexto', key: 'subtitulo' },
+                { label: 'Nombre del Responsable', key: 'acreditado' },
+                { label: 'Alcalde Electo', key: 'alcalde' },
+              ].map(field => (
+                <div key={field.key}>
+                  <label className="text-[10px] font-black text-slate-500 block mb-2 uppercase tracking-widest">{field.label}</label>
                   <input
-                    type="range"
-                    value={ind.value}
-                    onChange={e => setIndicadores(indicadores.map(x => x.id === ind.id ? {...x, value: parseInt(e.target.value)} : x))}
-                    min="0"
-                    max="100"
-                    className="flex-1 accent-brand-500"
+                    type="text"
+                    value={data[field.key]}
+                    onChange={e => setData({...data, [field.key]: e.target.value})}
+                    className="w-full bg-slate-900/50 border border-white/5 rounded-xl p-4 text-sm text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all placeholder:text-slate-700"
                   />
-                  <span className="text-xl font-black text-white min-w-[3rem] text-right font-display">{ind.value}%</span>
                 </div>
-                
-                <div className="flex items-center gap-4">
-                  <div className="relative group/color">
-                    <input
-                      type="color"
-                      value={ind.color}
-                      onChange={e => setIndicadores(indicadores.map(x => x.id === ind.id ? {...x, color: e.target.value} : x))}
-                      className="w-12 h-12 rounded-xl cursor-pointer bg-transparent border-none"
-                    />
-                    <div className="absolute inset-0 rounded-xl pointer-events-none border border-white/10"></div>
-                  </div>
-                  <div className="flex-1 h-3 bg-slate-800 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full transition-all duration-500"
-                      style={{ width: `${ind.value}%`, backgroundColor: ind.color, boxShadow: `0 0 15px ${ind.color}66` }}
-                    ></div>
-                  </div>
+              ))}
+              <div>
+                <label className="text-[10px] font-black text-slate-500 block mb-2 uppercase tracking-widest">Alerta Principal</label>
+                <textarea
+                  value={data.alerta}
+                  onChange={e => setData({...data, alerta: e.target.value})}
+                  rows={3}
+                  className="w-full bg-slate-900/50 border border-white/5 rounded-xl p-4 text-sm text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all resize-none"
+                />
+              </div>
+
+              <div className="pt-4 border-t border-white/5">
+                <label className="text-[10px] font-black text-slate-500 block mb-4 uppercase tracking-widest flex items-center gap-2">
+                  <Upload size={14} /> Subir Información / Evidencia
+                </label>
+                <div 
+                  className="border-2 border-dashed border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center hover:border-brand-500/50 transition-all cursor-pointer group"
+                  onClick={() => document.getElementById('file-upload').click()}
+                >
+                  <Upload size={24} className="text-slate-600 group-hover:text-brand-400 mb-2" />
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest group-hover:text-white">Click para subir archivos</span>
+                  <input id="file-upload" type="file" className="hidden" multiple />
                 </div>
               </div>
             </div>
-          ))}
-        </div>
+          </motion.div>
+        )}
+
+        {isSelectionComplete && (
+          <div className="glass-card p-8 rounded-3xl bg-brand-500/5 border-brand-500/20">
+            <h4 className="text-sm font-black text-white mb-2 uppercase tracking-wider">Gestión de Datos</h4>
+            <p className="text-xs text-slate-500 mb-6 font-medium">Automatiza la carga de indicadores mediante archivos CSV estructurados.</p>
+            <div className="grid grid-cols-2 gap-3">
+              <button onClick={onDownloadCSV} className="px-4 py-3 bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 border border-white/5">
+                <Download size={16} /> Plantilla
+              </button>
+              <button onClick={() => document.getElementById('csv-input').click()} className="px-4 py-3 bg-brand-600 hover:bg-brand-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-brand-600/20">
+                <Upload size={16} /> Importar
+              </button>
+              <input id="csv-input" type="file" accept=".csv" onChange={onImport} className="hidden" />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* RIGHT PANEL: INDICATORS */}
+      <div className="lg:col-span-8">
+        {!isSelectionComplete ? (
+          <div className="h-full min-h-[400px] flex flex-col items-center justify-center glass-card rounded-3xl border-dashed border-2 border-white/5">
+            <Layers size={48} className="text-slate-800 mb-6" />
+            <h4 className="text-xl font-black text-white uppercase tracking-tighter mb-2">Editor Bloqueado</h4>
+            <p className="text-slate-500 font-medium text-center max-w-sm">
+              Debe seleccionar una **Secretaría, Dirección y Unidad** para habilitar los campos de edición y carga de información.
+            </p>
+          </div>
+        ) : (
+          <div className="glass-card p-8 rounded-3xl h-full">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h3 className="text-lg font-black text-white uppercase tracking-wider flex items-center gap-3">
+                  <Activity size={20} className="text-brand-400" />
+                  Editor de Indicadores
+                </h3>
+                <p className="text-xs text-slate-500 font-medium mt-1">Personaliza las métricas visuales del dashboard.</p>
+              </div>
+              <button
+                onClick={() => setIndicadores([...indicadores, { id: Date.now(), label: 'NUEVO INDICADOR', value: 50, color: '#38abf8' }])}
+                className="px-6 py-2.5 bg-brand-600 hover:bg-brand-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-brand-600/20 hover:scale-105"
+              >
+                <PlusCircle size={16} /> Añadir
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 overflow-y-auto max-h-[800px] pr-2 custom-scrollbar">
+              {indicadores.map(ind => (
+                <div key={ind.id} className="bg-slate-900/50 p-6 rounded-2xl border border-white/5 hover:border-brand-500/30 transition-all group">
+                  <div className="flex items-center justify-between mb-6">
+                    <input
+                      type="text"
+                      value={ind.label}
+                      onChange={e => setIndicadores(indicadores.map(x => x.id === ind.id ? {...x, label: e.target.value.toUpperCase()} : x))}
+                      className="bg-transparent text-sm font-black text-white border-b border-transparent focus:border-brand-500 outline-none w-full mr-4"
+                    />
+                    <button
+                      onClick={() => setIndicadores(indicadores.filter(x => x.id !== ind.id))}
+                      className="p-2 text-slate-600 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-6">
+                      <input
+                        type="range"
+                        value={ind.value}
+                        onChange={e => setIndicadores(indicadores.map(x => x.id === ind.id ? {...x, value: parseInt(e.target.value)} : x))}
+                        min="0"
+                        max="100"
+                        className="flex-1 accent-brand-500"
+                      />
+                      <span className="text-xl font-black text-white min-w-[3rem] text-right font-display">{ind.value}%</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-4">
+                      <div className="relative group/color">
+                        <input
+                          type="color"
+                          value={ind.color}
+                          onChange={e => setIndicadores(indicadores.map(x => x.id === ind.id ? {...x, color: e.target.value} : x))}
+                          className="w-12 h-12 rounded-xl cursor-pointer bg-transparent border-none"
+                        />
+                        <div className="absolute inset-0 rounded-xl pointer-events-none border border-white/10"></div>
+                      </div>
+                      <div className="flex-1 h-3 bg-slate-800 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full transition-all duration-500"
+                          style={{ width: `${ind.value}%`, backgroundColor: ind.color, boxShadow: `0 0 15px ${ind.color}66` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const ListViewComponent = ({ reports, onSelect, onDelete, onCreate }) => (
   <div className="space-y-8">
@@ -778,6 +865,49 @@ const App = () => {
   const [estadisticas] = useState(initialEstadisticas);
   const [riesgos] = useState(initialRiesgos);
 
+  // SUPABASE STATE
+  const [secretarias, setSecretarias] = useState([]);
+  const [direcciones, setDirecciones] = useState([]);
+  const [unidades, setUnidades] = useState([]);
+  const [selectedSec, setSelectedSec] = useState('');
+  const [selectedDir, setSelectedDir] = useState('');
+  const [selectedUni, setSelectedUni] = useState('');
+
+  // FETCH SECRETARIAS
+  useEffect(() => {
+    const fetchSecretarias = async () => {
+      const { data, error } = await supabase.from('secretarias').select('*').order('nombre');
+      if (!error) setSecretarias(data);
+    };
+    fetchSecretarias();
+  }, []);
+
+  // FETCH DIRECCIONES
+  useEffect(() => {
+    if (!selectedSec) {
+      setDirecciones([]);
+      return;
+    }
+    const fetchDirecciones = async () => {
+      const { data, error } = await supabase.from('direcciones').select('*').eq('secretaria_id', selectedSec).order('nombre');
+      if (!error) setDirecciones(data);
+    };
+    fetchDirecciones();
+  }, [selectedSec]);
+
+  // FETCH UNIDADES
+  useEffect(() => {
+    if (!selectedDir) {
+      setUnidades([]);
+      return;
+    }
+    const fetchUnidades = async () => {
+      const { data, error } = await supabase.from('unidades').select('*').eq('direccion_id', selectedDir).order('nombre');
+      if (!error) setUnidades(data);
+    };
+    fetchUnidades();
+  }, [selectedDir]);
+
   // PERSISTENCIA
   useEffect(() => {
     try {
@@ -793,21 +923,65 @@ const App = () => {
     localStorage.setItem('gamea-reports-v2', JSON.stringify(newReports));
   };
 
-  const handleSave = () => {
-    const newReports = [...reports];
-    const reportToSave = { ...data, indicadores, updatedAt: new Date().toISOString() };
-    
-    if (currentReportId) {
-      const idx = newReports.findIndex(r => r.id === currentReportId);
-      if (idx !== -1) {
-        newReports[idx] = { ...reportToSave, id: currentReportId };
+  const handleSave = async () => {
+    try {
+      const reportData = {
+        secretaria_id: selectedSec,
+        direccion_id: selectedDir,
+        unidad_id: selectedUni,
+        titulo: data.titulo,
+        subtitulo: data.subtitulo,
+        acreditado: data.acreditado,
+        alcalde_electo: data.alcalde,
+        alerta_principal: data.alerta,
+        updated_at: new Date().toISOString()
+      };
+
+      let reportId = currentReportId;
+
+      if (reportId) {
+        // Update existing report
+        const { error } = await supabase.from('reports').update(reportData).eq('id', reportId);
+        if (error) throw error;
+      } else {
+        // Insert new report
+        const { data: newReport, error } = await supabase.from('reports').insert([reportData]).select().single();
+        if (error) throw error;
+        reportId = newReport.id;
+        setCurrentReportId(reportId);
       }
-    } else {
-      const newId = Date.now().toString();
-      newReports.push({ ...reportToSave, id: newId, createdAt: new Date().toISOString() });
-      setCurrentReportId(newId);
+
+      // Sync Indicators
+      // First delete old indicators for this report to simplify sync
+      await supabase.from('indicadores').delete().eq('report_id', reportId);
+      
+      const indicatorsToInsert = indicadores.map(ind => ({
+        report_id: reportId,
+        label: ind.label,
+        value: ind.value,
+        color: ind.color
+      }));
+
+      const { error: indError } = await supabase.from('indicadores').insert(indicatorsToInsert);
+      if (indError) throw indError;
+
+      // Update local state and archive
+      const newReports = [...reports];
+      const reportToSave = { ...data, id: reportId, indicadores, updatedAt: new Date().toISOString() };
+      
+      const idx = newReports.findIndex(r => r.id === reportId);
+      if (idx !== -1) {
+        newReports[idx] = reportToSave;
+      } else {
+        newReports.push(reportToSave);
+      }
+      
+      saveReports(newReports);
+      alert('✅ Reporte sincronizado con Supabase exitosamente');
+    } catch (error) {
+      console.error('Error saving to Supabase:', error);
+      alert('❌ Error al guardar en la nube: ' + error.message);
     }
-    saveReports(newReports);
   };
 
   const handleDelete = (id) => {
@@ -825,6 +999,9 @@ const App = () => {
     setData(r);
     setIndicadores(r.indicadores || initialIndicadores);
     setCurrentReportId(r.id);
+    setSelectedSec(r.secretaria_id || '');
+    setSelectedDir(r.direccion_id || '');
+    setSelectedUni(r.unidad_id || '');
     setView('preview');
   };
 
@@ -916,7 +1093,16 @@ const App = () => {
                   indicadores={indicadores} 
                   setIndicadores={setIndicadores} 
                   onImport={handleImport} 
-                  onDownloadCSV={downloadCSV} 
+                  onDownloadCSV={downloadCSV}
+                  secretarias={secretarias}
+                  direcciones={direcciones}
+                  unidades={unidades}
+                  selectedSec={selectedSec}
+                  setSelectedSec={setSelectedSec}
+                  selectedDir={selectedDir}
+                  setSelectedDir={setSelectedDir}
+                  selectedUni={selectedUni}
+                  setSelectedUni={setSelectedUni}
                 />
               )}
               {view === 'list' && (
