@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Building2, Settings, Upload, Activity, BarChart3, 
+  Building2, Settings, Upload, Layers, Activity, BarChart3, 
   ShieldAlert, AlertTriangle, PlusCircle, Trash2, X, ChevronRight 
 } from 'lucide-react';
 
