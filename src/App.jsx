@@ -266,12 +266,24 @@ const PreviewView = ({ data, indicadores, estadisticas, riesgos }) => (
           <div className="space-y-6">
             <div className="flex flex-wrap items-center gap-3">
               <span className="px-4 py-1.5 bg-brand-500/10 border border-brand-500/30 rounded-full text-[11px] font-black text-brand-400 uppercase tracking-[0.2em]">
-                {data.secretaria}
+                {data.secretaria || 'SECRETARÍA GENERAL'}
               </span>
-              <div className="h-1.5 w-1.5 bg-slate-700 rounded-full"></div>
-              <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em]">
-                {data.direccion}
-              </span>
+              {data.direccion && (
+                <>
+                  <div className="h-1.5 w-1.5 bg-slate-700 rounded-full"></div>
+                  <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em]">
+                    {data.direccion}
+                  </span>
+                </>
+              )}
+              {data.unidad && (
+                <>
+                  <div className="h-1.5 w-1.5 bg-slate-700 rounded-full"></div>
+                  <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    {data.unidad}
+                  </span>
+                </>
+              )}
             </div>
             <div className="space-y-2">
               <h2 className="text-5xl lg:text-7xl font-black text-white tracking-tighter leading-[0.9] font-display max-w-4xl">
@@ -348,7 +360,10 @@ const PreviewView = ({ data, indicadores, estadisticas, riesgos }) => (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="glass-card p-8 space-y-6">
             <div className="flex items-center justify-between">
-              <h4 className="text-sm font-black text-white uppercase tracking-widest">Matriz de Riesgos</h4>
+              <div>
+                <h4 className="text-sm font-black text-white uppercase tracking-widest">Matriz de Riesgos</h4>
+                <p className="text-[9px] font-bold text-slate-600 uppercase tracking-tighter mt-1">ÁMBITO: {data.unidad || data.direccion || data.secretaria}</p>
+              </div>
               <ShieldAlert size={18} className="text-amber-500" />
             </div>
             <div className="space-y-3">
@@ -361,11 +376,16 @@ const PreviewView = ({ data, indicadores, estadisticas, riesgos }) => (
           <div className="bg-red-500/5 border border-red-500/10 p-8 rounded-[2rem] flex flex-col justify-between group overflow-hidden relative">
             <div className="absolute -top-12 -right-12 w-32 h-32 bg-red-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center text-red-500">
-                  <AlertTriangle size={20} />
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center text-red-500">
+                    <AlertTriangle size={20} />
+                  </div>
+                  <h4 className="text-sm font-black text-red-500 uppercase tracking-widest">Alertas de Bloqueo</h4>
                 </div>
-                <h4 className="text-sm font-black text-red-500 uppercase tracking-widest">Alertas de Bloqueo</h4>
+                <span className="text-[9px] font-black text-red-500/40 uppercase bg-red-500/5 px-2 py-1 rounded border border-red-500/10">
+                  REF: {data.unidad || 'INSTITUCIONAL'}
+                </span>
               </div>
               <p className="text-slate-300 font-medium leading-relaxed mb-8">{data.alerta}</p>
             </div>
@@ -952,11 +972,9 @@ const App = () => {
       const uni = unidades.find(u => u.id.toString() === selectedUni);
       if (uni) {
         const uniNombre = uni.nombre;
-        const secNombre = secretarias.find(s => s.id.toString() === selectedSec)?.nombre || data.secretaria;
-        const dirNombre = direcciones.find(d => d.id.toString() === selectedDir)?.nombre || data.direccion;
+        const secNombre = secretarias.find(s => s.id.toString() === selectedSec)?.nombre || '';
+        const dirNombre = direcciones.find(d => d.id.toString() === selectedDir)?.nombre || '';
         
-        setData(prev => ({ ...prev, unidad: uniNombre, secretaria: secNombre, direccion: dirNombre }));
-
         // Buscar si ya existe un reporte para esta combinación exacta
         const existing = reports.find(r => 
           r.secretaria === secNombre && 
@@ -970,10 +988,12 @@ const App = () => {
           setEstadisticas(existing.estadisticas || []);
           setRiesgos(existing.riesgos || []);
         } else {
-          // Resetear a valores por defecto si no existe reporte previo para esta unidad
           setData(prev => ({
             ...prev,
             id: null,
+            secretaria: secNombre,
+            direccion: dirNombre,
+            unidad: uniNombre,
             titulo: `REPORTE: ${uniNombre}`,
             subtitulo: `Análisis estratégico de la unidad perteneciente a la ${dirNombre}.`,
             alerta: 'Sin alertas críticas reportadas.',
@@ -984,7 +1004,7 @@ const App = () => {
         }
       }
     }
-  }, [selectedUni]);
+  }, [selectedUni, reports]);
 
   const fetchSecretarias = async () => {
     try {
