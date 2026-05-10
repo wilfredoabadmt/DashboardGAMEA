@@ -559,45 +559,40 @@ const App = () => {
     }
   }, [selectedDir]);
 
-  // Sincronización de datos al seleccionar unidad
+  // Sincronización de datos al seleccionar unidad o cambiar reportes
   useEffect(() => {
-    if (selectedUni) {
-      const uni = unidades.find(u => u.id.toString() === selectedUni);
-      if (uni) {
-        const uniNombre = uni.nombre;
-        const secNombre = secretarias.find(s => s.id.toString() === selectedSec)?.nombre || '';
-        const dirNombre = direcciones.find(d => d.id.toString() === selectedDir)?.nombre || '';
-        
-        // Buscar si ya existe un reporte para esta combinación exacta
-        const existing = reports.find(r => 
-          r.secretaria === secNombre && 
-          r.direccion === dirNombre && 
-          r.unidad === uniNombre
-        );
+    if (!selectedUni || secretarias.length === 0 || reports.length === 0) return;
 
-        if (existing) {
+    const secNombre = secretarias.find(s => s.id.toString() === selectedSec)?.nombre;
+    const dirNombre = direcciones.find(d => d.id.toString() === selectedDir)?.nombre;
+    const uniNombre = unidades.find(u => u.id.toString() === selectedUni)?.nombre;
+
+    if (secNombre && dirNombre && uniNombre) {
+      const existing = reports.find(r => 
+        r.secretaria === secNombre && 
+        r.direccion === dirNombre && 
+        r.unidad === uniNombre
+      );
+
+      if (existing) {
+        // Evitar actualizaciones innecesarias si el ID es el mismo
+        if (data.id !== existing.id) {
           setData(existing);
           setIndicadores(existing.indicadores || []);
           setEstadisticas(existing.estadisticas || []);
           setRiesgos(existing.riesgos || []);
-        } else {
-          setData(prev => ({
-            ...prev,
-            id: null,
-            secretaria: secNombre,
-            direccion: dirNombre,
-            unidad: uniNombre,
-            titulo: `REPORTE: ${uniNombre}`,
-            subtitulo: `Análisis estratégico de la unidad perteneciente a la ${dirNombre}.`,
-            alerta: 'Sin alertas críticas reportadas.',
-            bloqueos: [],
-            observaciones: '',
-            planAccion: ''
-          }));
+        }
+      } else {
+        // Solo resetear si realmente es una unidad diferente y no tiene reporte
+        if (data.unidad !== uniNombre) {
+          setData({ ...INITIAL_REPORT_STATE, secretaria: secNombre, direccion: dirNombre, unidad: uniNombre });
+          setIndicadores([]);
+          setEstadisticas([]);
+          setRiesgos([]);
         }
       }
     }
-  }, [selectedUni, reports]);
+  }, [selectedUni, reports, secretarias, direcciones, unidades]);
 
   const fetchSecretarias = async () => {
     try {
@@ -1097,13 +1092,19 @@ const App = () => {
             </div>
 
             <div className="mb-8">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="px-2 py-0.5 bg-brand-500/10 border border-brand-500/20 rounded-md text-[10px] font-black text-brand-400 uppercase tracking-widest">
+              <div className="flex flex-wrap gap-2 mb-4">
+                <span className="px-2 py-0.5 bg-brand-500/10 border border-brand-500/20 rounded-md text-[8px] font-black text-brand-400 uppercase tracking-widest">
                   {r.secretaria}
                 </span>
+                <span className="px-2 py-0.5 bg-slate-500/10 border border-slate-500/20 rounded-md text-[8px] font-black text-slate-400 uppercase tracking-widest">
+                  {r.direccion}
+                </span>
+                <span className="px-2 py-0.5 bg-slate-800/50 border border-white/5 rounded-md text-[8px] font-bold text-slate-500 uppercase tracking-widest">
+                  {r.unidad}
+                </span>
               </div>
-              <h4 className="text-xl font-black text-white tracking-tight leading-none group-hover:text-brand-400 transition-colors">{r.titulo}</h4>
-              <p className="text-xs text-slate-500 mt-2 font-medium line-clamp-2">{r.subtitulo}</p>
+              <h4 className="text-xl font-black text-white tracking-tight leading-tight group-hover:text-brand-400 transition-colors">{r.titulo}</h4>
+              <p className="text-xs text-slate-500 mt-3 font-medium line-clamp-2">{r.subtitulo}</p>
             </div>
 
             <div className="mt-auto pt-6 border-t border-white/5 flex items-center justify-between">
