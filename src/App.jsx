@@ -593,21 +593,24 @@ const App = () => {
           setEstadisticas(existing.estadisticas || []);
           setRiesgos(existing.riesgos || []);
         }
-      } else if (data.id !== null || data.unidad !== uniObj.nombre) {
+      } else {
         // Nuevo reporte para esta unidad
-        setData({ 
-          ...INITIAL_REPORT_STATE, 
-          secretaria: secObj.nombre, 
-          direccion: dirObj.nombre, 
-          unidad: uniObj.nombre 
-        });
-        setIndicadores([
-          { id: 1, label: 'EJECUCIÓN PRESUPUESTARIA', value: 0, color: '#38abf8' },
-          { id: 2, label: 'CUMPLIMIENTO DE METAS POI', value: 0, color: '#10b981' },
-          { id: 3, label: 'SITUACIÓN DE ACTIVOS', value: 0, color: '#f59e0b' },
-        ]);
-        setEstadisticas([]);
-        setRiesgos([]);
+        // EVITAR BUCLE INFINITO: Solo resetear si la unidad en data es distinta a la seleccionada
+        if (data.unidad !== uniObj.nombre || data.id !== null) {
+          setData({ 
+            ...INITIAL_REPORT_STATE, 
+            secretaria: secObj.nombre, 
+            direccion: dirObj.nombre, 
+            unidad: uniObj.nombre 
+          });
+          setIndicadores([
+            { id: 1, label: 'EJECUCIÓN PRESUPUESTARIA', value: 0, color: '#38abf8' },
+            { id: 2, label: 'CUMPLIMIENTO DE METAS POI', value: 0, color: '#10b981' },
+            { id: 3, label: 'SITUACIÓN DE ACTIVOS', value: 0, color: '#f59e0b' },
+          ]);
+          setEstadisticas([]);
+          setRiesgos([]);
+        }
       }
     }
   }, [selectedUni, reports, secretarias, direcciones, unidades]);
