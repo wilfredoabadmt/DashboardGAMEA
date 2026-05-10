@@ -139,10 +139,13 @@ const Sidebar = ({ currentView, onViewChange, isOpen, setIsOpen }) => {
         className={`fixed top-0 left-0 bottom-0 w-72 bg-slate-950 border-r border-white/5 z-50 transform transition-transform duration-300 lg:translate-x-0 no-print ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
         <div className="h-full flex flex-col p-6">
-          <div className="flex items-center gap-4 mb-12 px-2">
-            <div className="w-12 h-12 bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl flex items-center justify-center shadow-2xl shadow-brand-500/20">
-              <Layers size={24} className="text-white" />
-            </div>
+           <div className="flex items-center gap-4 mb-12 px-2">
+             <div>
+               <img src="/gamea.png" alt="GAMEA Logo" className="h-8 w-auto object-contain" />
+               <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] mt-1.5">v1.0.4 Command</p>
+             </div>
+           </div>
+
             <div>
                <img src="/gamea.png" alt="GAMEA Logo" className="h-8 w-auto object-contain" />
 
