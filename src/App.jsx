@@ -144,7 +144,8 @@ const Sidebar = ({ currentView, onViewChange, isOpen, setIsOpen }) => {
               <Layers size={24} className="text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-white tracking-tighter leading-none font-display">GAMEA<span className="text-brand-500">HQ</span></h1>
+               <img src="/gamea.png" alt="GAMEA Logo" className="h-8 w-auto object-contain" />
+
               <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] mt-1.5">v1.0.4 Command</p>
             </div>
           </div>
@@ -322,7 +323,11 @@ const PreviewView = ({ data, indicadores, estadisticas, riesgos }) => (
             </div>
             <div className="glass-card p-6 rounded-2xl">
               <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Autoridad</div>
-              <div className="text-sm font-bold text-white mb-1 truncate">{data.alcalde}</div>
+               <div className="flex justify-center mb-3">
+                 <img src="/eliser.png" alt="Logo Eliser" className="h-16 w-auto object-contain" />
+               </div>
+               <div className="text-sm font-bold text-white mb-1 truncate text-center">{data.alcalde}</div>
+
               <div className="text-[10px] text-indigo-400 font-bold uppercase">Alcalde Electo</div>
             </div>
           </div>
