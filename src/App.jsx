@@ -142,16 +142,10 @@ const Sidebar = ({ currentView, onViewChange, isOpen, setIsOpen }) => {
           <div className="flex items-center gap-4 mb-12 px-2">
             <div>
               <img src="/gamea.png" alt="GAMEA Logo" className="h-8 w-auto object-contain" />
+              <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] mt-1.5">v1.0.4</p>
             </div>
           </div>
-
-          <div>
-            <img src="/gamea.png" alt="GAMEA Logo" className="h-8 w-auto object-contain" />
-
-            <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] mt-1.5">v1.0.4 Command</p>
-          </div>
         </div>
-
         <nav className="flex-1 space-y-2">
           <div className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-4 px-4">Menu Principal</div>
           {navItems.map(item => (
