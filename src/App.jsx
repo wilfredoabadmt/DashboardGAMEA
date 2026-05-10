@@ -464,6 +464,22 @@ const PreviewView = ({ data, indicadores, estadisticas, riesgos }) => (
 
 
 // El componente ListViewComponent y EditorView se mueven dentro de App para evitar problemas de scope
+const INITIAL_REPORT_STATE = {
+  id: null,
+  secretaria: '',
+  direccion: '',
+  unidad: '',
+  titulo: 'REPORTE ESTRATÉGICO DE TRANSICIÓN',
+  subtitulo: 'Análisis de situación administrativa, financiera y legal para la nueva gestión.',
+  acreditado: 'WILFREDO ABAD',
+  alcalde: 'ELIESER ROCA',
+  fecha: new Date().toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' }).toUpperCase(),
+  alerta: '',
+  bloqueos: [],
+  ley: 'LEY 1178 (SAFCO) / LEY 482',
+  observaciones: '',
+  planAccion: ''
+};
 
 const App = () => {
   const [currentView, setCurrentView] = useState('preview');
@@ -575,7 +591,6 @@ const App = () => {
       );
 
       if (existing) {
-        // Evitar actualizaciones innecesarias si el ID es el mismo
         if (data.id !== existing.id) {
           setData(existing);
           setIndicadores(existing.indicadores || []);
@@ -584,9 +599,14 @@ const App = () => {
         }
       } else {
         // Solo resetear si realmente es una unidad diferente y no tiene reporte
-        if (data.unidad !== uniNombre) {
+        // Y evitar bucles infinitos comparando los campos clave
+        if (data.unidad !== uniNombre || data.id !== null) {
           setData({ ...INITIAL_REPORT_STATE, secretaria: secNombre, direccion: dirNombre, unidad: uniNombre });
-          setIndicadores([]);
+          setIndicadores([
+            { id: 1, label: 'EJECUCIÓN PRESUPUESTARIA', value: 0, color: '#38abf8' },
+            { id: 2, label: 'CUMPLIMIENTO DE METAS POI', value: 0, color: '#10b981' },
+            { id: 3, label: 'SITUACIÓN DE ACTIVOS', value: 0, color: '#f59e0b' },
+          ]);
           setEstadisticas([]);
           setRiesgos([]);
         }
@@ -1211,6 +1231,7 @@ const App = () => {
                 setSelectedSec(''); 
                 setSelectedDir(''); 
                 setSelectedUni(''); 
+                setData(INITIAL_REPORT_STATE);
                 setIndicadores([
                   { id: 1, label: 'EJECUCIÓN PRESUPUESTARIA', value: 84, color: '#38abf8' },
                   { id: 2, label: 'CUMPLIMIENTO DE METAS POI', value: 92, color: '#10b981' },
