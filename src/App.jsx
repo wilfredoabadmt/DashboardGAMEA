@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ORGANIGRAMA } from './lib/constants';
 import { supabase } from './lib/supabase';
-import './App.css';
+import { Settings } from 'lucide-react';
 
 import Sidebar from './components/layout/Sidebar';
 import TopBar from './components/layout/TopBar';
