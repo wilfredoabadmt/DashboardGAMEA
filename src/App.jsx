@@ -136,7 +136,7 @@ const Sidebar = ({ currentView, onViewChange, isOpen, setIsOpen }) => {
       </AnimatePresence>
 
       <motion.aside
-        className={`fixed top-0 left-0 bottom-0 w-72 bg-slate-950 border-r border-white/5 z-50 transform transition-transform duration-300 lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`fixed top-0 left-0 bottom-0 w-72 bg-slate-950 border-r border-white/5 z-50 transform transition-transform duration-300 lg:translate-x-0 no-print ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
         <div className="h-full flex flex-col p-6">
           <div className="flex items-center gap-4 mb-12 px-2">
@@ -215,6 +215,13 @@ const TopBar = ({ title, subtitle, onSave, isSaveActive, onMenuClick }) => (
             className="bg-transparent border-none outline-none text-sm px-3 text-white placeholder:text-slate-600 w-48 xl:w-64"
           />
         </div>
+
+        <button
+          onClick={() => window.print()}
+          className="hidden lg:flex items-center gap-2 px-4 py-2.5 bg-white/5 text-slate-300 hover:text-white hover:bg-white/10 rounded-xl border border-white/5 transition-all text-xs font-black uppercase tracking-widest"
+        >
+          <Download size={18} /> PDF
+        </button>
 
         <button className="p-2.5 bg-white/5 text-slate-400 hover:text-white rounded-xl border border-white/5 transition-all relative">
           <Bell size={20} />
@@ -403,6 +410,35 @@ const PreviewView = ({ data, indicadores, estadisticas, riesgos }) => (
         </div>
       </div>
     </div>
+
+    {/* DETAILED ANALYSIS SECTION */}
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-12">
+      <div className="glass-card p-10 space-y-6 relative overflow-hidden group">
+        <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity">
+          <Eye size={120} />
+        </div>
+        <h4 className="text-sm font-black text-white uppercase tracking-[0.2em] flex items-center gap-3">
+          <Eye size={18} className="text-indigo-400" />
+          Observaciones y Hallazgos
+        </h4>
+        <div className="p-6 bg-white/5 rounded-2xl border border-white/5">
+          <p className="text-slate-300 leading-relaxed italic text-sm">"{data.observaciones}"</p>
+        </div>
+      </div>
+      
+      <div className="glass-card p-10 space-y-6 relative overflow-hidden group">
+        <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity">
+          <CheckCircle size={120} />
+        </div>
+        <h4 className="text-sm font-black text-white uppercase tracking-[0.2em] flex items-center gap-3">
+          <CheckCircle size={18} className="text-brand-400" />
+          Ruta de Acción Estratégica
+        </h4>
+        <div className="p-6 bg-brand-500/5 rounded-2xl border border-brand-500/10">
+          <p className="text-brand-100 leading-relaxed font-medium text-sm">{data.planAccion}</p>
+        </div>
+      </div>
+    </div>
   </motion.div>
 );
 
@@ -509,12 +545,24 @@ const EditorView = ({
                 </div>
               ))}
               <div>
-                <label className="text-[10px] font-black text-slate-500 block mb-2 uppercase tracking-widest">Alerta Principal</label>
+                <label className="text-[10px] font-black text-slate-500 block mb-2 uppercase tracking-widest">Observaciones de Auditoría</label>
                 <textarea
-                  value={data.alerta}
-                  onChange={e => setData({ ...data, alerta: e.target.value })}
-                  rows={3}
+                  value={data.observaciones}
+                  onChange={e => setData({ ...data, observaciones: e.target.value })}
+                  rows={2}
                   className="w-full bg-slate-900/50 border border-white/5 rounded-xl p-4 text-sm text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all resize-none"
+                  placeholder="Detalle hallazgos relevantes..."
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-black text-slate-500 block mb-2 uppercase tracking-widest">Plan de Acción Inmediato</label>
+                <textarea
+                  value={data.planAccion}
+                  onChange={e => setData({ ...data, planAccion: e.target.value })}
+                  rows={2}
+                  className="w-full bg-slate-900/50 border border-white/5 rounded-xl p-4 text-sm text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all resize-none"
+                  placeholder="Pasos críticos a seguir..."
                 />
               </div>
 
@@ -730,7 +778,9 @@ const App = () => {
     fecha: new Date().toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' }).toUpperCase(),
     alerta: 'Se han identificado inconsistencias críticas en los activos fijos de la unidad operativa. Se requiere auditoría externa inmediata.',
     bloqueos: ['ACTIVOS FIJOS', 'PRESUPUESTO 2024', 'PERSONAL'],
-    ley: 'LEY 1178 (SAFCO) / LEY 482'
+    ley: 'LEY 1178 (SAFCO) / LEY 482',
+    observaciones: 'La documentación de respaldo para los últimos 3 meses no ha sido digitalizada íntegramente.',
+    planAccion: '1. Conciliación física inmediata. 2. Regularización de devengados pendientes. 3. Informe circunstanciado a MAE.'
   });
 
   const [indicadores, setIndicadores] = useState([
@@ -751,10 +801,27 @@ const App = () => {
     { title: 'Contratos con vencimiento próximo', imp: 3, cat: 'LEGAL' },
   ]);
 
-  // Carga inicial de datos desde Supabase
+  // Carga inicial de datos
   useEffect(() => {
     fetchSecretarias();
+    fetchReports();
   }, []);
+
+  const fetchReports = async () => {
+    try {
+      const { data: supabaseReports, error } = await supabase
+        .from('reports')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      if (supabaseReports) setReports(supabaseReports);
+    } catch (err) {
+      console.warn('Usando respaldo de localStorage:', err);
+      const local = localStorage.getItem('gamea_reports');
+      if (local) setReports(JSON.parse(local));
+    }
+  };
 
   // Carga de direcciones cuando cambia la secretaría
   useEffect(() => {
@@ -822,13 +889,62 @@ const App = () => {
 
   const handleSave = async () => {
     setIsSaving(true);
-    // Simulación de guardado
-    setTimeout(() => {
-      const newReport = { ...data, indicadores, id: Date.now() };
-      setReports([newReport, ...reports]);
-      setIsSaving(false);
-      setCurrentView('list');
-    }, 1500);
+    const reportToSave = {
+      ...data,
+      indicadores,
+      fecha: new Date().toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' }).toUpperCase(),
+    };
+
+    try {
+      let result;
+      // Si el ID es un string (UUID de Supabase), actualizamos. Si es null o número, insertamos.
+      if (data.id && typeof data.id === 'string' && data.id.length > 20) {
+        result = await supabase
+          .from('reports')
+          .update(reportToSave)
+          .eq('id', data.id)
+          .select();
+      } else {
+        const { id, ...saveData } = reportToSave;
+        result = await supabase
+          .from('reports')
+          .insert([saveData])
+          .select();
+      }
+
+      if (result.error) throw result.error;
+      
+      const savedReport = result.data[0];
+      const updatedReports = [savedReport, ...reports.filter(r => r.id !== savedReport.id)];
+      setReports(updatedReports);
+      localStorage.setItem('gamea_reports', JSON.stringify(updatedReports));
+      setData(savedReport);
+      
+    } catch (err) {
+      console.error('Guardando en localStorage por error de red:', err);
+      const localReport = { ...reportToSave, id: data.id || Date.now() };
+      const updatedReports = [localReport, ...reports.filter(r => r.id !== localReport.id)];
+      setReports(updatedReports);
+      localStorage.setItem('gamea_reports', JSON.stringify(updatedReports));
+    } finally {
+      setTimeout(() => {
+        setIsSaving(false);
+        setCurrentView('list');
+      }, 1000);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      if (typeof id === 'string' && id.length > 20) {
+        await supabase.from('reports').delete().eq('id', id);
+      }
+    } catch (err) {
+      console.error('Error al eliminar:', err);
+    }
+    const updated = reports.filter(r => r.id !== id);
+    setReports(updated);
+    localStorage.setItem('gamea_reports', JSON.stringify(updated));
   };
 
   const handleImportCSV = (e) => {
@@ -904,7 +1020,7 @@ const App = () => {
             <ListViewComponent
               reports={reports}
               onSelect={(r) => { setData(r); setIndicadores(r.indicadores); setCurrentView('preview'); }}
-              onDelete={(id) => setReports(reports.filter(r => r.id !== id))}
+              onDelete={handleDelete}
               onCreate={() => { setSelectedSec(''); setSelectedDir(''); setSelectedUni(''); setCurrentView('editor'); }}
             />
           )}
