@@ -444,12 +444,15 @@ const PreviewView = ({ data, indicadores, estadisticas, riesgos }) => (
 
 
 const EditorView = ({
-  data, setData, indicadores, setIndicadores, onImport, onDownloadCSV,
+  data, setData, indicadores, setIndicadores, 
+  estadisticas, setEstadisticas, riesgos, setRiesgos,
+  onImport, onDownloadCSV,
   secretarias, direcciones, unidades,
   selectedSec, setSelectedSec,
   selectedDir, setSelectedDir,
   selectedUni, setSelectedUni
 }) => {
+  const [activeTab, setActiveTab] = useState('indicadores');
   const isSelectionComplete = selectedSec && selectedDir && selectedUni;
 
   return (
@@ -612,16 +615,29 @@ const EditorView = ({
           </div>
         ) : (
           <div className="glass-card p-8 rounded-3xl h-full">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h3 className="text-lg font-black text-white uppercase tracking-wider flex items-center gap-3">
-                  <Activity size={20} className="text-brand-400" />
-                  Editor de Indicadores
-                </h3>
-                <p className="text-xs text-slate-500 font-medium mt-1">Personaliza las métricas visuales del dashboard.</p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+              <div className="flex bg-white/5 p-1 rounded-2xl border border-white/5">
+                {[
+                  { id: 'indicadores', label: 'Indicadores', icon: Activity },
+                  { id: 'stats', label: 'Estadísticas', icon: BarChart3 },
+                  { id: 'riesgos', label: 'Riesgos', icon: ShieldAlert },
+                ].map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-brand-600 text-white shadow-lg shadow-brand-600/20' : 'text-slate-500 hover:text-slate-300'}`}
+                  >
+                    <tab.icon size={14} />
+                    {tab.label}
+                  </button>
+                ))}
               </div>
               <button
-                onClick={() => setIndicadores([...indicadores, { id: Date.now(), label: 'NUEVO INDICADOR', value: 50, color: '#38abf8' }])}
+                onClick={() => {
+                  if (activeTab === 'indicadores') setIndicadores([...indicadores, { id: Date.now(), label: 'NUEVO INDICADOR', value: 50, color: '#38abf8' }]);
+                  if (activeTab === 'stats') setEstadisticas([...estadisticas, { id: Date.now(), label: 'NUEVA MÉTRICA', val: 100, trend: 'up' }]);
+                  if (activeTab === 'riesgos') setRiesgos([...riesgos, { id: Date.now(), title: 'NUEVO RIESGO', imp: 2, cat: 'GENERAL' }]);
+                }}
                 className="px-6 py-2.5 bg-brand-600 hover:bg-brand-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-brand-600/20 hover:scale-105"
               >
                 <PlusCircle size={16} /> Añadir
@@ -629,7 +645,7 @@ const EditorView = ({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 overflow-y-auto max-h-[800px] pr-2 custom-scrollbar">
-              {indicadores.map(ind => (
+              {activeTab === 'indicadores' && indicadores.map(ind => (
                 <div key={ind.id} className="bg-slate-900/50 p-6 rounded-2xl border border-white/5 hover:border-brand-500/30 transition-all group">
                   <div className="flex items-center justify-between mb-6">
                     <input
@@ -638,43 +654,75 @@ const EditorView = ({
                       onChange={e => setIndicadores(indicadores.map(x => x.id === ind.id ? { ...x, label: e.target.value.toUpperCase() } : x))}
                       className="bg-transparent text-sm font-black text-white border-b border-transparent focus:border-brand-500 outline-none w-full mr-4"
                     />
-                    <button
-                      onClick={() => setIndicadores(indicadores.filter(x => x.id !== ind.id))}
-                      className="p-2 text-slate-600 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
-                    >
+                    <button onClick={() => setIndicadores(indicadores.filter(x => x.id !== ind.id))} className="p-2 text-slate-600 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all">
                       <Trash2 size={18} />
                     </button>
                   </div>
-
                   <div className="space-y-6">
                     <div className="flex items-center gap-6">
-                      <input
-                        type="range"
-                        value={ind.value}
-                        onChange={e => setIndicadores(indicadores.map(x => x.id === ind.id ? { ...x, value: parseInt(e.target.value) } : x))}
-                        min="0"
-                        max="100"
-                        className="flex-1 accent-brand-500"
-                      />
+                      <input type="range" value={ind.value} onChange={e => setIndicadores(indicadores.map(x => x.id === ind.id ? { ...x, value: parseInt(e.target.value) } : x))} min="0" max="100" className="flex-1 accent-brand-500" />
                       <span className="text-xl font-black text-white min-w-[3rem] text-right font-display">{ind.value}%</span>
                     </div>
-
                     <div className="flex items-center gap-4">
-                      <div className="relative group/color">
-                        <input
-                          type="color"
-                          value={ind.color}
-                          onChange={e => setIndicadores(indicadores.map(x => x.id === ind.id ? { ...x, color: e.target.value } : x))}
-                          className="w-12 h-12 rounded-xl cursor-pointer bg-transparent border-none"
-                        />
-                        <div className="absolute inset-0 rounded-xl pointer-events-none border border-white/10"></div>
-                      </div>
+                      <input type="color" value={ind.color} onChange={e => setIndicadores(indicadores.map(x => x.id === ind.id ? { ...x, color: e.target.value } : x))} className="w-12 h-12 rounded-xl cursor-pointer bg-transparent border-none" />
                       <div className="flex-1 h-3 bg-slate-800 rounded-full overflow-hidden">
-                        <div
-                          className="h-full transition-all duration-500"
-                          style={{ width: `${ind.value}%`, backgroundColor: ind.color, boxShadow: `0 0 15px ${ind.color}66` }}
-                        ></div>
+                        <div className="h-full transition-all duration-500" style={{ width: `${ind.value}%`, backgroundColor: ind.color, boxShadow: `0 0 15px ${ind.color}66` }}></div>
                       </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {activeTab === 'stats' && estadisticas.map(s => (
+                <div key={s.id} className="bg-slate-900/50 p-6 rounded-2xl border border-white/5 hover:border-brand-500/30 transition-all group">
+                  <div className="flex items-center justify-between mb-6">
+                    <input
+                      type="text"
+                      value={s.label}
+                      onChange={e => setEstadisticas(estadisticas.map(x => x.id === s.id ? { ...x, label: e.target.value.toUpperCase() } : x))}
+                      className="bg-transparent text-sm font-black text-white border-b border-transparent focus:border-brand-500 outline-none w-full mr-4"
+                    />
+                    <button onClick={() => setEstadisticas(estadisticas.filter(x => x.id !== s.id))} className="p-2 text-slate-600 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all">
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-[10px] text-slate-500 block mb-2 uppercase font-black">Valor</label>
+                      <input type="number" value={s.val} onChange={e => setEstadisticas(estadisticas.map(x => x.id === s.id ? { ...x, val: parseInt(e.target.value) } : x))} className="w-full bg-slate-950/50 border border-white/5 rounded-xl p-3 text-sm text-white" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-500 block mb-2 uppercase font-black">Tendencia</label>
+                      <select value={s.trend} onChange={e => setEstadisticas(estadisticas.map(x => x.id === s.id ? { ...x, trend: e.target.value } : x))} className="w-full bg-slate-950/50 border border-white/5 rounded-xl p-3 text-sm text-white outline-none">
+                        <option value="up">ASCENDENTE</option>
+                        <option value="down">DESCENDENTE</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {activeTab === 'riesgos' && riesgos.map(r => (
+                <div key={r.id} className="bg-slate-900/50 p-6 rounded-2xl border border-white/5 hover:border-brand-500/30 transition-all group">
+                  <div className="flex items-center justify-between mb-6">
+                    <input
+                      type="text"
+                      value={r.title}
+                      onChange={e => setRiesgos(riesgos.map(x => x.id === r.id ? { ...x, title: e.target.value } : x))}
+                      className="bg-transparent text-sm font-black text-white border-b border-transparent focus:border-brand-500 outline-none w-full mr-4"
+                    />
+                    <button onClick={() => setRiesgos(riesgos.filter(x => x.id !== r.id))} className="p-2 text-slate-600 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all">
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-[10px] text-slate-500 block mb-2 uppercase font-black">Impacto (1-3)</label>
+                      <input type="number" min="1" max="3" value={r.imp} onChange={e => setRiesgos(riesgos.map(x => x.id === r.id ? { ...x, imp: parseInt(e.target.value) } : x))} className="w-full bg-slate-950/50 border border-white/5 rounded-xl p-3 text-sm text-white" />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-500 block mb-2 uppercase font-black">Categoría</label>
+                      <input type="text" value={r.cat} onChange={e => setRiesgos(riesgos.map(x => x.id === r.id ? { ...x, cat: e.target.value.toUpperCase() } : x))} className="w-full bg-slate-950/50 border border-white/5 rounded-xl p-3 text-sm text-white" />
                     </div>
                   </div>
                 </div>
@@ -740,7 +788,13 @@ const ListViewComponent = ({ reports, onSelect, onDelete, onCreate }) => (
               <span className="text-[10px] font-bold text-slate-500">{r.fecha}</span>
             </div>
             <button
-              onClick={() => onSelect(r)}
+              onClick={() => {
+                setData(r);
+                setIndicadores(r.indicadores || []);
+                setEstadisticas(r.estadisticas || []);
+                setRiesgos(r.riesgos || []);
+                setCurrentView('preview');
+              }}
               className="flex items-center gap-2 text-[10px] font-black text-brand-400 uppercase tracking-widest hover:text-white transition-colors"
             >
               Abrir <ChevronRight size={14} />
@@ -789,16 +843,16 @@ const App = () => {
     { id: 3, label: 'SITUACIÓN DE ACTIVOS', value: 45, color: '#f59e0b' },
   ]);
 
-  const [estadisticas] = useState([
-    { label: 'Proyectos Concluidos', val: 124, trend: 'up' },
-    { label: 'Procesos Legales', val: 12, trend: 'down' },
-    { label: 'Personal Vigente', val: 450, trend: 'up' },
+  const [estadisticas, setEstadisticas] = useState([
+    { id: 1, label: 'Proyectos Concluidos', val: 124, trend: 'up' },
+    { id: 2, label: 'Procesos Legales', val: 12, trend: 'down' },
+    { id: 3, label: 'Personal Vigente', val: 450, trend: 'up' },
   ]);
 
-  const [riesgos] = useState([
-    { title: 'Déficit presupuestario en Caja y Bancos', imp: 3, cat: 'FINANCIERO' },
-    { title: 'Falta de conciliación de activos fijos', imp: 2, cat: 'ADMINISTRATIVO' },
-    { title: 'Contratos con vencimiento próximo', imp: 3, cat: 'LEGAL' },
+  const [riesgos, setRiesgos] = useState([
+    { id: 1, title: 'Déficit presupuestario en Caja y Bancos', imp: 3, cat: 'FINANCIERO' },
+    { id: 2, title: 'Falta de conciliación de activos fijos', imp: 2, cat: 'ADMINISTRATIVO' },
+    { id: 3, title: 'Contratos con vencimiento próximo', imp: 3, cat: 'LEGAL' },
   ]);
 
   // Carga inicial de datos
@@ -892,6 +946,8 @@ const App = () => {
     const reportToSave = {
       ...data,
       indicadores,
+      estadisticas,
+      riesgos,
       fecha: new Date().toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' }).toUpperCase(),
     };
 
@@ -1002,6 +1058,10 @@ const App = () => {
               setData={setData}
               indicadores={indicadores}
               setIndicadores={setIndicadores}
+              estadisticas={estadisticas}
+              setEstadisticas={setEstadisticas}
+              riesgos={riesgos}
+              setRiesgos={setRiesgos}
               onImport={handleImportCSV}
               onDownloadCSV={downloadCSVTemplate}
               secretarias={secretarias}
@@ -1019,9 +1079,35 @@ const App = () => {
           {currentView === 'list' && (
             <ListViewComponent
               reports={reports}
-              onSelect={(r) => { setData(r); setIndicadores(r.indicadores); setCurrentView('preview'); }}
+              onSelect={(r) => { 
+                setData(r); 
+                setIndicadores(r.indicadores || []); 
+                setEstadisticas(r.estadisticas || []);
+                setRiesgos(r.riesgos || []);
+                setCurrentView('preview'); 
+              }}
               onDelete={handleDelete}
-              onCreate={() => { setSelectedSec(''); setSelectedDir(''); setSelectedUni(''); setCurrentView('editor'); }}
+              onCreate={() => { 
+                setSelectedSec(''); 
+                setSelectedDir(''); 
+                setSelectedUni(''); 
+                setIndicadores([
+                  { id: 1, label: 'EJECUCIÓN PRESUPUESTARIA', value: 84, color: '#38abf8' },
+                  { id: 2, label: 'CUMPLIMIENTO DE METAS POI', value: 92, color: '#10b981' },
+                  { id: 3, label: 'SITUACIÓN DE ACTIVOS', value: 45, color: '#f59e0b' },
+                ]);
+                setEstadisticas([
+                  { id: 1, label: 'Proyectos Concluidos', val: 124, trend: 'up' },
+                  { id: 2, label: 'Procesos Legales', val: 12, trend: 'down' },
+                  { id: 3, label: 'Personal Vigente', val: 450, trend: 'up' },
+                ]);
+                setRiesgos([
+                  { id: 1, title: 'Déficit presupuestario en Caja y Bancos', imp: 3, cat: 'FINANCIERO' },
+                  { id: 2, title: 'Falta de conciliación de activos fijos', imp: 2, cat: 'ADMINISTRATIVO' },
+                  { id: 3, title: 'Contratos con vencimiento próximo', imp: 3, cat: 'LEGAL' },
+                ]);
+                setCurrentView('editor'); 
+              }}
             />
           )}
 
