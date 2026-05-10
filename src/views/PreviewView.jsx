@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Building2, Clock, Target, Zap, ShieldAlert, Eye, CheckCircle, FileText } from 'lucide-react';
+import { Building2, Clock, Target, Zap, ShieldAlert, Eye, CheckCircle, FileText, AlertTriangle, TrendingUp, Activity } from 'lucide-react';
 import FuturisticGauge from '../components/ui/FuturisticGauge';
 import StatCard from '../components/ui/StatCard';
 import RiskBadge from '../components/ui/RiskBadge';
@@ -79,9 +79,7 @@ const PreviewView = ({ data, indicadores, estadisticas, riesgos }) => (
             </div>
             <div className="glass-card p-6 rounded-2xl">
               <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Autoridad</div>
-               <div className="flex justify-center mb-3">
-                 <img src="/eliser.png" alt="Logo Eliser" className="h-16 w-auto object-contain" />
-               </div>
+
                <div className="text-sm font-bold text-white mb-1 truncate text-center">{data.alcalde}</div>
                <div className="text-[10px] text-indigo-400 font-bold uppercase">Alcalde Electo</div>
             </div>
