@@ -713,13 +713,20 @@ const App = () => {
   };
 
   const handleDelete = async (id) => {
+    if (!window.confirm('¿Estás seguro de que deseas eliminar este reporte? Esta acción no se puede deshacer.')) {
+      return;
+    }
+
     try {
       if (typeof id === 'string' && id.length > 20) {
-        await supabase.from('reports').delete().eq('id', id);
+        const { error } = await supabase.from('reports').delete().eq('id', id);
+        if (error) throw error;
       }
     } catch (err) {
-      console.error('Error al eliminar:', err);
+      console.error('Error al eliminar en Supabase:', err);
+      alert('Error al eliminar el reporte del servidor, pero se quitará de la vista local.');
     }
+
     const updated = reports.filter(r => r.id !== id);
     setReports(updated);
     localStorage.setItem('gamea_reports', JSON.stringify(updated));
