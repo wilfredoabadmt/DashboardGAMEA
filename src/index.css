@@ -1,5 +1,32 @@
 @import "tailwindcss";
 
+/* Configuración de Temas (Sintaxis Tailwind 4) */
+@theme {
+  --color-brand-50: #f0f7ff;
+  --color-brand-100: #e0effe;
+  --color-brand-200: #bae0fd;
+  --color-brand-300: #7cc8fb;
+  --color-brand-400: #38abf8;
+  --color-brand-500: #0e8fe9;
+  --color-brand-600: #0271c7;
+  --color-brand-700: #035aa3;
+  --color-brand-800: #074d86;
+  --color-brand-900: #0c416f;
+  --color-brand-950: #082949;
+  
+  --font-sans: "Inter", sans-serif;
+  --font-display: "Outfit", sans-serif;
+}
+
+/* Clases personalizadas */
+@utility glass-card {
+  @apply bg-slate-900/40 backdrop-blur-xl border border-white/5;
+}
+
+@utility glass {
+  @apply bg-slate-900/60 backdrop-blur-xl border border-white/5;
+}
+
 :root {
   color-scheme: dark;
 }
@@ -8,4 +35,5 @@ body {
   margin: 0;
   padding: 0;
   background-color: #020617; /* slate-950 */
+  font-family: var(--font-sans);
 }
