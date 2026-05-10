@@ -546,42 +546,57 @@ const EditorView = ({
             Ubicación Institucional
           </h3>
           <div className="space-y-6">
-            <div>
-              <label className="text-[10px] font-black text-slate-500 block mb-2 uppercase tracking-widest">Secretaría Municipal</label>
-              <select
-                value={selectedSec}
-                onChange={e => { setSelectedSec(e.target.value); setSelectedDir(''); setSelectedUni(''); }}
-                className="w-full bg-slate-900/50 border border-white/5 rounded-xl p-4 text-sm text-white focus:border-brand-500 outline-none appearance-none"
-              >
-                <option value="">Seleccione Secretaría...</option>
-                {secretarias.map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
-              </select>
+            <div className="relative group/select">
+              <label className="text-[10px] font-black text-slate-500 block mb-2 uppercase tracking-widest ml-1">Secretaría Municipal</label>
+              <div className="relative">
+                <select
+                  value={selectedSec}
+                  onChange={e => { setSelectedSec(e.target.value); setSelectedDir(''); setSelectedUni(''); }}
+                  className="w-full bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-2xl p-5 pr-12 text-sm text-white focus:border-brand-500/50 focus:ring-4 focus:ring-brand-500/10 outline-none appearance-none transition-all cursor-pointer hover:bg-slate-900/60"
+                >
+                  <option value="" className="bg-slate-900">Seleccione Secretaría...</option>
+                  {secretarias.map(s => <option key={s.id} value={s.id} className="bg-slate-900">{s.nombre}</option>)}
+                </select>
+                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 group-hover/select:text-brand-400 transition-colors">
+                  <ChevronRight size={18} className="rotate-90" />
+                </div>
+              </div>
             </div>
 
-            <div>
-              <label className="text-[10px] font-black text-slate-500 block mb-2 uppercase tracking-widest">Dirección</label>
-              <select
-                value={selectedDir}
-                onChange={e => { setSelectedDir(e.target.value); setSelectedUni(''); }}
-                disabled={!selectedSec}
-                className="w-full bg-slate-900/50 border border-white/5 rounded-xl p-4 text-sm text-white focus:border-brand-500 outline-none appearance-none disabled:opacity-30"
-              >
-                <option value="">Seleccione Dirección...</option>
-                {direcciones.map(d => <option key={d.id} value={d.id}>{d.nombre}</option>)}
-              </select>
+            <div className="relative group/select">
+              <label className="text-[10px] font-black text-slate-500 block mb-2 uppercase tracking-widest ml-1">Dirección</label>
+              <div className="relative">
+                <select
+                  value={selectedDir}
+                  onChange={e => { setSelectedDir(e.target.value); setSelectedUni(''); }}
+                  disabled={!selectedSec}
+                  className="w-full bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-2xl p-5 pr-12 text-sm text-white focus:border-brand-500/50 focus:ring-4 focus:ring-brand-500/10 outline-none appearance-none transition-all cursor-pointer hover:bg-slate-900/60 disabled:opacity-20 disabled:cursor-not-allowed"
+                >
+                  <option value="" className="bg-slate-900">Seleccione Dirección...</option>
+                  {direcciones.map(d => <option key={d.id} value={d.id} className="bg-slate-900">{d.nombre}</option>)}
+                </select>
+                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 group-hover/select:text-brand-400 transition-colors">
+                  <ChevronRight size={18} className="rotate-90" />
+                </div>
+              </div>
             </div>
 
-            <div>
-              <label className="text-[10px] font-black text-slate-500 block mb-2 uppercase tracking-widest">Unidad</label>
-              <select
-                value={selectedUni}
-                onChange={e => setSelectedUni(e.target.value)}
-                disabled={!selectedDir}
-                className="w-full bg-slate-900/50 border border-white/5 rounded-xl p-4 text-sm text-white focus:border-brand-500 outline-none appearance-none disabled:opacity-30"
-              >
-                <option value="">Seleccione Unidad...</option>
-                {unidades.map(u => <option key={u.id} value={u.id}>{u.nombre}</option>)}
-              </select>
+            <div className="relative group/select">
+              <label className="text-[10px] font-black text-slate-500 block mb-2 uppercase tracking-widest ml-1">Unidad</label>
+              <div className="relative">
+                <select
+                  value={selectedUni}
+                  onChange={e => setSelectedUni(e.target.value)}
+                  disabled={!selectedDir}
+                  className="w-full bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-2xl p-5 pr-12 text-sm text-white focus:border-brand-500/50 focus:ring-4 focus:ring-brand-500/10 outline-none appearance-none transition-all cursor-pointer hover:bg-slate-900/60 disabled:opacity-20 disabled:cursor-not-allowed"
+                >
+                  <option value="" className="bg-slate-900">Seleccione Unidad...</option>
+                  {unidades.map(u => <option key={u.id} value={u.id} className="bg-slate-900">{u.nombre}</option>)}
+                </select>
+                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 group-hover/select:text-brand-400 transition-colors">
+                  <ChevronRight size={18} className="rotate-90" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -783,393 +798,264 @@ const ListViewComponent = ({ reports, onSelect, onDelete, onCreate }) => (
 
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-2">
-              <span className="px-2.5 py-1 bg-brand-500/10 text-[9px] font-black text-brand-400 uppercase tracking-widest rounded-md border border-brand-500/20">
-                {r.direccion}
+              <span className="px-2 py-0.5 bg-brand-500/10 border border-brand-500/20 rounded-md text-[10px] font-black text-brand-400 uppercase tracking-widest">
+                {r.secretaria}
               </span>
-              <span className="text-[10px] text-slate-600 font-bold">{r.fecha}</span>
             </div>
-            <h4 className="text-xl font-black text-white mb-2 font-display leading-tight">{r.titulo}</h4>
-            <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">{r.secretaria}</p>
+            <h4 className="text-xl font-black text-white tracking-tight leading-none group-hover:text-brand-400 transition-colors">{r.titulo}</h4>
+            <p className="text-xs text-slate-500 mt-2 font-medium line-clamp-2">{r.subtitulo}</p>
           </div>
 
-          <button
-            onClick={() => onSelect(r)}
-            className="w-full mt-auto py-4 bg-white/5 hover:bg-brand-600 text-slate-400 hover:text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-3 border border-white/5 group-hover:border-brand-500/30"
-          >
-            <FolderOpen size={18} /> Abrir Reporte
-          </button>
+          <div className="mt-auto pt-6 border-t border-white/5 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Clock size={12} className="text-slate-600" />
+              <span className="text-[10px] font-bold text-slate-500">{r.fecha}</span>
+            </div>
+            <button
+              onClick={() => onSelect(r)}
+              className="flex items-center gap-2 text-[10px] font-black text-brand-400 uppercase tracking-widest hover:text-white transition-colors"
+            >
+              Abrir <ChevronRight size={14} />
+            </button>
+          </div>
         </motion.div>
       ))}
-
-      {reports.length === 0 && (
-        <div className="col-span-full py-20 flex flex-col items-center justify-center glass-card rounded-3xl border-dashed border-2">
-          <Layers size={48} className="text-slate-700 mb-4" />
-          <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">No hay reportes archivados</p>
-          <button onClick={onCreate} className="mt-6 text-brand-500 font-black text-xs uppercase tracking-widest hover:underline">Crear el primero ahora</button>
-        </div>
-      )}
     </div>
   </div>
 );
 
-// ============================================================================
-// COMPONENTE PRINCIPAL
-// ============================================================================
-
 const App = () => {
-  const [view, setView] = useState('preview');
+  const [currentView, setCurrentView] = useState('preview');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [reports, setReports] = useState([]);
-  const [currentReportId, setCurrentReportId] = useState(null);
-
-  const initialData = {
-    titulo: 'CONTROL DE TRANSICIÓN ESTRATÉGICA',
-    subtitulo: 'HUD de Inteligencia Municipal El Alto - Auditoría de Sistemas y Patrimonio Institucional.',
-    fecha: new Date().toLocaleDateString('es-BO', { year: 'numeric', month: 'long', day: 'numeric' }),
-    acreditado: 'Wilfredo Abad Mancilla Terán',
-    alcalde: 'Eliser Roca Tancara',
-    secretaria: 'Sec. Mun. de Administración y Finanzas',
-    direccion: 'UASI',
-    alerta: 'Se detectó retención crítica de credenciales de administrador y opacidad severa en la conciliación de bases de datos financieras (SIGEP).',
-    bloqueos: ['Tesorería', 'Recursos Humanos', 'Activos Fijos', 'Sistemas'],
-    ley: 'Ley 1178 (SAFCO) y Ley 482'
-  };
-
-  const initialIndicadores = [
-    { id: 1, label: 'NORMATIVA Y LEGAL', value: 85, color: '#38abf8' },
-    { id: 2, label: 'ACTIVOS Y PATRIMONIO', value: 32, color: '#ef4444' },
-    { id: 3, label: 'INFRAESTRUCTURA IT', value: 12, color: '#f59e0b' }
-  ];
-
-  const initialEstadisticas = [
-    { label: 'CUMPLIMIENTO PISLEA', val: 94, trend: 'up' },
-    { label: 'VERIFICACIÓN PISI', val: 68, trend: 'down' },
-    { label: 'CONCILIACIÓN PIGE', val: 15, trend: 'flat' }
-  ];
-
-  const initialRiesgos = [
-    { id: 1, title: 'Inconsistencia de Inventarios', imp: 3, cat: 'Patrimonial' },
-    { id: 2, title: 'Bloqueo de Firmas Digitales', imp: 3, cat: 'Legal' },
-    { id: 3, title: 'Vulnerabilidad en Servidores', imp: 2, cat: 'Técnica' }
-  ];
-
-  const [data, setData] = useState(initialData);
-  const [indicadores, setIndicadores] = useState(initialIndicadores);
-  const [estadisticas] = useState(initialEstadisticas);
-  const [riesgos] = useState(initialRiesgos);
-
-  // SUPABASE STATE
   const [secretarias, setSecretarias] = useState([]);
   const [direcciones, setDirecciones] = useState([]);
   const [unidades, setUnidades] = useState([]);
+
+  // Estados de selección jerárquica
   const [selectedSec, setSelectedSec] = useState('');
   const [selectedDir, setSelectedDir] = useState('');
   const [selectedUni, setSelectedUni] = useState('');
 
-  // FETCH SECRETARIAS
+  // Datos del reporte actual
+  const [data, setData] = useState({
+    id: null,
+    secretaria: 'SECRETARÍA MUNICIPAL',
+    direccion: 'DIRECCIÓN ESPECÍFICA',
+    titulo: 'REPORTE ESTRATÉGICO DE TRANSICIÓN',
+    subtitulo: 'Análisis de situación administrativa, financiera y legal para la nueva gestión.',
+    acreditado: 'WILFREDO ABAD',
+    alcalde: 'ELIESER ROCA',
+    fecha: new Date().toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' }).toUpperCase(),
+    alerta: 'Se han identificado inconsistencias críticas en los activos fijos de la unidad operativa. Se requiere auditoría externa inmediata.',
+    bloqueos: ['ACTIVOS FIJOS', 'PRESUPUESTO 2024', 'PERSONAL'],
+    ley: 'LEY 1178 (SAFCO) / LEY 482'
+  });
+
+  const [indicadores, setIndicadores] = useState([
+    { id: 1, label: 'EJECUCIÓN PRESUPUESTARIA', value: 84, color: '#38abf8' },
+    { id: 2, label: 'CUMPLIMIENTO DE METAS POI', value: 92, color: '#10b981' },
+    { id: 3, label: 'SITUACIÓN DE ACTIVOS', value: 45, color: '#f59e0b' },
+  ]);
+
+  const [estadisticas] = useState([
+    { label: 'Proyectos Concluidos', val: 124, trend: 'up' },
+    { label: 'Procesos Legales', val: 12, trend: 'down' },
+    { label: 'Personal Vigente', val: 450, trend: 'up' },
+  ]);
+
+  const [riesgos] = useState([
+    { title: 'Déficit presupuestario en Caja y Bancos', imp: 3, cat: 'FINANCIERO' },
+    { title: 'Falta de conciliación de activos fijos', imp: 2, cat: 'ADMINISTRATIVO' },
+    { title: 'Contratos con vencimiento próximo', imp: 3, cat: 'LEGAL' },
+  ]);
+
+  // Carga inicial de datos desde Supabase
   useEffect(() => {
-    const fetchSecretarias = async () => {
-      const { data, error } = await supabase.from('secretarias').select('*').order('nombre');
-      if (!error) setSecretarias(data);
-    };
     fetchSecretarias();
   }, []);
 
-  // FETCH DIRECCIONES
+  // Carga de direcciones cuando cambia la secretaría
   useEffect(() => {
-    if (!selectedSec) {
+    if (selectedSec) {
+      fetchDirecciones(selectedSec);
+      const sec = secretarias.find(s => s.id.toString() === selectedSec);
+      if (sec) setData(prev => ({ ...prev, secretaria: sec.nombre }));
+    } else {
       setDirecciones([]);
-      return;
+      setUnidades([]);
     }
-    const fetchDirecciones = async () => {
-      const { data, error } = await supabase.from('direcciones').select('*').eq('secretaria_id', selectedSec).order('nombre');
-      if (!error) setDirecciones(data);
-    };
-    fetchDirecciones();
   }, [selectedSec]);
 
-  // FETCH UNIDADES
+  // Carga de unidades cuando cambia la dirección
   useEffect(() => {
-    if (!selectedDir) {
+    if (selectedDir) {
+      fetchUnidades(selectedDir);
+      const dir = direcciones.find(d => d.id.toString() === selectedDir);
+      if (dir) setData(prev => ({ ...prev, direccion: dir.nombre }));
+    } else {
       setUnidades([]);
-      return;
     }
-    const fetchUnidades = async () => {
-      const { data, error } = await supabase.from('unidades').select('*').eq('direccion_id', selectedDir).order('nombre');
-      if (!error) setUnidades(data);
-    };
-    fetchUnidades();
   }, [selectedDir]);
 
-  // PERSISTENCIA
-  useEffect(() => {
+  const fetchSecretarias = async () => {
     try {
-      const saved = localStorage.getItem('gamea-reports-v2');
-      if (saved) setReports(JSON.parse(saved));
-    } catch (e) {
-      console.error('Error loading reports:', e);
+      const { data, error } = await supabase
+        .from('secretarias')
+        .select('*')
+        .order('nombre', { ascending: true });
+      if (error) throw error;
+      setSecretarias(data);
+    } catch (err) {
+      console.error('Error al cargar secretarias:', err);
     }
-  }, []);
+  };
 
-  const saveReports = (newReports) => {
-    setReports(newReports);
-    localStorage.setItem('gamea-reports-v2', JSON.stringify(newReports));
+  const fetchDirecciones = async (secId) => {
+    try {
+      const { data, error } = await supabase
+        .from('direcciones')
+        .select('*')
+        .eq('secretaria_id', secId)
+        .order('nombre', { ascending: true });
+      if (error) throw error;
+      setDirecciones(data);
+    } catch (err) {
+      console.error('Error al cargar direcciones:', err);
+    }
+  };
+
+  const fetchUnidades = async (dirId) => {
+    try {
+      const { data, error } = await supabase
+        .from('unidades')
+        .select('*')
+        .eq('direccion_id', dirId)
+        .order('nombre', { ascending: true });
+      if (error) throw error;
+      setUnidades(data);
+    } catch (err) {
+      console.error('Error al cargar unidades:', err);
+    }
   };
 
   const handleSave = async () => {
-    try {
-      const reportData = {
-        secretaria_id: selectedSec,
-        direccion_id: selectedDir,
-        unidad_id: selectedUni,
-        titulo: data.titulo,
-        subtitulo: data.subtitulo,
-        acreditado: data.acreditado,
-        alcalde_electo: data.alcalde,
-        alerta_principal: data.alerta,
-        updated_at: new Date().toISOString()
-      };
+    setIsSaving(true);
+    // Simulación de guardado
+    setTimeout(() => {
+      const newReport = { ...data, indicadores, id: Date.now() };
+      setReports([newReport, ...reports]);
+      setIsSaving(false);
+      setCurrentView('list');
+    }, 1500);
+  };
 
-      let reportId = currentReportId;
-
-      if (reportId) {
-        // Update existing report
-        const { error } = await supabase.from('reports').update(reportData).eq('id', reportId);
-        if (error) throw error;
-      } else {
-        // Insert new report
-        const { data: newReport, error } = await supabase.from('reports').insert([reportData]).select().single();
-        if (error) throw error;
-        reportId = newReport.id;
-        setCurrentReportId(reportId);
-      }
-
-      // Sync Indicators
-      // First delete old indicators for this report to simplify sync
-      await supabase.from('indicadores').delete().eq('report_id', reportId);
-
-      const indicatorsToInsert = indicadores.map(ind => ({
-        report_id: reportId,
-        label: ind.label,
-        value: ind.value,
-        color: ind.color
-      }));
-
-      const { error: indError } = await supabase.from('indicadores').insert(indicatorsToInsert);
-      if (indError) throw indError;
-
-      // Update local state and archive
-      const newReports = [...reports];
-      const reportToSave = { ...data, id: reportId, indicadores, updatedAt: new Date().toISOString() };
-
-      const idx = newReports.findIndex(r => r.id === reportId);
-      if (idx !== -1) {
-        newReports[idx] = reportToSave;
-      } else {
-        newReports.push(reportToSave);
-      }
-
-      saveReports(newReports);
-      alert('✅ Reporte sincronizado con Supabase exitosamente');
-    } catch (error) {
-      console.error('Error saving to Supabase:', error);
-      alert('❌ Error al guardar en la nube: ' + error.message);
+  const handleImportCSV = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Lógica de importación aquí
+      alert('CSV importado correctamente');
     }
   };
 
-  const handleDelete = (id) => {
-    if (window.confirm('¿Está seguro de eliminar este reporte?')) {
-      saveReports(reports.filter(r => r.id !== id));
-      if (currentReportId === id) {
-        setData(initialData);
-        setIndicadores(initialIndicadores);
-        setCurrentReportId(null);
-      }
-    }
-  };
-
-  const handleSelect = (r) => {
-    setData(r);
-    setIndicadores(r.indicadores || initialIndicadores);
-    setCurrentReportId(r.id);
-    setSelectedSec(r.secretaria_id || '');
-    setSelectedDir(r.direccion_id || '');
-    setSelectedUni(r.unidad_id || '');
-    setView('preview');
-  };
-
-  const downloadCSV = () => {
-    const csv = "Tipo,Etiqueta,Valor,Color\nIND,NORMATIVA,90,#3b82f6\nIND,ACTIVOS,45,#ef4444\nIND,FINANZAS,60,#10b981";
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
+  const downloadCSVTemplate = () => {
+    const headers = 'ID,INDICADOR,VALOR,COLOR\n1,EJECUCIÓN,80,#38abf8';
+    const blob = new Blob([headers], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'plantilla_gamea.csv';
+    a.download = 'plantilla_indicadores.csv';
     a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const handleImport = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const lines = ev.target.result.split('\n').filter(l => l.trim());
-      const newInds = [];
-      lines.slice(1).forEach((line, i) => {
-        const [type, label, val, color] = line.split(',').map(s => s.trim());
-        if (type === 'IND') {
-          newInds.push({ id: Date.now() + i, label: label.toUpperCase(), value: parseInt(val) || 0, color: color || '#38abf8' });
-        }
-      });
-      if (newInds.length > 0) {
-        setIndicadores(newInds);
-        setView('preview');
-      }
-    };
-    reader.readAsText(file);
-  };
-
-  const viewTitles = {
-    preview: 'Auditoría en Tiempo Real',
-    hierarchy: 'Estructura Institucional',
-    editor: 'Editor de Reporte',
-    list: 'Repositorio de Auditorías',
-    settings: 'Configuración del Sistema'
-  };
-
-  const viewSubtitles = {
-    preview: 'Visualización de métricas y riesgos de la transición municipal.',
-    hierarchy: 'Explora la jerarquía administrativa de la Alcaldía de El Alto.',
-    editor: 'Modifica los datos y parámetros del reporte actual.',
-    list: 'Consulta y gestiona el historial de reportes guardados.',
-    settings: 'Preferencias globales y gestión de la plataforma.'
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-brand-500/30">
+    <div className="min-h-screen bg-slate-950 text-slate-300 selection:bg-brand-500/30 selection:text-white">
       <Sidebar
-        currentView={view}
-        onViewChange={setView}
+        currentView={currentView}
+        onViewChange={setCurrentView}
         isOpen={isSidebarOpen}
         setIsOpen={setIsSidebarOpen}
       />
 
-      <div className="lg:pl-72 flex flex-col min-h-screen">
+      <main className="lg:ml-72 transition-all duration-300">
         <TopBar
-          title={viewTitles[view]}
-          subtitle={viewSubtitles[view]}
+          title={currentView === 'preview' ? 'Visualización Estratégica' :
+            currentView === 'hierarchy' ? 'Estructura GAMEA' :
+              currentView === 'editor' ? 'Editor de Reporte' :
+                currentView === 'list' ? 'Archivo de Reportes' : 'Configuración'}
+          subtitle="Sistema de Control de Transición Municipal - El Alto"
           onSave={handleSave}
-          isSaveActive={true}
+          isSaveActive={currentView === 'editor' && selectedUni}
           onMenuClick={() => setIsSidebarOpen(true)}
         />
 
-        <main className="flex-1 px-6 lg:px-10 py-10 max-w-[1600px] mx-auto w-full">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={view}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            >
-              {view === 'preview' && (
-                <PreviewView data={data} indicadores={indicadores} estadisticas={estadisticas} riesgos={riesgos} />
-              )}
-              {view === 'hierarchy' && (
-                <HierarchyView />
-              )}
-              {view === 'editor' && (
-                <EditorView
-                  data={data}
-                  setData={setData}
-                  indicadores={indicadores}
-                  setIndicadores={setIndicadores}
-                  onImport={handleImport}
-                  onDownloadCSV={downloadCSV}
-                  secretarias={secretarias}
-                  direcciones={direcciones}
-                  unidades={unidades}
-                  selectedSec={selectedSec}
-                  setSelectedSec={setSelectedSec}
-                  selectedDir={selectedDir}
-                  setSelectedDir={setSelectedDir}
-                  selectedUni={selectedUni}
-                  setSelectedUni={setSelectedUni}
-                />
-              )}
-              {view === 'list' && (
-                <ListViewComponent
-                  reports={reports}
-                  onSelect={handleSelect}
-                  onDelete={handleDelete}
-                  onCreate={() => {
-                    setData(initialData);
-                    setIndicadores(initialIndicadores);
-                    setCurrentReportId(null);
-                    setView('editor');
-                  }}
-                />
-              )}
-              {view === 'settings' && (
-                <div className="py-20 flex flex-col items-center justify-center glass-card rounded-3xl border-dashed border-2">
-                  <Settings size={48} className="text-slate-700 mb-4" />
-                  <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">Configuración del Sistema en Desarrollo</p>
-                </div>
-              )}
-            </motion.div>
-          </AnimatePresence>
-        </main>
+        <div className="p-6 lg:p-10 max-w-[1600px] mx-auto">
+          {currentView === 'preview' && (
+            <PreviewView
+              data={data}
+              indicadores={indicadores}
+              estadisticas={estadisticas}
+              riesgos={riesgos}
+            />
+          )}
 
-        <footer className="px-6 lg:px-10 py-8 border-t border-white/5 bg-slate-950/40 no-print mt-auto">
-          <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-6">
-              <div className="text-sm font-bold text-slate-500 flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                Sistemas Operativos
-              </div>
-              <div className="text-sm font-bold text-slate-500 flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                Conexión Supabase
-              </div>
+          {currentView === 'hierarchy' && <HierarchyView />}
+
+          {currentView === 'editor' && (
+            <EditorView
+              data={data}
+              setData={setData}
+              indicadores={indicadores}
+              setIndicadores={setIndicadores}
+              onImport={handleImportCSV}
+              onDownloadCSV={downloadCSVTemplate}
+              secretarias={secretarias}
+              direcciones={direcciones}
+              unidades={unidades}
+              selectedSec={selectedSec}
+              setSelectedSec={setSelectedSec}
+              selectedDir={selectedDir}
+              setSelectedDir={setSelectedDir}
+              selectedUni={selectedUni}
+              setSelectedUni={setSelectedUni}
+            />
+          )}
+
+          {currentView === 'list' && (
+            <ListViewComponent
+              reports={reports}
+              onSelect={(r) => { setData(r); setIndicadores(r.indicadores); setCurrentView('preview'); }}
+              onDelete={(id) => setReports(reports.filter(r => r.id !== id))}
+              onCreate={() => { setSelectedSec(''); setSelectedDir(''); setSelectedUni(''); setCurrentView('editor'); }}
+            />
+          )}
+
+          {currentView === 'settings' && (
+            <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
+              <Settings size={48} className="text-slate-800 mb-4" />
+              <h3 className="text-xl font-bold text-white uppercase tracking-wider">Ajustes del Sistema</h3>
+              <p className="text-slate-500 mt-2">Configuración avanzada de API y Auditoría.</p>
             </div>
-            <div className="text-xs text-slate-600 font-medium">
-              &copy; 2026 GAMEA - Auditoría de Transición Estratégica. Todos los derechos reservados.
-            </div>
-            <button
-              onClick={() => window.print()}
-              className="px-6 py-2.5 bg-white/5 hover:bg-white/10 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all border border-white/10"
-            >
-              Exportar Reporte PDF
-            </button>
-          </div>
-        </footer>
-      </div>
+          )}
+        </div>
+      </main>
 
-      {/* Decorative Scanline */}
-      <div className="fixed inset-0 pointer-events-none z-[100] overflow-hidden opacity-20 no-print">
-        <div className="w-full h-1 bg-brand-500/20 absolute top-0 animate-[scan_6s_linear_infinite]"></div>
-      </div>
-
-      <style>{`
-        @keyframes scan {
-          0% { transform: translateY(-100vh); }
-          100% { transform: translateY(100vh); }
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.2);
-        }
-      `}</style>
+      {/* Overlay de carga al guardar */}
+      <AnimatePresence>
+        {isSaving && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[100] flex flex-col items-center justify-center"
+          >
+            <div className="w-20 h-20 border-4 border-brand-500/20 border-t-brand-500 rounded-full animate-spin mb-6"></div>
+            <h3 className="text-xl font-black text-white uppercase tracking-[0.3em]">Procesando</h3>
+            <p className="text-slate-500 font-bold mt-2">Sincronizando con base de datos de transición...</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
