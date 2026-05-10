@@ -139,56 +139,56 @@ const Sidebar = ({ currentView, onViewChange, isOpen, setIsOpen }) => {
         className={`fixed top-0 left-0 bottom-0 w-72 bg-slate-950 border-r border-white/5 z-50 transform transition-transform duration-300 lg:translate-x-0 no-print ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
         <div className="h-full flex flex-col p-6">
-           <div className="flex items-center gap-4 mb-12 px-2">
-             <div>
-               <img src="/gamea.png" alt="GAMEA Logo" className="h-8 w-auto object-contain" />
-             </div>
-           </div>
-
+          <div className="flex items-center gap-4 mb-12 px-2">
             <div>
-               <img src="/gamea.png" alt="GAMEA Logo" className="h-8 w-auto object-contain" />
-
-              <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] mt-1.5">v1.0.4 Command</p>
+              <img src="/gamea.png" alt="GAMEA Logo" className="h-8 w-auto object-contain" />
             </div>
           </div>
 
-          <nav className="flex-1 space-y-2">
-            <div className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-4 px-4">Menu Principal</div>
-            {navItems.map(item => (
-              <button
-                key={item.id}
-                onClick={() => { onViewChange(item.id); setIsOpen(false); }}
-                className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-bold transition-all group ${currentView === item.id
-                  ? 'bg-brand-600 text-white shadow-xl shadow-brand-600/20'
-                  : 'text-slate-400 hover:text-white hover:bg-white/5'
-                  }`}
-              >
-                <item.icon size={20} className={currentView === item.id ? 'opacity-100' : 'opacity-40 group-hover:opacity-100'} />
-                {item.label}
-                {currentView === item.id && (
-                  <motion.div layoutId="activeNav" className="ml-auto w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_white]" />
-                )}
-              </button>
-            ))}
-          </nav>
+          <div>
+            <img src="/gamea.png" alt="GAMEA Logo" className="h-8 w-auto object-contain" />
 
-          <div className="mt-auto space-y-4">
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-white/5">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500">
-                  <UserCheck size={16} />
-                </div>
-                <div className="text-xs font-bold text-white">Wilfredo Abad</div>
-              </div>
-              <div className="text-[10px] text-slate-500 font-medium leading-tight">Acceso Nivel 5: Auditoría Estratégica</div>
-            </div>
-            <button className="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-bold text-slate-500 hover:text-red-400 hover:bg-red-500/5 transition-all">
-              <LogOut size={20} className="opacity-40" />
-              Cerrar Sesión
-            </button>
+            <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] mt-1.5">v1.0.4 Command</p>
           </div>
         </div>
-      </motion.aside>
+
+        <nav className="flex-1 space-y-2">
+          <div className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-4 px-4">Menu Principal</div>
+          {navItems.map(item => (
+            <button
+              key={item.id}
+              onClick={() => { onViewChange(item.id); setIsOpen(false); }}
+              className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-bold transition-all group ${currentView === item.id
+                ? 'bg-brand-600 text-white shadow-xl shadow-brand-600/20'
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                }`}
+            >
+              <item.icon size={20} className={currentView === item.id ? 'opacity-100' : 'opacity-40 group-hover:opacity-100'} />
+              {item.label}
+              {currentView === item.id && (
+                <motion.div layoutId="activeNav" className="ml-auto w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_white]" />
+              )}
+            </button>
+          ))}
+        </nav>
+
+        <div className="mt-auto space-y-4">
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-white/5">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500">
+                <UserCheck size={16} />
+              </div>
+              <div className="text-xs font-bold text-white">Wilfredo Abad</div>
+            </div>
+            <div className="text-[10px] text-slate-500 font-medium leading-tight">Acceso Nivel 5: Auditoría Estratégica</div>
+          </div>
+          <button className="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-bold text-slate-500 hover:text-red-400 hover:bg-red-500/5 transition-all">
+            <LogOut size={20} className="opacity-40" />
+            Cerrar Sesión
+          </button>
+        </div>
+      </div>
+    </motion.aside >
     </>
   );
 };
@@ -325,11 +325,7 @@ const PreviewView = ({ data, indicadores, estadisticas, riesgos }) => (
             </div>
             <div className="glass-card p-6 rounded-2xl">
               <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Autoridad</div>
-               <div className="flex justify-center mb-3">
-                 <img src="/eliser.png" alt="Logo Eliser" className="h-16 w-auto object-contain" />
-               </div>
-               <div className="text-sm font-bold text-white mb-1 truncate text-center">{data.alcalde}</div>
-
+              <div className="text-sm font-bold text-white mb-1 truncate text-center">{data.alcalde}</div>
               <div className="text-[10px] text-indigo-400 font-bold uppercase">Alcalde Electo</div>
             </div>
           </div>
@@ -1169,157 +1165,157 @@ const App = () => {
     }
   };
 
-const downloadCSVTemplate = () => {
-  const headers = 'ID,INDICADOR,VALOR,COLOR\n1,EJECUCIÓN,80,#38abf8';
-  const blob = new Blob([headers], { type: 'text/csv' });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'plantilla_indicadores.csv';
-  a.click();
-};
+  const downloadCSVTemplate = () => {
+    const headers = 'ID,INDICADOR,VALOR,COLOR\n1,EJECUCIÓN,80,#38abf8';
+    const blob = new Blob([headers], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'plantilla_indicadores.csv';
+    a.click();
+  };
 
-return (
-  <div className="min-h-screen bg-slate-950 text-slate-300 selection:bg-brand-500/30 selection:text-white">
-    <Sidebar
-      currentView={currentView}
-      onViewChange={setCurrentView}
-      isOpen={isSidebarOpen}
-      setIsOpen={setIsSidebarOpen}
-    />
-
-    <main className="lg:ml-72 transition-all duration-300">
-      <TopBar
-        title={currentView === 'preview' ? 'Visualización Estratégica' :
-          currentView === 'editor' ? 'Editor de Reporte' :
-            currentView === 'list' ? 'Archivo de Reportes' : 'Configuración'}
-        subtitle="Sistema de Control de Transición Municipal - El Alto"
-        onSave={handleSave}
-        isSaveActive={currentView === 'editor' && selectedUni}
-        onMenuClick={() => setIsSidebarOpen(true)}
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-300 selection:bg-brand-500/30 selection:text-white">
+      <Sidebar
+        currentView={currentView}
+        onViewChange={setCurrentView}
+        isOpen={isSidebarOpen}
+        setIsOpen={setIsSidebarOpen}
       />
 
-      <div className="p-6 lg:p-10 max-w-[1600px] mx-auto">
-        {currentView === 'preview' && (
-          <PreviewView
-            data={data}
-            indicadores={indicadores}
-            estadisticas={estadisticas}
-            riesgos={riesgos}
-          />
-        )}
+      <main className="lg:ml-72 transition-all duration-300">
+        <TopBar
+          title={currentView === 'preview' ? 'Visualización Estratégica' :
+            currentView === 'editor' ? 'Editor de Reporte' :
+              currentView === 'list' ? 'Archivo de Reportes' : 'Configuración'}
+          subtitle="Sistema de Control de Transición Municipal - El Alto"
+          onSave={handleSave}
+          isSaveActive={currentView === 'editor' && selectedUni}
+          onMenuClick={() => setIsSidebarOpen(true)}
+        />
+
+        <div className="p-6 lg:p-10 max-w-[1600px] mx-auto">
+          {currentView === 'preview' && (
+            <PreviewView
+              data={data}
+              indicadores={indicadores}
+              estadisticas={estadisticas}
+              riesgos={riesgos}
+            />
+          )}
 
 
-        {currentView === 'editor' && (
-          <EditorView
-            data={data}
-            setData={setData}
-            indicadores={indicadores}
-            setIndicadores={setIndicadores}
-            estadisticas={estadisticas}
-            setEstadisticas={setEstadisticas}
-            riesgos={riesgos}
-            setRiesgos={setRiesgos}
-            onImport={handleImportCSV}
-            onDownloadCSV={downloadCSVTemplate}
-            secretarias={secretarias}
-            direcciones={direcciones}
-            unidades={unidades}
-            selectedSec={selectedSec}
-            setSelectedSec={setSelectedSec}
-            selectedDir={selectedDir}
-            setSelectedDir={setSelectedDir}
-            selectedUni={selectedUni}
-            setSelectedUni={setSelectedUni}
-          />
-        )}
+          {currentView === 'editor' && (
+            <EditorView
+              data={data}
+              setData={setData}
+              indicadores={indicadores}
+              setIndicadores={setIndicadores}
+              estadisticas={estadisticas}
+              setEstadisticas={setEstadisticas}
+              riesgos={riesgos}
+              setRiesgos={setRiesgos}
+              onImport={handleImportCSV}
+              onDownloadCSV={downloadCSVTemplate}
+              secretarias={secretarias}
+              direcciones={direcciones}
+              unidades={unidades}
+              selectedSec={selectedSec}
+              setSelectedSec={setSelectedSec}
+              selectedDir={selectedDir}
+              setSelectedDir={setSelectedDir}
+              selectedUni={selectedUni}
+              setSelectedUni={setSelectedUni}
+            />
+          )}
 
-        {currentView === 'list' && (
-          <ListViewComponent
-            reports={reports}
-            onSelect={async (r) => {
-              // CARGA COMPLETA MANUAL: Sincronizar todo sin efectos reactivos
-              const sec = secretarias.find(s => s.nombre === r.secretaria);
-              if (sec) {
-                setSelectedSec(sec.id.toString());
-                // Cargar direcciones y luego buscar la dirección
-                const { data: dirs } = await supabase.from('direcciones').select('*').eq('secretaria_id', sec.id);
-                if (dirs) {
-                  setDirecciones(dirs);
-                  const dir = dirs.find(d => d.nombre === r.direccion);
-                  if (dir) {
-                    setSelectedDir(dir.id.toString());
-                    // Cargar unidades y luego buscar la unidad
-                    const { data: unis } = await supabase.from('unidades').select('*').eq('direccion_id', dir.id);
-                    if (unis) {
-                      setUnidades(unis);
-                      const uni = unis.find(u => u.nombre === r.unidad);
-                      if (uni) setSelectedUni(uni.id.toString());
+          {currentView === 'list' && (
+            <ListViewComponent
+              reports={reports}
+              onSelect={async (r) => {
+                // CARGA COMPLETA MANUAL: Sincronizar todo sin efectos reactivos
+                const sec = secretarias.find(s => s.nombre === r.secretaria);
+                if (sec) {
+                  setSelectedSec(sec.id.toString());
+                  // Cargar direcciones y luego buscar la dirección
+                  const { data: dirs } = await supabase.from('direcciones').select('*').eq('secretaria_id', sec.id);
+                  if (dirs) {
+                    setDirecciones(dirs);
+                    const dir = dirs.find(d => d.nombre === r.direccion);
+                    if (dir) {
+                      setSelectedDir(dir.id.toString());
+                      // Cargar unidades y luego buscar la unidad
+                      const { data: unis } = await supabase.from('unidades').select('*').eq('direccion_id', dir.id);
+                      if (unis) {
+                        setUnidades(unis);
+                        const uni = unis.find(u => u.nombre === r.unidad);
+                        if (uni) setSelectedUni(uni.id.toString());
+                      }
                     }
                   }
                 }
-              }
 
-              // Cargar los datos finales
-              setData(r);
-              setIndicadores(r.indicadores || []);
-              setEstadisticas(r.estadisticas || []);
-              setRiesgos(r.riesgos || []);
-              setCurrentView('editor');
-            }}
-            onDelete={handleDelete}
-            onCreate={() => {
-              setSelectedSec('');
-              setSelectedDir('');
-              setSelectedUni('');
-              setData(INITIAL_REPORT_STATE);
-              setIndicadores([
-                { id: 1, label: 'EJECUCIÓN PRESUPUESTARIA', value: 84, color: '#38abf8' },
-                { id: 2, label: 'CUMPLIMIENTO DE METAS POI', value: 92, color: '#10b981' },
-                { id: 3, label: 'SITUACIÓN DE ACTIVOS', value: 45, color: '#f59e0b' },
-              ]);
-              setEstadisticas([
-                { id: 1, label: 'Proyectos Concluidos', val: 124, trend: 'up' },
-                { id: 2, label: 'Procesos Legales', val: 12, trend: 'down' },
-                { id: 3, label: 'Personal Vigente', val: 450, trend: 'up' },
-              ]);
-              setRiesgos([
-                { id: 1, title: 'Déficit presupuestario en Caja y Bancos', imp: 3, cat: 'FINANCIERO' },
-                { id: 2, title: 'Falta de conciliación de activos fijos', imp: 2, cat: 'ADMINISTRATIVO' },
-                { id: 3, title: 'Contratos con vencimiento próximo', imp: 3, cat: 'LEGAL' },
-              ]);
-              setCurrentView('editor');
-            }}
-          />
+                // Cargar los datos finales
+                setData(r);
+                setIndicadores(r.indicadores || []);
+                setEstadisticas(r.estadisticas || []);
+                setRiesgos(r.riesgos || []);
+                setCurrentView('editor');
+              }}
+              onDelete={handleDelete}
+              onCreate={() => {
+                setSelectedSec('');
+                setSelectedDir('');
+                setSelectedUni('');
+                setData(INITIAL_REPORT_STATE);
+                setIndicadores([
+                  { id: 1, label: 'EJECUCIÓN PRESUPUESTARIA', value: 84, color: '#38abf8' },
+                  { id: 2, label: 'CUMPLIMIENTO DE METAS POI', value: 92, color: '#10b981' },
+                  { id: 3, label: 'SITUACIÓN DE ACTIVOS', value: 45, color: '#f59e0b' },
+                ]);
+                setEstadisticas([
+                  { id: 1, label: 'Proyectos Concluidos', val: 124, trend: 'up' },
+                  { id: 2, label: 'Procesos Legales', val: 12, trend: 'down' },
+                  { id: 3, label: 'Personal Vigente', val: 450, trend: 'up' },
+                ]);
+                setRiesgos([
+                  { id: 1, title: 'Déficit presupuestario en Caja y Bancos', imp: 3, cat: 'FINANCIERO' },
+                  { id: 2, title: 'Falta de conciliación de activos fijos', imp: 2, cat: 'ADMINISTRATIVO' },
+                  { id: 3, title: 'Contratos con vencimiento próximo', imp: 3, cat: 'LEGAL' },
+                ]);
+                setCurrentView('editor');
+              }}
+            />
+          )}
+
+          {currentView === 'settings' && (
+            <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
+              <Settings size={48} className="text-slate-800 mb-4" />
+              <h3 className="text-xl font-bold text-white uppercase tracking-wider">Ajustes del Sistema</h3>
+              <p className="text-slate-500 mt-2">Configuración avanzada de API y Auditoría.</p>
+            </div>
+          )}
+        </div>
+      </main>
+
+      {/* Overlay de carga al guardar */}
+      <AnimatePresence>
+        {isSaving && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[100] flex flex-col items-center justify-center"
+          >
+            <div className="w-20 h-20 border-4 border-brand-500/20 border-t-brand-500 rounded-full animate-spin mb-6"></div>
+            <h3 className="text-xl font-black text-white uppercase tracking-[0.3em]">Procesando</h3>
+            <p className="text-slate-500 font-bold mt-2">Sincronizando con base de datos de transición...</p>
+          </motion.div>
         )}
-
-        {currentView === 'settings' && (
-          <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
-            <Settings size={48} className="text-slate-800 mb-4" />
-            <h3 className="text-xl font-bold text-white uppercase tracking-wider">Ajustes del Sistema</h3>
-            <p className="text-slate-500 mt-2">Configuración avanzada de API y Auditoría.</p>
-          </div>
-        )}
-      </div>
-    </main>
-
-    {/* Overlay de carga al guardar */}
-    <AnimatePresence>
-      {isSaving && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[100] flex flex-col items-center justify-center"
-        >
-          <div className="w-20 h-20 border-4 border-brand-500/20 border-t-brand-500 rounded-full animate-spin mb-6"></div>
-          <h3 className="text-xl font-black text-white uppercase tracking-[0.3em]">Procesando</h3>
-          <p className="text-slate-500 font-bold mt-2">Sincronizando con base de datos de transición...</p>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  </div>
-);
+      </AnimatePresence>
+    </div>
+  );
 };
 
 export default App;
