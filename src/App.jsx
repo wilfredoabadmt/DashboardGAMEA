@@ -87,8 +87,8 @@ const RiskBadge = ({ title, severity, category, delay = 0 }) => {
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay }}
       className={`p-4 rounded-xl border flex items-center justify-between group cursor-default transition-all duration-300 ${isCritical
-          ? 'bg-red-500/5 border-red-500/20 hover:bg-red-500/10 shadow-[0_0_20px_rgba(239,68,68,0.05)]'
-          : 'bg-amber-500/5 border-amber-500/20 hover:bg-amber-500/10'
+        ? 'bg-red-500/5 border-red-500/20 hover:bg-red-500/10 shadow-[0_0_20px_rgba(239,68,68,0.05)]'
+        : 'bg-amber-500/5 border-amber-500/20 hover:bg-amber-500/10'
         }`}
     >
       <div className="flex items-center gap-4">
@@ -156,8 +156,8 @@ const Sidebar = ({ currentView, onViewChange, isOpen, setIsOpen }) => {
                 key={item.id}
                 onClick={() => { onViewChange(item.id); setIsOpen(false); }}
                 className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-bold transition-all group ${currentView === item.id
-                    ? 'bg-brand-600 text-white shadow-xl shadow-brand-600/20'
-                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                  ? 'bg-brand-600 text-white shadow-xl shadow-brand-600/20'
+                  : 'text-slate-400 hover:text-white hover:bg-white/5'
                   }`}
               >
                 <item.icon size={20} className={currentView === item.id ? 'opacity-100' : 'opacity-40 group-hover:opacity-100'} />
@@ -231,8 +231,8 @@ const TopBar = ({ title, subtitle, onSave, isSaveActive, onMenuClick }) => (
         <button
           onClick={onSave}
           className={`ml-2 px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 ${isSaveActive
-              ? 'bg-brand-600 text-white shadow-xl shadow-brand-600/30 hover:scale-105 active:scale-95'
-              : 'bg-white/5 text-slate-500 cursor-not-allowed'
+            ? 'bg-brand-600 text-white shadow-xl shadow-brand-600/30 hover:scale-105 active:scale-95'
+            : 'bg-white/5 text-slate-500 cursor-not-allowed'
             }`}
           disabled={!isSaveActive}
         >
@@ -445,7 +445,7 @@ const PreviewView = ({ data, indicadores, estadisticas, riesgos }) => (
           <p className="text-slate-300 leading-relaxed italic text-sm">"{data.observaciones}"</p>
         </div>
       </div>
-      
+
       <div className="glass-card p-10 space-y-6 relative overflow-hidden group">
         <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity">
           <CheckCircle size={120} />
@@ -562,9 +562,9 @@ const App = () => {
 
     if (!secObj || !dirObj || !uniObj) return;
 
-    const existing = reports.find(r => 
-      r.secretaria === secObj.nombre && 
-      r.direccion === dirObj.nombre && 
+    const existing = reports.find(r =>
+      r.secretaria === secObj.nombre &&
+      r.direccion === dirObj.nombre &&
       r.unidad === uniObj.nombre
     );
 
@@ -574,11 +574,11 @@ const App = () => {
       setEstadisticas(existing.estadisticas || []);
       setRiesgos(existing.riesgos || []);
     } else {
-      setData({ 
-        ...INITIAL_REPORT_STATE, 
-        secretaria: secObj.nombre, 
-        direccion: dirObj.nombre, 
-        unidad: uniObj.nombre 
+      setData({
+        ...INITIAL_REPORT_STATE,
+        secretaria: secObj.nombre,
+        direccion: dirObj.nombre,
+        unidad: uniObj.nombre
       });
       setIndicadores([
         { id: 1, label: 'EJECUCIÓN PRESUPUESTARIA', value: 0, color: '#38abf8' },
@@ -665,26 +665,26 @@ const App = () => {
 
       if (result.error) throw result.error;
       if (!result.data?.[0]) throw new Error('No se recibió confirmación del servidor');
-      
+
       const savedReport = result.data[0];
       console.log('Reporte guardado con éxito en Supabase:', savedReport.id);
-      
+
       const updatedReports = [
-        savedReport, 
+        savedReport,
         ...reports.filter(r => r.id !== savedReport.id && r.id !== currentId)
       ];
-      
+
       setReports(updatedReports);
       localStorage.setItem('gamea_reports', JSON.stringify(updatedReports));
       setData(savedReport);
-      
+
     } catch (err) {
       console.error('Error crítico al guardar en Supabase:', err);
       // Respaldo local
       const localId = data.id || Date.now();
       const localReport = { ...reportToSave, id: localId };
       const updatedReports = [
-        localReport, 
+        localReport,
         ...reports.filter(r => r.id !== localId)
       ];
       setReports(updatedReports);
@@ -713,7 +713,7 @@ const App = () => {
   };
 
   const EditorView = ({
-    data, setData, indicadores, setIndicadores, 
+    data, setData, indicadores, setIndicadores,
     estadisticas, setEstadisticas, riesgos, setRiesgos,
     onImport, onDownloadCSV,
     secretarias, direcciones, unidades,
@@ -739,10 +739,10 @@ const App = () => {
                 <div className="relative">
                   <select
                     value={selectedSec}
-                    onChange={e => { 
+                    onChange={e => {
                       const val = e.target.value;
-                      setSelectedSec(val); 
-                      setSelectedDir(''); 
+                      setSelectedSec(val);
+                      setSelectedDir('');
                       setSelectedUni('');
                       if (val) fetchDirecciones(val);
                     }}
@@ -762,10 +762,10 @@ const App = () => {
                 <div className="relative">
                   <select
                     value={selectedDir}
-                    onChange={e => { 
+                    onChange={e => {
                       const val = e.target.value;
-                      setSelectedDir(val); 
-                      setSelectedUni(''); 
+                      setSelectedDir(val);
+                      setSelectedUni('');
                       if (val) fetchUnidades(val);
                     }}
                     disabled={!selectedSec}
@@ -1029,14 +1029,14 @@ const App = () => {
                         placeholder="Describa la situación de bloqueo..."
                       />
                     </div>
-                    
+
                     <div className="bg-slate-900/50 p-6 rounded-2xl border border-white/5">
                       <label className="text-[10px] font-black text-slate-500 block mb-4 uppercase tracking-widest">Etiquetas de Bloqueo Activas</label>
                       <div className="flex flex-wrap gap-2">
                         {data.bloqueos?.map(tag => (
                           <div key={tag} className="flex items-center gap-2 px-3 py-1.5 bg-red-500/10 border border-red-500/20 rounded-lg">
                             <span className="text-[10px] font-black text-red-500">{tag}</span>
-                            <button 
+                            <button
                               onClick={() => setData({ ...data, bloqueos: data.bloqueos.filter(t => t !== tag) })}
                               className="text-red-500/50 hover:text-red-500 transition-colors"
                             >
@@ -1044,7 +1044,7 @@ const App = () => {
                             </button>
                           </div>
                         ))}
-                        <button 
+                        <button
                           onClick={() => {
                             const tag = prompt('Nueva etiqueta:');
                             if (tag) setData({ ...data, bloqueos: [...(data.bloqueos || []), tag.toUpperCase()] });
@@ -1135,6 +1135,7 @@ const App = () => {
       </div>
     </div>
   );
+  const handleImportCSV = (e) => {
     const file = e.target.files[0];
     if (file) {
       // Lógica de importación aquí
@@ -1142,157 +1143,157 @@ const App = () => {
     }
   };
 
-  const downloadCSVTemplate = () => {
-    const headers = 'ID,INDICADOR,VALOR,COLOR\n1,EJECUCIÓN,80,#38abf8';
-    const blob = new Blob([headers], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'plantilla_indicadores.csv';
-    a.click();
-  };
+const downloadCSVTemplate = () => {
+  const headers = 'ID,INDICADOR,VALOR,COLOR\n1,EJECUCIÓN,80,#38abf8';
+  const blob = new Blob([headers], { type: 'text/csv' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'plantilla_indicadores.csv';
+  a.click();
+};
 
-  return (
-    <div className="min-h-screen bg-slate-950 text-slate-300 selection:bg-brand-500/30 selection:text-white">
-      <Sidebar
-        currentView={currentView}
-        onViewChange={setCurrentView}
-        isOpen={isSidebarOpen}
-        setIsOpen={setIsSidebarOpen}
+return (
+  <div className="min-h-screen bg-slate-950 text-slate-300 selection:bg-brand-500/30 selection:text-white">
+    <Sidebar
+      currentView={currentView}
+      onViewChange={setCurrentView}
+      isOpen={isSidebarOpen}
+      setIsOpen={setIsSidebarOpen}
+    />
+
+    <main className="lg:ml-72 transition-all duration-300">
+      <TopBar
+        title={currentView === 'preview' ? 'Visualización Estratégica' :
+          currentView === 'editor' ? 'Editor de Reporte' :
+            currentView === 'list' ? 'Archivo de Reportes' : 'Configuración'}
+        subtitle="Sistema de Control de Transición Municipal - El Alto"
+        onSave={handleSave}
+        isSaveActive={currentView === 'editor' && selectedUni}
+        onMenuClick={() => setIsSidebarOpen(true)}
       />
 
-      <main className="lg:ml-72 transition-all duration-300">
-        <TopBar
-          title={currentView === 'preview' ? 'Visualización Estratégica' :
-            currentView === 'editor' ? 'Editor de Reporte' :
-              currentView === 'list' ? 'Archivo de Reportes' : 'Configuración'}
-          subtitle="Sistema de Control de Transición Municipal - El Alto"
-          onSave={handleSave}
-          isSaveActive={currentView === 'editor' && selectedUni}
-          onMenuClick={() => setIsSidebarOpen(true)}
-        />
-
-        <div className="p-6 lg:p-10 max-w-[1600px] mx-auto">
-          {currentView === 'preview' && (
-            <PreviewView
-              data={data}
-              indicadores={indicadores}
-              estadisticas={estadisticas}
-              riesgos={riesgos}
-            />
-          )}
+      <div className="p-6 lg:p-10 max-w-[1600px] mx-auto">
+        {currentView === 'preview' && (
+          <PreviewView
+            data={data}
+            indicadores={indicadores}
+            estadisticas={estadisticas}
+            riesgos={riesgos}
+          />
+        )}
 
 
-          {currentView === 'editor' && (
-            <EditorView
-              data={data}
-              setData={setData}
-              indicadores={indicadores}
-              setIndicadores={setIndicadores}
-              estadisticas={estadisticas}
-              setEstadisticas={setEstadisticas}
-              riesgos={riesgos}
-              setRiesgos={setRiesgos}
-              onImport={handleImportCSV}
-              onDownloadCSV={downloadCSVTemplate}
-              secretarias={secretarias}
-              direcciones={direcciones}
-              unidades={unidades}
-              selectedSec={selectedSec}
-              setSelectedSec={setSelectedSec}
-              selectedDir={selectedDir}
-              setSelectedDir={setSelectedDir}
-              selectedUni={selectedUni}
-              setSelectedUni={setSelectedUni}
-            />
-          )}
+        {currentView === 'editor' && (
+          <EditorView
+            data={data}
+            setData={setData}
+            indicadores={indicadores}
+            setIndicadores={setIndicadores}
+            estadisticas={estadisticas}
+            setEstadisticas={setEstadisticas}
+            riesgos={riesgos}
+            setRiesgos={setRiesgos}
+            onImport={handleImportCSV}
+            onDownloadCSV={downloadCSVTemplate}
+            secretarias={secretarias}
+            direcciones={direcciones}
+            unidades={unidades}
+            selectedSec={selectedSec}
+            setSelectedSec={setSelectedSec}
+            selectedDir={selectedDir}
+            setSelectedDir={setSelectedDir}
+            selectedUni={selectedUni}
+            setSelectedUni={setSelectedUni}
+          />
+        )}
 
-          {currentView === 'list' && (
-            <ListViewComponent
-              reports={reports}
-              onSelect={async (r) => { 
-                // CARGA COMPLETA MANUAL: Sincronizar todo sin efectos reactivos
-                const sec = secretarias.find(s => s.nombre === r.secretaria);
-                if (sec) {
-                  setSelectedSec(sec.id.toString());
-                  // Cargar direcciones y luego buscar la dirección
-                  const { data: dirs } = await supabase.from('direcciones').select('*').eq('secretaria_id', sec.id);
-                  if (dirs) {
-                    setDirecciones(dirs);
-                    const dir = dirs.find(d => d.nombre === r.direccion);
-                    if (dir) {
-                      setSelectedDir(dir.id.toString());
-                      // Cargar unidades y luego buscar la unidad
-                      const { data: unis } = await supabase.from('unidades').select('*').eq('direccion_id', dir.id);
-                      if (unis) {
-                        setUnidades(unis);
-                        const uni = unis.find(u => u.nombre === r.unidad);
-                        if (uni) setSelectedUni(uni.id.toString());
-                      }
+        {currentView === 'list' && (
+          <ListViewComponent
+            reports={reports}
+            onSelect={async (r) => {
+              // CARGA COMPLETA MANUAL: Sincronizar todo sin efectos reactivos
+              const sec = secretarias.find(s => s.nombre === r.secretaria);
+              if (sec) {
+                setSelectedSec(sec.id.toString());
+                // Cargar direcciones y luego buscar la dirección
+                const { data: dirs } = await supabase.from('direcciones').select('*').eq('secretaria_id', sec.id);
+                if (dirs) {
+                  setDirecciones(dirs);
+                  const dir = dirs.find(d => d.nombre === r.direccion);
+                  if (dir) {
+                    setSelectedDir(dir.id.toString());
+                    // Cargar unidades y luego buscar la unidad
+                    const { data: unis } = await supabase.from('unidades').select('*').eq('direccion_id', dir.id);
+                    if (unis) {
+                      setUnidades(unis);
+                      const uni = unis.find(u => u.nombre === r.unidad);
+                      if (uni) setSelectedUni(uni.id.toString());
                     }
                   }
                 }
-                
-                // Cargar los datos finales
-                setData(r);
-                setIndicadores(r.indicadores || []);
-                setEstadisticas(r.estadisticas || []);
-                setRiesgos(r.riesgos || []);
-                setCurrentView('editor');
-              }}
-              onDelete={handleDelete}
-              onCreate={() => { 
-                setSelectedSec(''); 
-                setSelectedDir(''); 
-                setSelectedUni(''); 
-                setData(INITIAL_REPORT_STATE);
-                setIndicadores([
-                  { id: 1, label: 'EJECUCIÓN PRESUPUESTARIA', value: 84, color: '#38abf8' },
-                  { id: 2, label: 'CUMPLIMIENTO DE METAS POI', value: 92, color: '#10b981' },
-                  { id: 3, label: 'SITUACIÓN DE ACTIVOS', value: 45, color: '#f59e0b' },
-                ]);
-                setEstadisticas([
-                  { id: 1, label: 'Proyectos Concluidos', val: 124, trend: 'up' },
-                  { id: 2, label: 'Procesos Legales', val: 12, trend: 'down' },
-                  { id: 3, label: 'Personal Vigente', val: 450, trend: 'up' },
-                ]);
-                setRiesgos([
-                  { id: 1, title: 'Déficit presupuestario en Caja y Bancos', imp: 3, cat: 'FINANCIERO' },
-                  { id: 2, title: 'Falta de conciliación de activos fijos', imp: 2, cat: 'ADMINISTRATIVO' },
-                  { id: 3, title: 'Contratos con vencimiento próximo', imp: 3, cat: 'LEGAL' },
-                ]);
-                setCurrentView('editor'); 
-              }}
-            />
-          )}
+              }
 
-          {currentView === 'settings' && (
-            <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
-              <Settings size={48} className="text-slate-800 mb-4" />
-              <h3 className="text-xl font-bold text-white uppercase tracking-wider">Ajustes del Sistema</h3>
-              <p className="text-slate-500 mt-2">Configuración avanzada de API y Auditoría.</p>
-            </div>
-          )}
-        </div>
-      </main>
-
-      {/* Overlay de carga al guardar */}
-      <AnimatePresence>
-        {isSaving && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[100] flex flex-col items-center justify-center"
-          >
-            <div className="w-20 h-20 border-4 border-brand-500/20 border-t-brand-500 rounded-full animate-spin mb-6"></div>
-            <h3 className="text-xl font-black text-white uppercase tracking-[0.3em]">Procesando</h3>
-            <p className="text-slate-500 font-bold mt-2">Sincronizando con base de datos de transición...</p>
-          </motion.div>
+              // Cargar los datos finales
+              setData(r);
+              setIndicadores(r.indicadores || []);
+              setEstadisticas(r.estadisticas || []);
+              setRiesgos(r.riesgos || []);
+              setCurrentView('editor');
+            }}
+            onDelete={handleDelete}
+            onCreate={() => {
+              setSelectedSec('');
+              setSelectedDir('');
+              setSelectedUni('');
+              setData(INITIAL_REPORT_STATE);
+              setIndicadores([
+                { id: 1, label: 'EJECUCIÓN PRESUPUESTARIA', value: 84, color: '#38abf8' },
+                { id: 2, label: 'CUMPLIMIENTO DE METAS POI', value: 92, color: '#10b981' },
+                { id: 3, label: 'SITUACIÓN DE ACTIVOS', value: 45, color: '#f59e0b' },
+              ]);
+              setEstadisticas([
+                { id: 1, label: 'Proyectos Concluidos', val: 124, trend: 'up' },
+                { id: 2, label: 'Procesos Legales', val: 12, trend: 'down' },
+                { id: 3, label: 'Personal Vigente', val: 450, trend: 'up' },
+              ]);
+              setRiesgos([
+                { id: 1, title: 'Déficit presupuestario en Caja y Bancos', imp: 3, cat: 'FINANCIERO' },
+                { id: 2, title: 'Falta de conciliación de activos fijos', imp: 2, cat: 'ADMINISTRATIVO' },
+                { id: 3, title: 'Contratos con vencimiento próximo', imp: 3, cat: 'LEGAL' },
+              ]);
+              setCurrentView('editor');
+            }}
+          />
         )}
-      </AnimatePresence>
-    </div>
-  );
+
+        {currentView === 'settings' && (
+          <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
+            <Settings size={48} className="text-slate-800 mb-4" />
+            <h3 className="text-xl font-bold text-white uppercase tracking-wider">Ajustes del Sistema</h3>
+            <p className="text-slate-500 mt-2">Configuración avanzada de API y Auditoría.</p>
+          </div>
+        )}
+      </div>
+    </main>
+
+    {/* Overlay de carga al guardar */}
+    <AnimatePresence>
+      {isSaving && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[100] flex flex-col items-center justify-center"
+        >
+          <div className="w-20 h-20 border-4 border-brand-500/20 border-t-brand-500 rounded-full animate-spin mb-6"></div>
+          <h3 className="text-xl font-black text-white uppercase tracking-[0.3em]">Procesando</h3>
+          <p className="text-slate-500 font-bold mt-2">Sincronizando con base de datos de transición...</p>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  </div>
+);
 };
 
 export default App;
