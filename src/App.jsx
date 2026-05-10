@@ -638,13 +638,15 @@ const App = () => {
 
   const handleSave = async () => {
     setIsSaving(true);
+    const { fecha, ...dataWithoutFecha } = data;
     const reportToSave = {
-      ...data,
+      ...dataWithoutFecha,
       indicadores,
       estadisticas,
       riesgos,
-      fecha: new Date().toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' }).toUpperCase(),
     };
+
+    const formattedDate = new Date().toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' }).toUpperCase();
 
     console.log('Intentando guardar reporte:', reportToSave);
 
@@ -671,7 +673,10 @@ const App = () => {
       if (result.error) throw result.error;
       if (!result.data?.[0]) throw new Error('No se recibió confirmación del servidor');
 
-      const savedReport = result.data[0];
+      const savedReport = {
+        ...result.data[0],
+        fecha: formattedDate
+      };
       console.log('Reporte guardado con éxito en Supabase:', savedReport.id);
 
       const updatedReports = [
