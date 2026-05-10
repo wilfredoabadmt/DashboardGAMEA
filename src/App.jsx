@@ -556,40 +556,55 @@ const EditorView = ({
           <div className="space-y-6">
             <div>
               <label className="text-[10px] font-black text-slate-500 block mb-2 uppercase tracking-widest">Secretaría Municipal</label>
-              <select
-                value={selectedSec}
-                onChange={e => { setSelectedSec(e.target.value); setSelectedDir(''); setSelectedUni(''); }}
-                className="w-full bg-slate-900/50 border border-white/5 rounded-xl p-4 text-sm text-white focus:border-brand-500 outline-none appearance-none"
-              >
-                <option value="">Seleccione Secretaría...</option>
-                {secretarias.map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
-              </select>
+              <div className="relative group">
+                <select
+                  value={selectedSec}
+                  onChange={e => { setSelectedSec(e.target.value); setSelectedDir(''); setSelectedUni(''); }}
+                  className="w-full bg-slate-950/40 border border-white/10 hover:border-brand-500/50 rounded-xl p-4 text-sm text-white focus:border-brand-500 outline-none appearance-none transition-all cursor-pointer backdrop-blur-md shadow-inner"
+                >
+                  <option value="" className="bg-slate-950">Seleccione Secretaría...</option>
+                  {secretarias.map(s => <option key={s.id} value={s.id} className="bg-slate-950">{s.nombre}</option>)}
+                </select>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 group-hover:text-brand-400 transition-colors">
+                  <ChevronRight size={18} className="rotate-90" />
+                </div>
+              </div>
             </div>
 
             <div>
               <label className="text-[10px] font-black text-slate-500 block mb-2 uppercase tracking-widest">Dirección</label>
-              <select
-                value={selectedDir}
-                onChange={e => { setSelectedDir(e.target.value); setSelectedUni(''); }}
-                disabled={!selectedSec}
-                className="w-full bg-slate-900/50 border border-white/5 rounded-xl p-4 text-sm text-white focus:border-brand-500 outline-none appearance-none disabled:opacity-30"
-              >
-                <option value="">Seleccione Dirección...</option>
-                {direcciones.map(d => <option key={d.id} value={d.id}>{d.nombre}</option>)}
-              </select>
+              <div className="relative group">
+                <select
+                  value={selectedDir}
+                  onChange={e => { setSelectedDir(e.target.value); setSelectedUni(''); }}
+                  disabled={!selectedSec}
+                  className="w-full bg-slate-950/40 border border-white/10 hover:border-brand-500/50 rounded-xl p-4 text-sm text-white focus:border-brand-500 outline-none appearance-none transition-all cursor-pointer backdrop-blur-md disabled:opacity-20 disabled:cursor-not-allowed"
+                >
+                  <option value="" className="bg-slate-950">Seleccione Dirección...</option>
+                  {direcciones.map(d => <option key={d.id} value={d.id} className="bg-slate-950">{d.nombre}</option>)}
+                </select>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 group-hover:text-brand-400 transition-colors">
+                  <ChevronRight size={18} className="rotate-90" />
+                </div>
+              </div>
             </div>
 
             <div>
               <label className="text-[10px] font-black text-slate-500 block mb-2 uppercase tracking-widest">Unidad</label>
-              <select
-                value={selectedUni}
-                onChange={e => setSelectedUni(e.target.value)}
-                disabled={!selectedDir}
-                className="w-full bg-slate-900/50 border border-white/5 rounded-xl p-4 text-sm text-white focus:border-brand-500 outline-none appearance-none disabled:opacity-30"
-              >
-                <option value="">Seleccione Unidad...</option>
-                {unidades.map(u => <option key={u.id} value={u.id}>{u.nombre}</option>)}
-              </select>
+              <div className="relative group">
+                <select
+                  value={selectedUni}
+                  onChange={e => setSelectedUni(e.target.value)}
+                  disabled={!selectedDir}
+                  className="w-full bg-slate-950/40 border border-white/10 hover:border-brand-500/50 rounded-xl p-4 text-sm text-white focus:border-brand-500 outline-none appearance-none transition-all cursor-pointer backdrop-blur-md disabled:opacity-20 disabled:cursor-not-allowed"
+                >
+                  <option value="" className="bg-slate-950">Seleccione Unidad...</option>
+                  {unidades.map(u => <option key={u.id} value={u.id} className="bg-slate-950">{u.nombre}</option>)}
+                </select>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 group-hover:text-brand-400 transition-colors">
+                  <ChevronRight size={18} className="rotate-90" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
