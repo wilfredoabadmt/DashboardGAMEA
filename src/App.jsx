@@ -7,6 +7,7 @@ import {
   LogOut, Bell, Search, Filter, MoreVertical
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ORGANIGRAMA } from './lib/constants';
 
 // ============================================================================
 // COMPONENTES ATÓMICOS & UTILIDADES
@@ -114,6 +115,7 @@ const RiskBadge = ({ title, severity, category, delay = 0 }) => {
 const Sidebar = ({ currentView, onViewChange, isOpen, setIsOpen }) => {
   const navItems = [
     { id: 'preview', label: 'Dashboard', icon: BarChart3 },
+    { id: 'hierarchy', label: 'Organigrama', icon: Building2 },
     { id: 'editor', label: 'Editor', icon: Edit3 },
     { id: 'list', label: 'Archivos', icon: FolderOpen },
     { id: 'settings', label: 'Ajustes', icon: Settings },
@@ -406,6 +408,130 @@ const PreviewView = ({ data, indicadores, estadisticas, riesgos }) => (
     </div>
   </motion.div>
 );
+
+const HierarchyView = () => {
+  const [expandedSec, setExpandedSec] = useState(null);
+  const [expandedDir, setExpandedDir] = useState(null);
+
+  return (
+    <div className="space-y-8 max-w-5xl mx-auto">
+      <div className="flex items-center justify-between mb-12">
+        <div>
+          <h3 className="text-3xl font-black text-white tracking-tight font-display">Estructura Orgánica GAMEA</h3>
+          <p className="text-slate-500 font-medium mt-2">Navegación jerárquica de Secretarías, Direcciones y Unidades.</p>
+        </div>
+        <div className="p-4 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-brand-400">
+          <Building2 size={32} />
+        </div>
+      </div>
+
+      <div className="grid gap-4">
+        {ORGANIGRAMA.map((sec, idx) => (
+          <div key={sec.id} className="group">
+            <button
+              onClick={() => {
+                setExpandedSec(expandedSec === sec.id ? null : sec.id);
+                setExpandedDir(null);
+              }}
+              className={`w-full text-left p-6 rounded-2xl border transition-all duration-500 flex items-center justify-between group ${
+                expandedSec === sec.id 
+                  ? 'bg-brand-600 border-brand-500 shadow-2xl shadow-brand-600/20 text-white' 
+                  : 'glass-card border-white/5 text-slate-300 hover:border-brand-500/50'
+              }`}
+            >
+              <div className="flex items-center gap-5">
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-sm transition-colors ${
+                  expandedSec === sec.id ? 'bg-white/20 text-white' : 'bg-brand-500/10 text-brand-400'
+                }`}>
+                  {idx + 1}
+                </div>
+                <div>
+                  <div className={`text-[10px] font-black uppercase tracking-[0.2em] mb-1 ${expandedSec === sec.id ? 'text-brand-200' : 'text-slate-500'}`}>
+                    Secretaría Municipal
+                  </div>
+                  <div className="text-lg font-black tracking-tight">{sec.name}</div>
+                </div>
+              </div>
+              <motion.div
+                animate={{ rotate: expandedSec === sec.id ? 90 : 0 }}
+                className={expandedSec === sec.id ? 'text-white' : 'text-slate-600'}
+              >
+                <ChevronRight size={24} />
+              </motion.div>
+            </button>
+
+            <AnimatePresence>
+              {expandedSec === sec.id && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="overflow-hidden"
+                >
+                  <div className="pt-4 pb-8 px-6 space-y-3">
+                    {sec.direcciones.map((dir) => (
+                      <div key={dir.id} className="relative">
+                        <button
+                          onClick={() => setExpandedDir(expandedDir === dir.id ? null : dir.id)}
+                          className={`w-full text-left p-5 rounded-xl border transition-all flex items-center justify-between group/dir ${
+                            expandedDir === dir.id 
+                              ? 'bg-slate-800 border-white/20 text-white shadow-xl' 
+                              : 'bg-white/5 border-white/5 text-slate-400 hover:bg-white/10 hover:border-white/10'
+                          }`}
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                              expandedDir === dir.id ? 'bg-brand-500 text-white' : 'bg-white/5 text-slate-500'
+                            }`}>
+                              <Target size={16} />
+                            </div>
+                            <span className="text-sm font-bold tracking-wide">{dir.name}</span>
+                          </div>
+                          <motion.div
+                            animate={{ rotate: expandedDir === dir.id ? 90 : 0 }}
+                            className="opacity-40 group-hover/dir:opacity-100"
+                          >
+                            <ChevronRight size={18} />
+                          </motion.div>
+                        </button>
+
+                        <AnimatePresence>
+                          {expandedDir === dir.id && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4 bg-black/20 rounded-b-xl border-x border-b border-white/5">
+                                {dir.unidades.map((uni, uIdx) => (
+                                  <motion.div
+                                    key={uIdx}
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: uIdx * 0.05 }}
+                                    className="p-4 rounded-lg bg-white/5 border border-white/5 hover:border-brand-500/30 hover:bg-white/10 transition-all flex items-center gap-3 group/uni"
+                                  >
+                                    <div className="w-1.5 h-1.5 rounded-full bg-brand-500 shadow-[0_0_8px_var(--color-brand-500)] group-hover/uni:scale-150 transition-transform"></div>
+                                    <span className="text-[11px] font-bold text-slate-400 group-hover/uni:text-white transition-colors uppercase tracking-wider">{uni}</span>
+                                  </motion.div>
+                                ))}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const EditorView = ({ data, setData, indicadores, setIndicadores, onImport, onDownloadCSV }) => (
   <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -736,6 +862,7 @@ const App = () => {
 
   const viewTitles = {
     preview: 'Auditoría en Tiempo Real',
+    hierarchy: 'Estructura Institucional',
     editor: 'Editor de Reporte',
     list: 'Repositorio de Auditorías',
     settings: 'Configuración del Sistema'
@@ -743,6 +870,7 @@ const App = () => {
 
   const viewSubtitles = {
     preview: 'Visualización de métricas y riesgos de la transición municipal.',
+    hierarchy: 'Explora la jerarquía administrativa de la Alcaldía de El Alto.',
     editor: 'Modifica los datos y parámetros del reporte actual.',
     list: 'Consulta y gestiona el historial de reportes guardados.',
     settings: 'Preferencias globales y gestión de la plataforma.'
@@ -777,6 +905,9 @@ const App = () => {
             >
               {view === 'preview' && (
                 <PreviewView data={data} indicadores={indicadores} estadisticas={estadisticas} riesgos={riesgos} />
+              )}
+              {view === 'hierarchy' && (
+                <HierarchyView />
               )}
               {view === 'editor' && (
                 <EditorView 
