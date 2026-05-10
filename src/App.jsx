@@ -621,6 +621,7 @@ const EditorView = ({
                   { id: 'indicadores', label: 'Indicadores', icon: Activity },
                   { id: 'stats', label: 'Estadísticas', icon: BarChart3 },
                   { id: 'riesgos', label: 'Riesgos', icon: ShieldAlert },
+                  { id: 'alertas', label: 'Alertas', icon: AlertTriangle },
                 ].map(tab => (
                   <button
                     key={tab.id}
@@ -637,6 +638,10 @@ const EditorView = ({
                   if (activeTab === 'indicadores') setIndicadores([...indicadores, { id: Date.now(), label: 'NUEVO INDICADOR', value: 50, color: '#38abf8' }]);
                   if (activeTab === 'stats') setEstadisticas([...estadisticas, { id: Date.now(), label: 'NUEVA MÉTRICA', val: 100, trend: 'up' }]);
                   if (activeTab === 'riesgos') setRiesgos([...riesgos, { id: Date.now(), title: 'NUEVO RIESGO', imp: 2, cat: 'GENERAL' }]);
+                  if (activeTab === 'alertas') {
+                    const tag = prompt('Ingrese nombre de la etiqueta de bloqueo:');
+                    if (tag) setData({ ...data, bloqueos: [...(data.bloqueos || []), tag.toUpperCase()] });
+                  }
                 }}
                 className="px-6 py-2.5 bg-brand-600 hover:bg-brand-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-brand-600/20 hover:scale-105"
               >
@@ -727,6 +732,47 @@ const EditorView = ({
                   </div>
                 </div>
               ))}
+
+              {activeTab === 'alertas' && (
+                <div className="col-span-full space-y-6">
+                  <div className="bg-slate-900/50 p-6 rounded-2xl border border-white/5">
+                    <label className="text-[10px] font-black text-slate-500 block mb-4 uppercase tracking-widest">Descripción de Alerta Crítica</label>
+                    <textarea
+                      value={data.alerta}
+                      onChange={e => setData({ ...data, alerta: e.target.value })}
+                      rows={3}
+                      className="w-full bg-slate-950/50 border border-white/5 rounded-xl p-6 text-sm text-white focus:border-red-500 outline-none transition-all resize-none"
+                      placeholder="Describa la situación de bloqueo..."
+                    />
+                  </div>
+                  
+                  <div className="bg-slate-900/50 p-6 rounded-2xl border border-white/5">
+                    <label className="text-[10px] font-black text-slate-500 block mb-4 uppercase tracking-widest">Etiquetas de Bloqueo Activas</label>
+                    <div className="flex flex-wrap gap-2">
+                      {data.bloqueos?.map(tag => (
+                        <div key={tag} className="flex items-center gap-2 px-3 py-1.5 bg-red-500/10 border border-red-500/20 rounded-lg">
+                          <span className="text-[10px] font-black text-red-500">{tag}</span>
+                          <button 
+                            onClick={() => setData({ ...data, bloqueos: data.bloqueos.filter(t => t !== tag) })}
+                            className="text-red-500/50 hover:text-red-500 transition-colors"
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))}
+                      <button 
+                        onClick={() => {
+                          const tag = prompt('Nueva etiqueta:');
+                          if (tag) setData({ ...data, bloqueos: [...(data.bloqueos || []), tag.toUpperCase()] });
+                        }}
+                        className="px-3 py-1.5 border border-dashed border-white/10 rounded-lg text-[10px] font-black text-slate-500 hover:border-brand-500 hover:text-white transition-all"
+                      >
+                        + AÑADIR
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -899,6 +945,46 @@ const App = () => {
       setUnidades([]);
     }
   }, [selectedDir]);
+
+  // Sincronización de datos al seleccionar unidad
+  useEffect(() => {
+    if (selectedUni) {
+      const uni = unidades.find(u => u.id.toString() === selectedUni);
+      if (uni) {
+        const uniNombre = uni.nombre;
+        const secNombre = secretarias.find(s => s.id.toString() === selectedSec)?.nombre || data.secretaria;
+        const dirNombre = direcciones.find(d => d.id.toString() === selectedDir)?.nombre || data.direccion;
+        
+        setData(prev => ({ ...prev, unidad: uniNombre, secretaria: secNombre, direccion: dirNombre }));
+
+        // Buscar si ya existe un reporte para esta combinación exacta
+        const existing = reports.find(r => 
+          r.secretaria === secNombre && 
+          r.direccion === dirNombre && 
+          r.unidad === uniNombre
+        );
+
+        if (existing) {
+          setData(existing);
+          setIndicadores(existing.indicadores || []);
+          setEstadisticas(existing.estadisticas || []);
+          setRiesgos(existing.riesgos || []);
+        } else {
+          // Resetear a valores por defecto si no existe reporte previo para esta unidad
+          setData(prev => ({
+            ...prev,
+            id: null,
+            titulo: `REPORTE: ${uniNombre}`,
+            subtitulo: `Análisis estratégico de la unidad perteneciente a la ${dirNombre}.`,
+            alerta: 'Sin alertas críticas reportadas.',
+            bloqueos: [],
+            observaciones: '',
+            planAccion: ''
+          }));
+        }
+      }
+    }
+  }, [selectedUni]);
 
   const fetchSecretarias = async () => {
     try {
