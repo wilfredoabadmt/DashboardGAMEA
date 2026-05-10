@@ -92,8 +92,8 @@ export const useReports = () => {
   return {
     reports, setReports,
     secretarias,
-    direcciones,
-    unidades,
+    direcciones, setDirecciones,
+    unidades, setUnidades,
     isSaving, setIsSaving,
     fetchReports, fetchSecretarias, fetchDirecciones, fetchUnidades,
     handleDelete

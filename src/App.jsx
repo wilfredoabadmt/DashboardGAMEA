@@ -32,12 +32,13 @@ const App = () => {
   const { 
     reports, setReports, 
     secretarias, 
-    direcciones, 
-    unidades, 
+    direcciones, setDirecciones,
+    unidades, setUnidades, 
     isSaving, setIsSaving,
-    fetchDirecciones, fetchUnidades,
+    fetchReports, fetchSecretarias, fetchDirecciones, fetchUnidades,
     handleDelete 
   } = useReports();
+
 
   const [currentView, setCurrentView] = useState('preview');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
