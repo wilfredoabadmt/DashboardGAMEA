@@ -1,353 +1,543 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
 import {
-  LayoutDashboard, Users, Activity, FileText, Upload, Terminal as TerminalIcon,
-  LogOut, Menu, Search, AlertCircle, Settings, Info, ShieldAlert
+  BarChart3, FileText, ShieldAlert, UserCheck, Trash2, PlusCircle,
+  Save, FolderOpen, FileSpreadsheet, Layers, Target, Scale, Activity,
+  Building2, AlertTriangle, Upload, Download, Edit3, Eye, Zap,
+  TrendingUp, CheckCircle, Clock
 } from 'lucide-react';
-import Papa from 'papaparse';
 
-// Components
-import PanelControlScreen from './components/screens/PanelControlScreen';
-import GabineteOrganigramaScreen from './components/screens/GabineteOrganigramaScreen';
-import SeguimientoScreen from './components/screens/SeguimientoScreen';
-import ReportesScreen from './components/screens/ReportesScreen';
-import CargaInformacionScreen from './components/screens/CargaInformacionScreen';
+// ============================================================================
+// COMPONENTES VISUALES
+// ============================================================================
 
-// Lib & Constants
-import { fetchDashboardConfig, saveDashboardConfig, fetchIndicadores, syncIndicadores } from './lib/db';
-import { INITIAL_DATA } from './lib/constants';
+const FuturisticGauge = ({ value, label, color }) => (
+  <div className="flex flex-col items-center gap-4">
+    <div className="relative w-32 h-32">
+      <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="3" />
+        <circle
+          cx="50" cy="50" r="40"
+          fill="none"
+          stroke={color}
+          strokeWidth="3"
+          strokeDasharray="251.33"
+          strokeDashoffset={251.33 - (251.33 * value) / 100}
+          strokeLinecap="round"
+          className="transition-all duration-700"
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <div className="text-3xl font-bold text-white">{value}%</div>
+      </div>
+    </div>
+    <div className="text-xs font-bold text-slate-400 text-center uppercase tracking-wide max-w-[120px]">{label}</div>
+  </div>
+);
 
-const TerminalConsole = () => {
-  const [lines, setLines] = useState([
-    { text: 'SYSTEM ALPHA v2.7.0 BOOTING...', type: 'info' },
-    { text: 'CONNECTING TO GAMEA SECURE NODES...', type: 'info' },
-    { text: 'IDENTIFYING TRANSITION ASSETS...', type: 'info' },
-    { text: 'ACCESS GRANTED: MAYOR ELECT ELISER ROCA OFFICE', type: 'success' },
-  ]);
+const StatCard = ({ icon: Icon, label, value, trend, color }) => (
+  <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-xl border border-slate-700 hover:border-slate-600 transition-all">
+    <div className="flex items-center justify-between mb-4">
+      <Icon size={24} style={{ color }} className="opacity-80" />
+      <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold ${trend === 'up' ? 'bg-green-500/20 text-green-400' : trend === 'down' ? 'bg-red-500/20 text-red-400' : 'bg-slate-500/20 text-slate-400'}`}>
+        <TrendingUp size={12} />
+        <span>{trend === 'up' ? '+' : trend === 'down' ? '-' : ''}{value}%</span>
+      </div>
+    </div>
+    <div className="text-sm text-slate-400 uppercase tracking-wide font-semibold">{label}</div>
+  </div>
+);
 
-  useEffect(() => {
-    const commands = [
-      'SCANNING SMAF DATABASES...',
-      'VERIFYING ASSETS AT ALMACENES CENTRALES...',
-      'SYNCING PLANILLAS RRHH - GESTIÓN COPA...',
-      'ANALYZING DEFICIENCIES IN UASI...',
-      'FETCHING AUDIT REPORTS FROM TRANSPARENCIA...',
-      'ALERT: MISSING CREDENTIALS FOR CATASTRO DB',
-      'VALIDATING DIGITAL SIGNATURES...',
-      'PREPARING PRESS REPORT MODULES...',
-    ];
-
-    const interval = setInterval(() => {
-      const randomCmd = commands[Math.floor(Math.random() * commands.length)];
-      setLines(prev => [...prev.slice(-15), { 
-        text: `[${new Date().toLocaleTimeString()}] ${randomCmd}`, 
-        type: randomCmd.includes('ALERT') || randomCmd.includes('MISSING') ? 'error' : 'info' 
-      }]);
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, []);
-
+const RiskBadge = ({ title, severity, category }) => {
+  const bgColor = severity === 'critical' ? 'bg-red-500/10 border-red-500/50 text-red-400' : 'bg-orange-500/10 border-orange-500/50 text-orange-400';
+  const dotColor = severity === 'critical' ? 'bg-red-500' : 'bg-orange-500';
+  
   return (
-    <div style={{ 
-      background: '#020617', 
-      border: '1px solid var(--border-subtle)', 
-      borderRadius: '16px', 
-      padding: '32px',
-      height: '600px',
-      fontFamily: 'var(--font-mono)',
-      fontSize: '14px',
-      overflow: 'hidden',
-      position: 'relative'
-    }}>
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
-        <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#ff5f56' }} />
-        <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#ffbd2e' }} />
-        <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#27c93f' }} />
-      </div>
-      
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {lines.map((line, i) => (
-          <div key={i} style={{ 
-            color: line.type === 'error' ? 'var(--accent-red)' : line.type === 'success' ? 'var(--accent-emerald)' : 'var(--text-main)',
-            opacity: i === lines.length - 1 ? 1 : 0.6,
-            borderLeft: `2px solid ${line.type === 'error' ? 'var(--accent-red)' : 'var(--accent-cyan)'}`,
-            paddingLeft: '16px'
-          }}>
-            {line.text}
-          </div>
-        ))}
-        <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-          <span style={{ color: 'var(--accent-cyan)' }}>{'>'}</span>
-          <span className="animate-pulse" style={{ color: 'var(--text-dim)' }}>_</span>
-        </div>
-      </div>
-
-      <div style={{ position: 'absolute', bottom: '32px', right: '32px', textAlign: 'right' }}>
-        <p style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: '800' }}>NOD_ID: GAMEA_EL_ALTO_01</p>
-        <p style={{ fontSize: '10px', color: 'var(--accent-red)', fontWeight: '800' }}>RESTRICTED ACCESS AREA</p>
-      </div>
+    <div className={`px-4 py-3 rounded-lg border ${bgColor} flex items-center gap-3`}>
+      <div className={`w-2 h-2 ${dotColor} rounded-full ${severity === 'critical' ? 'animate-pulse' : ''}`}></div>
+      <div className="text-sm font-semibold">{title}</div>
+      <span className="text-xs opacity-60">{category}</span>
     </div>
   );
 };
 
+// ============================================================================
+// COMPONENTES DE LAYOUT
+// ============================================================================
+
+const Header = ({ onViewChange, currentView, onSave, isSaveActive }) => (
+  <nav className="bg-gradient-to-r from-slate-950 to-slate-900 border-b border-slate-800 sticky top-0 z-50">
+    <div className="max-w-7xl mx-auto px-8 py-5 flex items-center justify-between">
+      <div className="flex items-center gap-4">
+        <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg">
+          <Layers size={24} className="text-white" />
+        </div>
+        <div>
+          <h1 className="text-xl font-black text-white">GAMEA DASHBOARD</h1>
+          <p className="text-xs text-blue-400 font-semibold">Control de Transición Estratégica</p>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-4 bg-slate-800 p-1 rounded-lg border border-slate-700">
+        {['preview', 'editor', 'list'].map(v => (
+          <button
+            key={v}
+            onClick={() => onViewChange(v)}
+            className={`px-6 py-2 rounded-md text-xs font-bold uppercase transition-all ${
+              currentView === v
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/50'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            {v === 'preview' ? '📊 Vista' : v === 'editor' ? '⚙️ Config' : '📁 Historial'}
+          </button>
+        ))}
+      </div>
+
+      <button
+        onClick={onSave}
+        className={`px-6 py-2.5 rounded-lg font-bold text-sm uppercase tracking-wide transition-all flex items-center gap-2 ${
+          isSaveActive
+            ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg'
+            : 'bg-slate-700 text-slate-400'
+        }`}
+      >
+        <Save size={18} /> {isSaveActive ? 'Actualizar' : 'Guardar'}
+      </button>
+    </div>
+  </nav>
+);
+
+const Footer = ({ onPrint }) => (
+  <footer className="bg-slate-950 border-t border-slate-800 mt-16 no-print">
+    <div className="max-w-7xl mx-auto px-8 py-8 flex items-center justify-between">
+      <div className="text-sm text-slate-500">
+        <p className="font-semibold mb-1">GAMEA Dashboard v1.0</p>
+        <p>Plataforma de Inteligencia Estratégica Municipal</p>
+      </div>
+      <button
+        onClick={onPrint}
+        className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold rounded-lg hover:shadow-lg hover:shadow-blue-600/50 transition-all uppercase text-sm"
+      >
+        📄 Exportar PDF
+      </button>
+    </div>
+  </footer>
+);
+
+// ============================================================================
+// VISTAS PRINCIPALES
+// ============================================================================
+
+const PreviewView = ({ data, indicadores, estadisticas, riesgos }) => (
+  <div className="space-y-8 animate-in fade-in duration-500 pb-20">
+    {/* HEADER PRINCIPAL */}
+    <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-black p-12 rounded-2xl border border-slate-800 relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/5 rounded-full -mr-48 -mt-48 blur-3xl"></div>
+      <div className="relative z-10">
+        <div className="flex items-center gap-6 mb-8">
+          <div className="p-6 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl">
+            <Target size={40} className="text-white" />
+          </div>
+          <div>
+            <h2 className="text-4xl font-black text-white mb-2 leading-tight">{data.titulo}</h2>
+            <p className="text-slate-400 font-semibold text-lg">{data.subtitulo}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-4 pt-6 border-t border-slate-800">
+          <div className="px-4 py-2 bg-blue-600/20 border border-blue-500/50 rounded-lg text-sm font-bold text-blue-400">
+            {data.secretaria}
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-xs font-bold text-slate-500">{data.direccion}</span>
+          </div>
+          <div className="text-xs font-bold text-slate-600 ml-auto">{data.fecha}</div>
+        </div>
+      </div>
+    </div>
+
+    {/* GRID DE KPIs */}
+    <div>
+      <h3 className="text-lg font-black text-white mb-6 uppercase tracking-wider flex items-center gap-3">
+        <BarChart3 size={24} className="text-blue-500" />
+        Indicadores Estratégicos
+      </h3>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {indicadores.map(ind => (
+          <div key={ind.id} className="bg-slate-800 border border-slate-700 p-8 rounded-xl hover:border-slate-600 transition-all flex flex-col items-center">
+            <FuturisticGauge value={ind.value} label={ind.label} color={ind.color} />
+          </div>
+        ))}
+        <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-xl flex flex-col justify-center items-center gap-4">
+          <h4 className="text-xs font-black text-slate-400 text-center uppercase">Estadísticas</h4>
+          <div className="space-y-3 w-full">
+            {estadisticas.map((s, i) => (
+              <div key={i} className="flex justify-between items-center">
+                <span className="text-xs font-bold text-slate-500">{s.label}</span>
+                <span className="text-sm font-black text-white">{s.val}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* ALERTAS Y RIESGOS */}
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="lg:col-span-2 bg-slate-800 border border-slate-700 p-8 rounded-xl">
+        <h3 className="text-lg font-black text-white mb-6 uppercase tracking-wider flex items-center gap-3">
+          <Scale size={24} className="text-orange-500" />
+          Matriz de Riesgos
+        </h3>
+        <div className="space-y-3">
+          {riesgos.map((r, i) => (
+            <RiskBadge key={i} title={r.title} severity={r.imp === 3 ? 'critical' : 'high'} category={r.cat} />
+          ))}
+        </div>
+      </div>
+
+      <div className="bg-gradient-to-br from-red-900/30 to-red-950/30 border border-red-800/50 p-8 rounded-xl">
+        <h4 className="text-lg font-black text-red-400 mb-4 uppercase tracking-wider flex items-center gap-3">
+          <AlertTriangle size={20} />
+          Alerta Crítica
+        </h4>
+        <p className="text-sm text-slate-300 leading-relaxed font-medium">{data.alerta}</p>
+        <div className="mt-6 space-y-2">
+          {data.bloqueos.map(b => (
+            <div key={b} className="text-xs font-bold text-red-400 px-3 py-2 bg-red-950/50 rounded-lg border border-red-800/30">
+              ⚠️ {b}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    {/* FIRMAS */}
+    <div className="bg-slate-800 border border-slate-700 p-8 rounded-xl flex flex-col md:flex-row justify-between items-center gap-8">
+      <div className="flex items-center gap-4">
+        <UserCheck size={40} className="text-blue-500" />
+        <div>
+          <p className="text-xs text-slate-500 font-semibold uppercase">Responsable</p>
+          <p className="text-lg font-black text-white">{data.acreditado}</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-4">
+        <ShieldAlert size={40} className="text-slate-500" />
+        <div>
+          <p className="text-xs text-slate-500 font-semibold uppercase">Alcaldía</p>
+          <p className="text-lg font-black text-white">{data.alcalde}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const EditorView = ({ data, setData, indicadores, setIndicadores, onImport, onDownloadCSV }) => (
+  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-20">
+    {/* PANEL IZQUIERDO */}
+    <div className="space-y-6">
+      <div className="bg-slate-800 border border-slate-700 p-8 rounded-xl">
+        <h3 className="text-lg font-black text-blue-400 mb-6 uppercase tracking-wider flex items-center gap-3">
+          <Building2 size={20} />
+          Configuración
+        </h3>
+        <div className="space-y-5">
+          <div>
+            <label className="text-xs font-bold text-slate-400 block mb-2 uppercase">Secretaría</label>
+            <input
+              type="text"
+              value={data.secretaria}
+              onChange={e => setData({...data, secretaria: e.target.value})}
+              className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-slate-400 block mb-2 uppercase">Unidad</label>
+            <input
+              type="text"
+              value={data.direccion}
+              onChange={e => setData({...data, direccion: e.target.value})}
+              className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-slate-400 block mb-2 uppercase">Responsable</label>
+            <input
+              type="text"
+              value={data.acreditado}
+              onChange={e => setData({...data, acreditado: e.target.value})}
+              className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-gradient-to-br from-blue-900/40 to-blue-950/40 border border-blue-800/50 p-8 rounded-xl">
+        <h4 className="text-lg font-black text-blue-400 mb-4 uppercase tracking-wider">Importar Datos</h4>
+        <p className="text-sm text-slate-300 mb-4 font-medium">Carga datos masivos desde CSV</p>
+        <div className="space-y-3">
+          <button onClick={onDownloadCSV} className="w-full px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2">
+            <FileSpreadsheet size={18} /> Descargar CSV
+          </button>
+          <button onClick={() => document.getElementById('csv-input').click()} className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2">
+            <Upload size={18} /> Cargar CSV
+          </button>
+          <input id="csv-input" type="file" accept=".csv" onChange={onImport} className="hidden" />
+        </div>
+      </div>
+    </div>
+
+    {/* PANEL CENTRAL - KPIs */}
+    <div className="lg:col-span-2 bg-slate-800 border border-slate-700 p-8 rounded-xl">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-lg font-black text-white uppercase tracking-wider flex items-center gap-3">
+          <Activity size={20} className="text-blue-500" />
+          Indicadores
+        </h3>
+        <button
+          onClick={() => setIndicadores([...indicadores, { id: Date.now(), label: 'NUEVA', value: 50, color: '#3b82f6' }])}
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-lg transition-all flex items-center gap-2"
+        >
+          <PlusCircle size={16} /> Agregar
+        </button>
+      </div>
+
+      <div className="space-y-4 max-h-96 overflow-y-auto pr-4">
+        {indicadores.map(ind => (
+          <div key={ind.id} className="bg-slate-900 p-4 rounded-lg border border-slate-700 hover:border-slate-600 transition-all">
+            <div className="flex items-center justify-between mb-3">
+              <input
+                type="text"
+                value={ind.label}
+                onChange={e => setIndicadores(indicadores.map(x => x.id === ind.id ? {...x, label: e.target.value.toUpperCase()} : x))}
+                className="flex-1 bg-transparent text-sm font-bold text-blue-400 outline-none"
+              />
+              <button
+                onClick={() => setIndicadores(indicadores.filter(x => x.id !== ind.id))}
+                className="text-slate-600 hover:text-red-500 transition-colors"
+              >
+                <Trash2 size={18} />
+              </button>
+            </div>
+            <div className="flex items-center gap-4 mb-3">
+              <input
+                type="range"
+                value={ind.value}
+                onChange={e => setIndicadores(indicadores.map(x => x.id === ind.id ? {...x, value: parseInt(e.target.value)} : x))}
+                min="0"
+                max="100"
+                className="flex-1 accent-blue-600"
+              />
+              <span className="text-sm font-black text-white min-w-12 text-right">{ind.value}%</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <input
+                type="color"
+                value={ind.color}
+                onChange={e => setIndicadores(indicadores.map(x => x.id === ind.id ? {...x, color: e.target.value} : x))}
+                className="w-10 h-8 rounded-lg cursor-pointer border border-slate-600"
+              />
+              <div
+                className="h-3 flex-1 rounded-full"
+                style={{ backgroundColor: ind.color, boxShadow: `0 0 12px ${ind.color}99` }}
+              ></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+const ListViewComponent = ({ reports, onSelect, onDelete, onCreate }) => (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
+    {reports.map(r => (
+      <div key={r.id} className="bg-slate-800 border border-slate-700 p-6 rounded-xl hover:border-slate-600 transition-all flex flex-col">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <div className="px-3 py-1 bg-blue-600/20 border border-blue-500/50 rounded-full text-xs font-bold text-blue-400 inline-block mb-2">
+              {r.direccion}
+            </div>
+            <h4 className="text-lg font-black text-white mb-1">{r.titulo}</h4>
+            <p className="text-xs text-slate-500 font-semibold">{r.secretaria}</p>
+          </div>
+          <button onClick={() => onDelete(r.id)} className="text-slate-600 hover:text-red-500 transition-colors">
+            <Trash2 size={20} />
+          </button>
+        </div>
+        <button
+          onClick={() => onSelect(r)}
+          className="mt-auto px-4 py-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2"
+        >
+          <FolderOpen size={16} /> Abrir
+        </button>
+      </div>
+    ))}
+
+    <div
+      onClick={onCreate}
+      className="bg-slate-800 border-2 border-dashed border-slate-700 hover:border-blue-600 p-6 rounded-xl cursor-pointer transition-all flex flex-col items-center justify-center text-slate-500 hover:text-blue-400"
+    >
+      <PlusCircle size={40} className="mb-2" />
+      <p className="font-bold text-center">Nuevo Reporte</p>
+    </div>
+  </div>
+);
+
+// ============================================================================
+// COMPONENTE PRINCIPAL
+// ============================================================================
+
 const App = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [data, setData] = useState(INITIAL_DATA);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [view, setView] = useState('preview');
+  const [reports, setReports] = useState([]);
+  const [currentReportId, setCurrentReportId] = useState(null);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [config, indicadores] = await Promise.all([
-          fetchDashboardConfig(),
-          fetchIndicadores()
-        ]);
-        
-        if (config || indicadores.length > 0) {
-          setData(prev => ({
-            ...prev,
-            ...(config || {}),
-            indicadores: indicadores.length > 0 ? indicadores.map(ind => ({
-              ...ind,
-              vizType: ind.viz_type,
-              falencias: ind.falencias || 0,
-              virtudes: ind.virtudes || 0
-            })) : prev.indicadores
-          }));
-        }
-      } catch (error) {
-        console.error('Error loading data from Supabase:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadData();
-  }, []);
-
-  const handleCSVUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    Papa.parse(file, {
-      header: true,
-      dynamicTyping: true,
-      skipEmptyLines: true,
-      complete: (results) => {
-        // Simple mapping: if CSV has 'type' column, we can distinguish between indicators and processes
-        const rows = results.data;
-        
-        const newIndicadores = rows.filter(r => r.tipo === 'indicador').map(r => ({
-          id: Date.now() + Math.random(),
-          label: r.nombre || r.label,
-          value: r.valor || r.value || 0,
-          falencias: r.falencias || 0,
-          virtudes: r.virtudes || 0,
-          color: r.color || '#3b82f6',
-          vizType: 'gauge'
-        }));
-
-        const newProcesos = rows.filter(r => r.tipo === 'proceso').map(r => ({
-          secretaria: r.secretaria,
-          proceso: r.proceso,
-          estado: r.estado || 'Normal',
-          falencias: r.falencias_detalle || 'Ninguna',
-          virtudes: r.virtudes_detalle || 'N/A'
-        }));
-
-        if (newIndicadores.length > 0 || newProcesos.length > 0) {
-          setData(prev => ({
-            ...prev,
-            indicadores: newIndicadores.length > 0 ? newIndicadores : prev.indicadores,
-            procesos: newProcesos.length > 0 ? newProcesos : prev.procesos
-          }));
-          alert('Datos de transición cargados exitosamente.');
-        } else {
-          alert('No se encontraron datos válidos. Use las columnas: tipo, nombre, valor, falencias, virtudes.');
-        }
-      },
-      error: (error) => {
-        console.error('Error parsing CSV:', error);
-        alert('Error al procesar el archivo CSV.');
-      }
-    });
+  const initialData = {
+    titulo: 'CONTROL DE TRANSICIÓN ESTRATÉGICA',
+    subtitulo: 'HUD de Inteligencia Municipal',
+    fecha: new Date().toISOString().split('T')[0],
+    acreditado: 'Wilfredo Abad Mancilla Terán',
+    alcalde: 'Elieser Roca Tancara',
+    secretaria: 'Sec. Mun. de Administración y Finanzas',
+    direccion: 'UASI',
+    alerta: 'Retención de códigos fuente y opacidad en bases de datos financieras.',
+    bloqueos: ['Tesorería', 'Recursos Humanos', 'Activos Fijos'],
+    ley: 'Ley 1178 (SAFCO)'
   };
 
-  if (isLoading) {
-    return (
-      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-main)' }}>
-        <div style={{ textAlign: 'center' }}>
-          <Activity size={48} className="animate-spin" color="var(--accent-cyan)" />
-          <p style={{ marginTop: '24px', fontWeight: '800', letterSpacing: '0.2em', color: 'var(--text-dim)' }}>SISTEMA DE TRANSICIÓN GAMEA...</p>
-        </div>
-      </div>
-    );
-  }
+  const initialIndicadores = [
+    { id: 1, label: 'DOCUMENTACIÓN', value: 85, color: '#3b82f6' },
+    { id: 2, label: 'ACTIVOS FÍSICOS', value: 20, color: '#ef4444' },
+    { id: 3, label: 'CREDENCIALES', value: 5, color: '#f59e0b' }
+  ];
+
+  const initialEstadisticas = [
+    { label: 'PISLEA', val: 96, trend: 'up' },
+    { label: 'PISI', val: 70, trend: 'down' },
+    { label: 'PIGE', val: 10, trend: 'flat' }
+  ];
+
+  const initialRiesgos = [
+    { id: 1, title: 'Opacidad de Datos', imp: 3, cat: 'Legal' },
+    { id: 2, title: 'Inconsistencia Física', imp: 3, cat: 'Patrimonial' },
+    { id: 3, title: 'Soberanía Digital', imp: 3, cat: 'Técnica' }
+  ];
+
+  const [data, setData] = useState(initialData);
+  const [indicadores, setIndicadores] = useState(initialIndicadores);
+  const [estadisticas] = useState(initialEstadisticas);
+  const [riesgos] = useState(initialRiesgos);
+
+  // PERSISTENCIA
+  useEffect(() => {
+    const saved = localStorage.getItem('gamea-reports');
+    if (saved) setReports(JSON.parse(saved));
+  }, []);
+
+  const saveReports = (newReports) => {
+    setReports(newReports);
+    localStorage.setItem('gamea-reports', JSON.stringify(newReports));
+  };
+
+  const handleSave = () => {
+    const newReports = [...reports];
+    if (currentReportId) {
+      const idx = newReports.findIndex(r => r.id === currentReportId);
+      if (idx !== -1) {
+        newReports[idx] = { ...data, indicadores, id: currentReportId, updatedAt: new Date().toISOString() };
+      }
+    } else {
+      const newReport = { ...data, indicadores, id: Date.now().toString(), createdAt: new Date().toISOString() };
+      newReports.push(newReport);
+      setCurrentReportId(newReport.id);
+    }
+    saveReports(newReports);
+  };
+
+  const handleDelete = (id) => {
+    saveReports(reports.filter(r => r.id !== id));
+    if (currentReportId === id) {
+      setData(initialData);
+      setIndicadores(initialIndicadores);
+      setCurrentReportId(null);
+    }
+  };
+
+  const handleSelect = (r) => {
+    setData(r);
+    setIndicadores(r.indicadores || initialIndicadores);
+    setCurrentReportId(r.id);
+    setView('editor');
+  };
+
+  const downloadCSV = () => {
+    const csv = "Tipo,Etiqueta,Valor,Color\nIND,NORMATIVA,90,#3b82f6\nIND,ACTIVOS,45,#ef4444";
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'plantilla.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImport = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const lines = ev.target.result.split('\n').filter(l => l.trim());
+      const newInds = [];
+      lines.slice(1).forEach((line, i) => {
+        const [type, label, val, color] = line.split(',').map(s => s.trim());
+        if (type === 'IND') {
+          newInds.push({ id: Date.now() + i, label: label.toUpperCase(), value: parseInt(val) || 0, color: color || '#3b82f6' });
+        }
+      });
+      setIndicadores(newInds);
+      setView('preview');
+    };
+    reader.readAsText(file);
+  };
 
   return (
-    <div className="app-container">
-      
-      {/* SIDEBAR */}
-      <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''} ${mobileMenuOpen ? 'active' : ''} no-print`}>
-        <div style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ 
-            width: '40px', height: '40px', background: 'var(--accent-cyan)',
-            borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 0 20px rgba(34, 211, 238, 0.3)', flexShrink: 0
-          }}>
-            <ShieldAlert size={24} color="#020617" />
-          </div>
-          {(!sidebarCollapsed || mobileMenuOpen) && (
-            <div style={{ overflow: 'hidden' }}>
-              <h1 style={{ fontSize: '14px', fontWeight: '900', color: 'white', textTransform: 'uppercase', letterSpacing: '0.1em' }}>TRANSICIÓN GAMEA</h1>
-              <p style={{ fontSize: '8px', color: 'var(--text-dim)', fontWeight: '800', textTransform: 'uppercase' }}>Gestión Eliser Roca</p>
-            </div>
-          )}
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-black text-slate-100 font-sans">
+      <Header onViewChange={setView} currentView={view} onSave={handleSave} isSaveActive={currentReportId !== null} />
 
-        <nav style={{ flex: 1, marginTop: '32px' }}>
-          <button onClick={() => { setActiveTab('dashboard'); setMobileMenuOpen(false); }} className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}>
-            <LayoutDashboard size={18} />
-            {(!sidebarCollapsed || mobileMenuOpen) && <span>PANEL ESTRATÉGICO</span>}
-          </button>
-          <button onClick={() => { setActiveTab('gabinete'); setMobileMenuOpen(false); }} className={`nav-item ${activeTab === 'gabinete' ? 'active' : ''}`}>
-            <Users size={18} />
-            {(!sidebarCollapsed || mobileMenuOpen) && <span>ESTRUCTURA GAMEA</span>}
-          </button>
-          <button onClick={() => { setActiveTab('seguimiento'); setMobileMenuOpen(false); }} className={`nav-item ${activeTab === 'seguimiento' ? 'active' : ''}`}>
-            <Activity size={18} />
-            {(!sidebarCollapsed || mobileMenuOpen) && <span>MONITOR ALERTAS</span>}
-          </button>
-          <button onClick={() => { setActiveTab('reportes'); setMobileMenuOpen(false); }} className={`nav-item ${activeTab === 'reportes' ? 'active' : ''}`}>
-            <FileText size={18} />
-            {(!sidebarCollapsed || mobileMenuOpen) && <span>REPORTES PRENSA</span>}
-          </button>
-          <button onClick={() => { setActiveTab('carga'); setMobileMenuOpen(false); }} className={`nav-item ${activeTab === 'carga' ? 'active' : ''}`}>
-            <Upload size={18} />
-            {(!sidebarCollapsed || mobileMenuOpen) && <span>CARGA DIGITAL</span>}
-          </button>
-          <button onClick={() => { setActiveTab('terminal'); setMobileMenuOpen(false); }} className={`nav-item ${activeTab === 'terminal' ? 'active' : ''}`}>
-            <TerminalIcon size={18} />
-            {(!sidebarCollapsed || mobileMenuOpen) && <span>SISTEMA CORE</span>}
-          </button>
-        </nav>
-
-        <div style={{ padding: '16px', borderTop: '1px solid var(--border-subtle)' }}>
-           <input 
-            type="file" 
-            accept=".csv" 
-            id="csv-upload-main" 
-            style={{ display: 'none' }} 
-            onChange={handleCSVUpload}
+      <main className="max-w-7xl mx-auto px-8 py-10">
+        {view === 'preview' && (
+          <PreviewView data={data} indicadores={indicadores} estadisticas={estadisticas} riesgos={riesgos} />
+        )}
+        {view === 'editor' && (
+          <EditorView data={data} setData={setData} indicadores={indicadores} setIndicadores={setIndicadores} onImport={handleImport} onDownloadCSV={downloadCSV} />
+        )}
+        {view === 'list' && (
+          <ListViewComponent
+            reports={reports}
+            onSelect={handleSelect}
+            onDelete={handleDelete}
+            onCreate={() => {
+              setData(initialData);
+              setIndicadores(initialIndicadores);
+              setCurrentReportId(null);
+              setView('editor');
+            }}
           />
-          <button onClick={() => document.getElementById('csv-upload-main').click()} className="btn btn-ghost" style={{ width: '100%', fontSize: '10px', justifyContent: 'center' }}>
-            <Upload size={14} /> {(!sidebarCollapsed || mobileMenuOpen) && 'CARGAR CSV'}
-          </button>
-        </div>
-      </aside>
-
-      {/* MAIN CONTENT */}
-      <main className="main-content">
-        
-        {/* HEADER */}
-        <header className="dashboard-header no-print">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flex: 1 }}>
-            <button 
-              className="show-mobile btn btn-ghost" 
-              style={{ padding: '8px' }}
-              onClick={() => setMobileMenuOpen(true)}
-            >
-              <Menu size={20} />
-            </button>
-            
-            <div style={{ flex: 1 }}>
-              <p style={{ fontSize: '10px', fontWeight: '900', color: 'var(--text-dim)', textTransform: 'uppercase' }}>GOBIERNO AUTÓNOMO MUNICIPAL DE EL ALTO</p>
-              <h2 style={{ fontSize: '16px', fontWeight: '900', color: 'white', letterSpacing: '0.1em' }}>
-                {activeTab.toUpperCase()} —— <span style={{ color: 'var(--accent-cyan)' }}>TRANSICIÓN 2026</span>
-              </h2>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-            <div style={{ display: 'flex', gap: '16px', color: 'var(--text-dim)' }}>
-              <motion.div whileHover={{ color: 'white' }} style={{ cursor: 'pointer', position: 'relative' }}>
-                <div style={{ position: 'absolute', top: -2, right: -2, width: '8px', height: '8px', background: 'var(--accent-red)', borderRadius: '50%', border: '2px solid #020617' }} />
-                <AlertCircle size={20} />
-              </motion.div>
-              <motion.div whileHover={{ color: 'white' }} style={{ cursor: 'pointer' }}><Settings size={20} /></motion.div>
-            </div>
-            
-            <div style={{ width: '1px', height: '24px', background: 'var(--border-subtle)' }} />
-            
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ textAlign: 'right', className: 'hidden-mobile' }}>
-                <p style={{ fontSize: '11px', fontWeight: '800', color: 'white' }}>{data.alcalde_electo}</p>
-                <p style={{ fontSize: '9px', color: 'var(--accent-cyan)', fontWeight: '700' }}>ALCALDE ELECTO</p>
-              </div>
-              <div style={{ width: '36px', height: '36px', borderRadius: '50%', border: '2px solid var(--accent-cyan)', overflow: 'hidden' }}>
-                <img src="https://i.pravatar.cc/100?u=eliser" alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <div className="dashboard-viewport">
-          <AnimatePresence mode="wait">
-            
-            {activeTab === 'dashboard' && (
-              <motion.div key="dashboard" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                <PanelControlScreen data={data} />
-              </motion.div>
-            )}
-
-            {activeTab === 'gabinete' && (
-              <motion.div key="gabinete" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                <GabineteOrganigramaScreen />
-              </motion.div>
-            )}
-
-            {activeTab === 'seguimiento' && (
-              <motion.div key="seguimiento" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                <SeguimientoScreen />
-              </motion.div>
-            )}
-
-            {activeTab === 'reportes' && (
-              <motion.div key="reportes" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                <ReportesScreen />
-              </motion.div>
-            )}
-
-            {activeTab === 'carga' && (
-              <motion.div key="carga" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                <CargaInformacionScreen />
-              </motion.div>
-            )}
-
-            {activeTab === 'terminal' && (
-               <motion.div key="terminal" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
-                  <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-                    <div style={{ marginBottom: '32px' }}>
-                      <h2 style={{ fontSize: '48px', fontWeight: '900', color: 'white', letterSpacing: '-0.02em' }}>Core System Alpha</h2>
-                      <p style={{ color: 'var(--text-muted)', marginTop: '8px', fontSize: '14px' }}>Centro de monitoreo de activos digitales y auditoría de red institucional.</p>
-                    </div>
-                    <TerminalConsole />
-                  </div>
-               </motion.div>
-            )}
-
-          </AnimatePresence>
-        </div>
+        )}
       </main>
 
-      <div className="hidden-mobile" style={{ position: 'fixed', bottom: '24px', right: '32px', zIndex: 100, pointerEvents: 'none' }}>
-        <p style={{ fontSize: '8px', fontWeight: '900', color: 'rgba(255,255,255,0.1)', letterSpacing: '0.5em', textTransform: 'uppercase' }}>
-          GAMEA TRANSITION HUD v2.7.0 // MAYOR ELECT ELISER ROCA
-        </p>
-      </div>
+      <Footer onPrint={() => window.print()} />
 
+      <style>{`
+        @media print {
+          .no-print { display: none !important; }
+          body { background: white !important; color: black !important; }
+          * { background: white !important; color: black !important; border-color: #ccc !important; }
+        }
+        
+        input[type="range"] { accent-color: #3b82f6; }
+      `}</style>
     </div>
   );
 };
