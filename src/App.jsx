@@ -552,68 +552,43 @@ const App = () => {
     }
   };
 
-  // Carga de direcciones cuando cambia la secretaría
-  useEffect(() => {
-    if (selectedSec) {
-      fetchDirecciones(selectedSec);
+  // CARGA BASADA EN EVENTOS: Nueva solución para evitar bucles
+  const loadUnitReport = (uniId, dirId, secId) => {
+    if (!uniId || !dirId || !secId) return;
+
+    const secObj = secretarias.find(s => s.id.toString() === secId.toString());
+    const dirObj = direcciones.find(d => d.id.toString() === dirId.toString());
+    const uniObj = unidades.find(u => u.id.toString() === uniId.toString());
+
+    if (!secObj || !dirObj || !uniObj) return;
+
+    const existing = reports.find(r => 
+      r.secretaria === secObj.nombre && 
+      r.direccion === dirObj.nombre && 
+      r.unidad === uniObj.nombre
+    );
+
+    if (existing) {
+      setData(existing);
+      setIndicadores(existing.indicadores || []);
+      setEstadisticas(existing.estadisticas || []);
+      setRiesgos(existing.riesgos || []);
     } else {
-      setDirecciones([]);
-      setUnidades([]);
+      setData({ 
+        ...INITIAL_REPORT_STATE, 
+        secretaria: secObj.nombre, 
+        direccion: dirObj.nombre, 
+        unidad: uniObj.nombre 
+      });
+      setIndicadores([
+        { id: 1, label: 'EJECUCIÓN PRESUPUESTARIA', value: 0, color: '#38abf8' },
+        { id: 2, label: 'CUMPLIMIENTO DE METAS POI', value: 0, color: '#10b981' },
+        { id: 3, label: 'SITUACIÓN DE ACTIVOS', value: 0, color: '#f59e0b' },
+      ]);
+      setEstadisticas([]);
+      setRiesgos([]);
     }
-  }, [selectedSec]);
-
-  // Carga de unidades cuando cambia la dirección
-  useEffect(() => {
-    if (selectedDir) {
-      fetchUnidades(selectedDir);
-    } else {
-      setUnidades([]);
-    }
-  }, [selectedDir]);
-
-  // Sincronización de datos al seleccionar unidad o cambiar reportes
-  useEffect(() => {
-    if (!selectedUni || secretarias.length === 0 || reports.length === 0) return;
-
-    const secObj = secretarias.find(s => s.id.toString() === selectedSec);
-    const dirObj = direcciones.find(d => d.id.toString() === selectedDir);
-    const uniObj = unidades.find(u => u.id.toString() === selectedUni);
-
-    if (secObj && dirObj && uniObj) {
-      const existing = reports.find(r => 
-        r.secretaria === secObj.nombre && 
-        r.direccion === dirObj.nombre && 
-        r.unidad === uniObj.nombre
-      );
-
-      if (existing) {
-        if (data.id !== existing.id) {
-          setData(existing);
-          setIndicadores(existing.indicadores || []);
-          setEstadisticas(existing.estadisticas || []);
-          setRiesgos(existing.riesgos || []);
-        }
-      } else {
-        // Nuevo reporte para esta unidad
-        // EVITAR BUCLE INFINITO: Solo resetear si la unidad en data es distinta a la seleccionada
-        if (data.unidad !== uniObj.nombre || data.id !== null) {
-          setData({ 
-            ...INITIAL_REPORT_STATE, 
-            secretaria: secObj.nombre, 
-            direccion: dirObj.nombre, 
-            unidad: uniObj.nombre 
-          });
-          setIndicadores([
-            { id: 1, label: 'EJECUCIÓN PRESUPUESTARIA', value: 0, color: '#38abf8' },
-            { id: 2, label: 'CUMPLIMIENTO DE METAS POI', value: 0, color: '#10b981' },
-            { id: 3, label: 'SITUACIÓN DE ACTIVOS', value: 0, color: '#f59e0b' },
-          ]);
-          setEstadisticas([]);
-          setRiesgos([]);
-        }
-      }
-    }
-  }, [selectedUni, reports, secretarias, direcciones, unidades]);
+  };
 
   const fetchSecretarias = async () => {
     try {
@@ -764,7 +739,13 @@ const App = () => {
                 <div className="relative">
                   <select
                     value={selectedSec}
-                    onChange={e => { setSelectedSec(e.target.value); setSelectedDir(''); setSelectedUni(''); }}
+                    onChange={e => { 
+                      const val = e.target.value;
+                      setSelectedSec(val); 
+                      setSelectedDir(''); 
+                      setSelectedUni('');
+                      if (val) fetchDirecciones(val);
+                    }}
                     className="w-full bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-2xl p-5 pr-12 text-sm text-white focus:border-brand-500/50 focus:ring-4 focus:ring-brand-500/10 outline-none appearance-none transition-all cursor-pointer hover:bg-slate-900/60"
                   >
                     <option value="" className="bg-slate-900">Seleccione Secretaría...</option>
@@ -781,7 +762,12 @@ const App = () => {
                 <div className="relative">
                   <select
                     value={selectedDir}
-                    onChange={e => { setSelectedDir(e.target.value); setSelectedUni(''); }}
+                    onChange={e => { 
+                      const val = e.target.value;
+                      setSelectedDir(val); 
+                      setSelectedUni(''); 
+                      if (val) fetchUnidades(val);
+                    }}
                     disabled={!selectedSec}
                     className="w-full bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-2xl p-5 pr-12 text-sm text-white focus:border-brand-500/50 focus:ring-4 focus:ring-brand-500/10 outline-none appearance-none transition-all cursor-pointer hover:bg-slate-900/60 disabled:opacity-20 disabled:cursor-not-allowed"
                   >
@@ -799,7 +785,11 @@ const App = () => {
                 <div className="relative">
                   <select
                     value={selectedUni}
-                    onChange={e => setSelectedUni(e.target.value)}
+                    onChange={e => {
+                      const val = e.target.value;
+                      setSelectedUni(val);
+                      if (val) loadUnitReport(val, selectedDir, selectedSec);
+                    }}
                     disabled={!selectedDir}
                     className="w-full bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-2xl p-5 pr-12 text-sm text-white focus:border-brand-500/50 focus:ring-4 focus:ring-brand-500/10 outline-none appearance-none transition-all cursor-pointer hover:bg-slate-900/60 disabled:opacity-20 disabled:cursor-not-allowed"
                   >
@@ -1221,19 +1211,34 @@ const App = () => {
             <ListViewComponent
               reports={reports}
               onSelect={async (r) => { 
-                // Intentar sincronizar los dropdowns si es posible
+                // CARGA COMPLETA MANUAL: Sincronizar todo sin efectos reactivos
                 const sec = secretarias.find(s => s.nombre === r.secretaria);
                 if (sec) {
                   setSelectedSec(sec.id.toString());
-                  // Esperar un momento a que las direcciones se carguen no es posible aquí fácilmente
-                  // pero el sync useEffect se encargará de poner la data correcta al final
+                  // Cargar direcciones y luego buscar la dirección
+                  const { data: dirs } = await supabase.from('direcciones').select('*').eq('secretaria_id', sec.id);
+                  if (dirs) {
+                    setDirecciones(dirs);
+                    const dir = dirs.find(d => d.nombre === r.direccion);
+                    if (dir) {
+                      setSelectedDir(dir.id.toString());
+                      // Cargar unidades y luego buscar la unidad
+                      const { data: unis } = await supabase.from('unidades').select('*').eq('direccion_id', dir.id);
+                      if (unis) {
+                        setUnidades(unis);
+                        const uni = unis.find(u => u.nombre === r.unidad);
+                        if (uni) setSelectedUni(uni.id.toString());
+                      }
+                    }
+                  }
                 }
                 
-                setData(r); 
-                setIndicadores(r.indicadores || []); 
+                // Cargar los datos finales
+                setData(r);
+                setIndicadores(r.indicadores || []);
                 setEstadisticas(r.estadisticas || []);
                 setRiesgos(r.riesgos || []);
-                setCurrentView('preview'); 
+                setCurrentView('editor');
               }}
               onDelete={handleDelete}
               onCreate={() => { 
