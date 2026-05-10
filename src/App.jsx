@@ -854,13 +854,7 @@ const ListViewComponent = ({ reports, onSelect, onDelete, onCreate }) => (
               <span className="text-[10px] font-bold text-slate-500">{r.fecha}</span>
             </div>
             <button
-              onClick={() => {
-                setData(r);
-                setIndicadores(r.indicadores || []);
-                setEstadisticas(r.estadisticas || []);
-                setRiesgos(r.riesgos || []);
-                setCurrentView('preview');
-              }}
+              onClick={() => onSelect(r)}
               className="flex items-center gap-2 text-[10px] font-black text-brand-400 uppercase tracking-widest hover:text-white transition-colors"
             >
               Abrir <ChevronRight size={14} />
