@@ -835,7 +835,7 @@ const App = () => {
     subtitulo: 'HUD de Inteligencia Municipal El Alto - Auditoría de Sistemas y Patrimonio Institucional.',
     fecha: new Date().toLocaleDateString('es-BO', { year: 'numeric', month: 'long', day: 'numeric' }),
     acreditado: 'Wilfredo Abad Mancilla Terán',
-    alcalde: 'Elieser Roca Tancara',
+    alcalde: 'Eliser Roca Tancara',
     secretaria: 'Sec. Mun. de Administración y Finanzas',
     direccion: 'UASI',
     alerta: 'Se detectó retención crítica de credenciales de administrador y opacidad severa en la conciliación de bases de datos financieras (SIGEP).',
