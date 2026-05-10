@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { TrendingUp, Activity } from 'lucide-react';
 
 const StatCard = ({ icon: Icon, label, value, trend, color, delay = 0 }) => (
   <motion.div
