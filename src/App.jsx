@@ -712,14 +712,20 @@ const App = () => {
   };
 
   const handleDelete = async (id) => {
+    console.log('Iniciando eliminación de reporte con ID:', id);
     if (!window.confirm('¿Estás seguro de que deseas eliminar este reporte? Esta acción no se puede deshacer.')) {
+      console.log('Eliminación cancelada por el usuario');
       return;
     }
 
     try {
       if (typeof id === 'string' && id.length > 20) {
+        console.log('Intentando eliminar de Supabase...');
         const { error } = await supabase.from('reports').delete().eq('id', id);
         if (error) throw error;
+        console.log('Eliminado exitosamente de Supabase');
+      } else {
+        console.log('Reporte local detectado, omitiendo Supabase');
       }
     } catch (err) {
       console.error('Error al eliminar en Supabase:', err);
@@ -727,6 +733,7 @@ const App = () => {
     }
 
     const updated = reports.filter(r => r.id !== id);
+    console.log('Actualizando estado local. Reportes restantes:', updated.length);
     setReports(updated);
     localStorage.setItem('gamea_reports', JSON.stringify(updated));
   };
