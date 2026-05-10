@@ -431,8 +431,12 @@ const App = () => {
 
   // PERSISTENCIA
   useEffect(() => {
-    const saved = localStorage.getItem('gamea-reports');
-    if (saved) setReports(JSON.parse(saved));
+    try {
+      const saved = localStorage.getItem('gamea-reports');
+      if (saved) setReports(JSON.parse(saved));
+    } catch (e) {
+      console.error('Error loading reports from localStorage:', e);
+    }
   }, []);
 
   const saveReports = (newReports) => {
