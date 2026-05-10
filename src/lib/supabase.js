@@ -13,7 +13,6 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // Inicialización con salvaguarda
-// Usamos coalescencia para enviar strings vacíos si no existen, evitando errores de "undefined"
 export const supabase = createClient(
   supabaseUrl || 'https://placeholder.supabase.co',
   supabaseAnonKey || 'placeholder-key'
