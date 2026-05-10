@@ -556,8 +556,6 @@ const App = () => {
   useEffect(() => {
     if (selectedSec) {
       fetchDirecciones(selectedSec);
-      const sec = secretarias.find(s => s.id.toString() === selectedSec);
-      if (sec) setData(prev => ({ ...prev, secretaria: sec.nombre }));
     } else {
       setDirecciones([]);
       setUnidades([]);
@@ -568,8 +566,6 @@ const App = () => {
   useEffect(() => {
     if (selectedDir) {
       fetchUnidades(selectedDir);
-      const dir = direcciones.find(d => d.id.toString() === selectedDir);
-      if (dir) setData(prev => ({ ...prev, direccion: dir.nombre }));
     } else {
       setUnidades([]);
     }
@@ -579,15 +575,15 @@ const App = () => {
   useEffect(() => {
     if (!selectedUni || secretarias.length === 0 || reports.length === 0) return;
 
-    const secNombre = secretarias.find(s => s.id.toString() === selectedSec)?.nombre;
-    const dirNombre = direcciones.find(d => d.id.toString() === selectedDir)?.nombre;
-    const uniNombre = unidades.find(u => u.id.toString() === selectedUni)?.nombre;
+    const secObj = secretarias.find(s => s.id.toString() === selectedSec);
+    const dirObj = direcciones.find(d => d.id.toString() === selectedDir);
+    const uniObj = unidades.find(u => u.id.toString() === selectedUni);
 
-    if (secNombre && dirNombre && uniNombre) {
+    if (secObj && dirObj && uniObj) {
       const existing = reports.find(r => 
-        r.secretaria === secNombre && 
-        r.direccion === dirNombre && 
-        r.unidad === uniNombre
+        r.secretaria === secObj.nombre && 
+        r.direccion === dirObj.nombre && 
+        r.unidad === uniObj.nombre
       );
 
       if (existing) {
@@ -597,19 +593,21 @@ const App = () => {
           setEstadisticas(existing.estadisticas || []);
           setRiesgos(existing.riesgos || []);
         }
-      } else {
-        // Solo resetear si realmente es una unidad diferente y no tiene reporte
-        // Y evitar bucles infinitos comparando los campos clave
-        if (data.unidad !== uniNombre || data.id !== null) {
-          setData({ ...INITIAL_REPORT_STATE, secretaria: secNombre, direccion: dirNombre, unidad: uniNombre });
-          setIndicadores([
-            { id: 1, label: 'EJECUCIÓN PRESUPUESTARIA', value: 0, color: '#38abf8' },
-            { id: 2, label: 'CUMPLIMIENTO DE METAS POI', value: 0, color: '#10b981' },
-            { id: 3, label: 'SITUACIÓN DE ACTIVOS', value: 0, color: '#f59e0b' },
-          ]);
-          setEstadisticas([]);
-          setRiesgos([]);
-        }
+      } else if (data.id !== null || data.unidad !== uniObj.nombre) {
+        // Nuevo reporte para esta unidad
+        setData({ 
+          ...INITIAL_REPORT_STATE, 
+          secretaria: secObj.nombre, 
+          direccion: dirObj.nombre, 
+          unidad: uniObj.nombre 
+        });
+        setIndicadores([
+          { id: 1, label: 'EJECUCIÓN PRESUPUESTARIA', value: 0, color: '#38abf8' },
+          { id: 2, label: 'CUMPLIMIENTO DE METAS POI', value: 0, color: '#10b981' },
+          { id: 3, label: 'SITUACIÓN DE ACTIVOS', value: 0, color: '#f59e0b' },
+        ]);
+        setEstadisticas([]);
+        setRiesgos([]);
       }
     }
   }, [selectedUni, reports, secretarias, direcciones, unidades]);
@@ -1219,7 +1217,15 @@ const App = () => {
           {currentView === 'list' && (
             <ListViewComponent
               reports={reports}
-              onSelect={(r) => { 
+              onSelect={async (r) => { 
+                // Intentar sincronizar los dropdowns si es posible
+                const sec = secretarias.find(s => s.nombre === r.secretaria);
+                if (sec) {
+                  setSelectedSec(sec.id.toString());
+                  // Esperar un momento a que las direcciones se carguen no es posible aquí fácilmente
+                  // pero el sync useEffect se encargará de poner la data correcta al final
+                }
+                
                 setData(r); 
                 setIndicadores(r.indicadores || []); 
                 setEstadisticas(r.estadisticas || []);
