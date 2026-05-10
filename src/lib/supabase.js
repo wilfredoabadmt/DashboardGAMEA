@@ -1,14 +1,20 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+// Intentar obtener las variables de Vite
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
+// Validación y log preventivo
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('⚠️ Supabase URL or Anon Key missing. Check your .env file.')
+  console.warn(
+    '⚠️ Configuración de Supabase incompleta. ' +
+    'Asegúrate de que VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY estén en tu .env'
+  );
 }
 
-// Create client only if keys are present to avoid crash, or use empty strings and handle errors in hooks
+// Inicialización con salvaguarda
+// Usamos coalescencia para enviar strings vacíos si no existen, evitando errores de "undefined"
 export const supabase = createClient(
-  supabaseUrl || 'https://placeholder-url.supabase.co', 
+  supabaseUrl || 'https://placeholder.supabase.co',
   supabaseAnonKey || 'placeholder-key'
 )
