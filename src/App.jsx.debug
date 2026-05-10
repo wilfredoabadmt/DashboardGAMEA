@@ -1,0 +1,20 @@
+import React from 'react';
+
+const App = () => {
+  return (
+    <div style={{ background: '#0f172a', color: 'white', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'sans-serif' }}>
+      <div style={{ textAlign: 'center' }}>
+        <h1 style={{ fontSize: '3rem', fontWeight: '900' }}>DEBUG MODE</h1>
+        <p style={{ color: '#64748b' }}>If you see this, the React environment is working.</p>
+        <button 
+          onClick={() => window.location.reload()}
+          style={{ marginTop: '2rem', padding: '1rem 2rem', background: '#3b82f6', border: 'none', borderRadius: '0.5rem', color: 'white', fontWeight: 'bold', cursor: 'pointer' }}
+        >
+          Reload
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default App;

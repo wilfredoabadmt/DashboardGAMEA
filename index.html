@@ -46,6 +46,27 @@
     <title>Dashboard GAMEA | Auditoría Estratégica</title>
   </head>
   <body>
+    <script>
+      window.onerror = function(msg, url, lineNo, columnNo, error) {
+        var div = document.getElementById('debug-error');
+        if (!div) {
+          div = document.createElement('div');
+          div.id = 'debug-error';
+          div.style.position = 'fixed';
+          div.style.top = '0';
+          div.style.left = '0';
+          div.style.width = '100%';
+          div.style.background = 'red';
+          div.style.color = 'white';
+          div.style.padding = '10px';
+          div.style.zIndex = '9999';
+          div.style.fontFamily = 'monospace';
+          document.body.appendChild(div);
+        }
+        div.innerHTML = 'Error: ' + msg + '<br>File: ' + url + '<br>Line: ' + lineNo;
+        return false;
+      };
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

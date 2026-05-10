@@ -1,1 +1,11 @@
-/* Emptied to bypass broken CSS processor */
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #020617; /* slate-950 */
+}

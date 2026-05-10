@@ -9,6 +9,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { ORGANIGRAMA } from './lib/constants';
 import { supabase } from './lib/supabase';
+import './App.css';
 
 // ============================================================================
 // COMPONENTES ATÓMICOS & UTILIDADES
