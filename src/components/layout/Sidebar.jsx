@@ -33,7 +33,7 @@ const Sidebar = ({ currentView, onViewChange, isOpen, setIsOpen }) => {
         <div className="h-full flex flex-col p-6">
           <div className="flex items-center gap-4 mb-12 px-2">
             <div>
-              <img src="/gamea.png" alt="GAMEA Logo" className="h-8 w-auto object-contain" />
+              <img src="/gamea.png" alt="GAMEA Logo" className="w-full h-auto object-contain" />
             </div>
           </div>
 

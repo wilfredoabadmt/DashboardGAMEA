@@ -80,7 +80,7 @@ const PreviewView = ({ data, indicadores, estadisticas, riesgos }) => (
             <div className="glass-card p-6 rounded-2xl">
               <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Autoridad</div>
 
-<img src="/gamea.png" alt="Logo" className="w-full object-contain mb-3" />
+
                 <div className="text-sm font-bold text-white mb-1 truncate text-left">{data.alcalde}</div>
                <div className="text-[10px] text-indigo-400 font-bold uppercase">Alcalde Electo</div>
             </div>
