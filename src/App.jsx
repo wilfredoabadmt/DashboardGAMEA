@@ -19,11 +19,11 @@ const FuturisticGauge = ({ value, label, color }) => (
   <div className="flex flex-col items-center gap-5 group">
     <div className="relative w-36 h-36">
       {/* Glow effect behind */}
-      <div 
+      <div
         className="absolute inset-4 rounded-full opacity-20 blur-xl transition-all duration-700 group-hover:opacity-40"
         style={{ backgroundColor: color }}
       ></div>
-      
+
       <svg className="w-full h-full -rotate-90 relative z-10" viewBox="0 0 100 100">
         <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="8" />
         <motion.circle
@@ -51,7 +51,7 @@ const FuturisticGauge = ({ value, label, color }) => (
 );
 
 const StatCard = ({ icon: Icon, label, value, trend, color, delay = 0 }) => (
-  <motion.div 
+  <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay }}
@@ -61,7 +61,7 @@ const StatCard = ({ icon: Icon, label, value, trend, color, delay = 0 }) => (
     <div className="absolute top-0 right-0 p-4 opacity-5 transform translate-x-2 -translate-y-2 group-hover:scale-125 transition-transform duration-700">
       <Icon size={80} />
     </div>
-    
+
     <div className="flex items-start justify-between mb-6 relative z-10">
       <div className="p-3 rounded-xl bg-slate-800/50 border border-white/5 group-hover:border-blue-500/50 transition-colors">
         <Icon size={24} style={{ color }} className="opacity-90" />
@@ -71,7 +71,7 @@ const StatCard = ({ icon: Icon, label, value, trend, color, delay = 0 }) => (
         <span>{trend === 'up' ? '+' : trend === 'down' ? '-' : ''}{value}%</span>
       </div>
     </div>
-    
+
     <div className="relative z-10">
       <div className="text-[11px] text-slate-500 uppercase tracking-widest font-black mb-1.5">{label}</div>
       <div className="text-3xl font-black text-white tracking-tight font-display">{value}%</div>
@@ -82,15 +82,14 @@ const StatCard = ({ icon: Icon, label, value, trend, color, delay = 0 }) => (
 const RiskBadge = ({ title, severity, category, delay = 0 }) => {
   const isCritical = severity === 'critical';
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay }}
-      className={`p-4 rounded-xl border flex items-center justify-between group cursor-default transition-all duration-300 ${
-        isCritical 
-          ? 'bg-red-500/5 border-red-500/20 hover:bg-red-500/10 shadow-[0_0_20px_rgba(239,68,68,0.05)]' 
+      className={`p-4 rounded-xl border flex items-center justify-between group cursor-default transition-all duration-300 ${isCritical
+          ? 'bg-red-500/5 border-red-500/20 hover:bg-red-500/10 shadow-[0_0_20px_rgba(239,68,68,0.05)]'
           : 'bg-amber-500/5 border-amber-500/20 hover:bg-amber-500/10'
-      }`}
+        }`}
     >
       <div className="flex items-center gap-4">
         <div className={`relative w-2.5 h-2.5 rounded-full ${isCritical ? 'bg-red-500' : 'bg-amber-500'}`}>
@@ -101,9 +100,8 @@ const RiskBadge = ({ title, severity, category, delay = 0 }) => {
           <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-0.5">{category}</div>
         </div>
       </div>
-      <div className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md border ${
-        isCritical ? 'border-red-500/30 text-red-400' : 'border-amber-500/30 text-amber-400'
-      }`}>
+      <div className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md border ${isCritical ? 'border-red-500/30 text-red-400' : 'border-amber-500/30 text-amber-400'
+        }`}>
         {severity}
       </div>
     </motion.div>
@@ -128,7 +126,7 @@ const Sidebar = ({ currentView, onViewChange, isOpen, setIsOpen }) => {
       {/* Mobile Backdrop */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -138,7 +136,7 @@ const Sidebar = ({ currentView, onViewChange, isOpen, setIsOpen }) => {
         )}
       </AnimatePresence>
 
-      <motion.aside 
+      <motion.aside
         className={`fixed top-0 left-0 bottom-0 w-72 bg-slate-950 border-r border-white/5 z-50 transform transition-transform duration-300 lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
         <div className="h-full flex flex-col p-6">
@@ -158,11 +156,10 @@ const Sidebar = ({ currentView, onViewChange, isOpen, setIsOpen }) => {
               <button
                 key={item.id}
                 onClick={() => { onViewChange(item.id); setIsOpen(false); }}
-                className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-bold transition-all group ${
-                  currentView === item.id
+                className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-bold transition-all group ${currentView === item.id
                     ? 'bg-brand-600 text-white shadow-xl shadow-brand-600/20'
                     : 'text-slate-400 hover:text-white hover:bg-white/5'
-                }`}
+                  }`}
               >
                 <item.icon size={20} className={currentView === item.id ? 'opacity-100' : 'opacity-40 group-hover:opacity-100'} />
                 {item.label}
@@ -198,7 +195,7 @@ const TopBar = ({ title, subtitle, onSave, isSaveActive, onMenuClick }) => (
   <header className="sticky top-0 z-30 bg-slate-950/60 backdrop-blur-xl border-b border-white/5 px-6 lg:px-10 py-4 no-print">
     <div className="flex items-center justify-between gap-4 max-w-[1600px] mx-auto">
       <div className="flex items-center gap-4">
-        <button 
+        <button
           onClick={onMenuClick}
           className="lg:hidden p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg"
         >
@@ -213,13 +210,13 @@ const TopBar = ({ title, subtitle, onSave, isSaveActive, onMenuClick }) => (
       <div className="flex items-center gap-3">
         <div className="hidden md:flex items-center bg-white/5 border border-white/5 rounded-xl px-4 py-2 focus-within:border-brand-500 transition-all">
           <Search size={18} className="text-slate-500" />
-          <input 
-            type="text" 
-            placeholder="Buscar reportes..." 
+          <input
+            type="text"
+            placeholder="Buscar reportes..."
             className="bg-transparent border-none outline-none text-sm px-3 text-white placeholder:text-slate-600 w-48 xl:w-64"
           />
         </div>
-        
+
         <button className="p-2.5 bg-white/5 text-slate-400 hover:text-white rounded-xl border border-white/5 transition-all relative">
           <Bell size={20} />
           <span className="absolute top-2 right-2 w-2 h-2 bg-brand-500 rounded-full border-2 border-slate-950"></span>
@@ -227,14 +224,13 @@ const TopBar = ({ title, subtitle, onSave, isSaveActive, onMenuClick }) => (
 
         <button
           onClick={onSave}
-          className={`ml-2 px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 ${
-            isSaveActive
+          className={`ml-2 px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 ${isSaveActive
               ? 'bg-brand-600 text-white shadow-xl shadow-brand-600/30 hover:scale-105 active:scale-95'
               : 'bg-white/5 text-slate-500 cursor-not-allowed'
-          }`}
+            }`}
           disabled={!isSaveActive}
         >
-          <Save size={18} /> 
+          <Save size={18} />
           <span className="hidden sm:inline">Guardar</span>
         </button>
       </div>
@@ -247,7 +243,7 @@ const TopBar = ({ title, subtitle, onSave, isSaveActive, onMenuClick }) => (
 // ============================================================================
 
 const PreviewView = ({ data, indicadores, estadisticas, riesgos }) => (
-  <motion.div 
+  <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     className="space-y-10"
@@ -259,7 +255,7 @@ const PreviewView = ({ data, indicadores, estadisticas, riesgos }) => (
         <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none transform rotate-12">
           <Building2 size={240} />
         </div>
-        
+
         <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-12 relative z-10">
           <div className="space-y-6">
             <div className="flex flex-wrap items-center gap-3">
@@ -277,7 +273,7 @@ const PreviewView = ({ data, indicadores, estadisticas, riesgos }) => (
               </h2>
               <p className="text-slate-400 text-xl font-medium max-w-3xl leading-relaxed">{data.subtitulo}</p>
             </div>
-            
+
             <div className="flex flex-wrap gap-8 pt-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-brand-400 border border-white/5">
@@ -299,7 +295,7 @@ const PreviewView = ({ data, indicadores, estadisticas, riesgos }) => (
               </div>
             </div>
           </div>
-          
+
           <div className="xl:min-w-[400px] grid grid-cols-2 gap-4">
             <div className="glass-card p-6 rounded-2xl">
               <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Responsable</div>
@@ -326,15 +322,15 @@ const PreviewView = ({ data, indicadores, estadisticas, riesgos }) => (
             Métricas Críticas de Transición
           </h3>
           <div className="flex gap-2">
-             <div className="w-2 h-2 rounded-full bg-brand-500 shadow-[0_0_8px_var(--color-brand-500)]"></div>
-             <div className="w-2 h-2 rounded-full bg-slate-800"></div>
-             <div className="w-2 h-2 rounded-full bg-slate-800"></div>
+            <div className="w-2 h-2 rounded-full bg-brand-500 shadow-[0_0_8px_var(--color-brand-500)]"></div>
+            <div className="w-2 h-2 rounded-full bg-slate-800"></div>
+            <div className="w-2 h-2 rounded-full bg-slate-800"></div>
           </div>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {indicadores.map((ind, idx) => (
-            <div 
+            <div
               key={ind.id}
               className="glass-card p-10 flex items-center justify-center"
             >
@@ -344,37 +340,37 @@ const PreviewView = ({ data, indicadores, estadisticas, riesgos }) => (
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-           <div className="glass-card p-8 space-y-6">
-              <div className="flex items-center justify-between">
-                <h4 className="text-sm font-black text-white uppercase tracking-widest">Matriz de Riesgos</h4>
-                <ShieldAlert size={18} className="text-amber-500" />
-              </div>
-              <div className="space-y-3">
-                {riesgos.map((r, i) => (
-                  <RiskBadge key={i} title={r.title} severity={r.imp === 3 ? 'critical' : 'high'} category={r.cat} delay={i * 0.1} />
-                ))}
-              </div>
-           </div>
+          <div className="glass-card p-8 space-y-6">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-black text-white uppercase tracking-widest">Matriz de Riesgos</h4>
+              <ShieldAlert size={18} className="text-amber-500" />
+            </div>
+            <div className="space-y-3">
+              {riesgos.map((r, i) => (
+                <RiskBadge key={i} title={r.title} severity={r.imp === 3 ? 'critical' : 'high'} category={r.cat} delay={i * 0.1} />
+              ))}
+            </div>
+          </div>
 
-           <div className="bg-red-500/5 border border-red-500/10 p-8 rounded-[2rem] flex flex-col justify-between group overflow-hidden relative">
-              <div className="absolute -top-12 -right-12 w-32 h-32 bg-red-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
-              <div>
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center text-red-500">
-                    <AlertTriangle size={20} />
-                  </div>
-                  <h4 className="text-sm font-black text-red-500 uppercase tracking-widest">Alertas de Bloqueo</h4>
+          <div className="bg-red-500/5 border border-red-500/10 p-8 rounded-[2rem] flex flex-col justify-between group overflow-hidden relative">
+            <div className="absolute -top-12 -right-12 w-32 h-32 bg-red-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center text-red-500">
+                  <AlertTriangle size={20} />
                 </div>
-                <p className="text-slate-300 font-medium leading-relaxed mb-8">{data.alerta}</p>
+                <h4 className="text-sm font-black text-red-500 uppercase tracking-widest">Alertas de Bloqueo</h4>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {data.bloqueos.map(b => (
-                  <span key={b} className="text-[10px] font-black text-red-400 px-4 py-2 bg-red-500/10 rounded-xl border border-red-500/20">
-                    {b}
-                  </span>
-                ))}
-              </div>
-           </div>
+              <p className="text-slate-300 font-medium leading-relaxed mb-8">{data.alerta}</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {data.bloqueos.map(b => (
+                <span key={b} className="text-[10px] font-black text-red-400 px-4 py-2 bg-red-500/10 rounded-xl border border-red-500/20">
+                  {b}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -384,7 +380,7 @@ const PreviewView = ({ data, indicadores, estadisticas, riesgos }) => (
           <h3 className="text-lg font-black text-white uppercase tracking-widest">Estadísticas</h3>
           <TrendingUp size={18} className="text-emerald-500" />
         </div>
-        
+
         {estadisticas.map((s, i) => (
           <StatCard key={i} icon={Activity} label={s.label} value={s.val} trend={s.trend} color="#38abf8" delay={i * 0.1} />
         ))}
@@ -435,16 +431,14 @@ const HierarchyView = () => {
                 setExpandedSec(expandedSec === sec.id ? null : sec.id);
                 setExpandedDir(null);
               }}
-              className={`w-full text-left p-6 rounded-2xl border transition-all duration-500 flex items-center justify-between group ${
-                expandedSec === sec.id 
-                  ? 'bg-brand-600 border-brand-500 shadow-2xl shadow-brand-600/20 text-white' 
+              className={`w-full text-left p-6 rounded-2xl border transition-all duration-500 flex items-center justify-between group ${expandedSec === sec.id
+                  ? 'bg-brand-600 border-brand-500 shadow-2xl shadow-brand-600/20 text-white'
                   : 'glass-card border-white/5 text-slate-300 hover:border-brand-500/50'
-              }`}
+                }`}
             >
               <div className="flex items-center gap-5">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-sm transition-colors ${
-                  expandedSec === sec.id ? 'bg-white/20 text-white' : 'bg-brand-500/10 text-brand-400'
-                }`}>
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-sm transition-colors ${expandedSec === sec.id ? 'bg-white/20 text-white' : 'bg-brand-500/10 text-brand-400'
+                  }`}>
                   {idx + 1}
                 </div>
                 <div>
@@ -475,16 +469,14 @@ const HierarchyView = () => {
                       <div key={dir.id} className="relative">
                         <button
                           onClick={() => setExpandedDir(expandedDir === dir.id ? null : dir.id)}
-                          className={`w-full text-left p-5 rounded-xl border transition-all flex items-center justify-between group/dir ${
-                            expandedDir === dir.id 
-                              ? 'bg-slate-800 border-white/20 text-white shadow-xl' 
+                          className={`w-full text-left p-5 rounded-xl border transition-all flex items-center justify-between group/dir ${expandedDir === dir.id
+                              ? 'bg-slate-800 border-white/20 text-white shadow-xl'
                               : 'bg-white/5 border-white/5 text-slate-400 hover:bg-white/10 hover:border-white/10'
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-4">
-                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                              expandedDir === dir.id ? 'bg-brand-500 text-white' : 'bg-white/5 text-slate-500'
-                            }`}>
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${expandedDir === dir.id ? 'bg-brand-500 text-white' : 'bg-white/5 text-slate-500'
+                              }`}>
                               <Target size={16} />
                             </div>
                             <span className="text-sm font-bold tracking-wide">{dir.name}</span>
@@ -535,7 +527,7 @@ const HierarchyView = () => {
   );
 };
 
-const EditorView = ({ 
+const EditorView = ({
   data, setData, indicadores, setIndicadores, onImport, onDownloadCSV,
   secretarias, direcciones, unidades,
   selectedSec, setSelectedSec,
@@ -556,61 +548,46 @@ const EditorView = ({
           <div className="space-y-6">
             <div>
               <label className="text-[10px] font-black text-slate-500 block mb-2 uppercase tracking-widest">Secretaría Municipal</label>
-              <div className="relative group">
-                <select
-                  value={selectedSec}
-                  onChange={e => { setSelectedSec(e.target.value); setSelectedDir(''); setSelectedUni(''); }}
-                  className="w-full bg-slate-950/40 border border-white/10 hover:border-brand-500/50 rounded-xl p-4 text-sm text-white focus:border-brand-500 outline-none appearance-none transition-all cursor-pointer backdrop-blur-md shadow-inner"
-                >
-                  <option value="" className="bg-slate-950">Seleccione Secretaría...</option>
-                  {secretarias.map(s => <option key={s.id} value={s.id} className="bg-slate-950">{s.nombre}</option>)}
-                </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 group-hover:text-brand-400 transition-colors">
-                  <ChevronRight size={18} className="rotate-90" />
-                </div>
-              </div>
+              <select
+                value={selectedSec}
+                onChange={e => { setSelectedSec(e.target.value); setSelectedDir(''); setSelectedUni(''); }}
+                className="w-full bg-slate-900/50 border border-white/5 rounded-xl p-4 text-sm text-white focus:border-brand-500 outline-none appearance-none"
+              >
+                <option value="">Seleccione Secretaría...</option>
+                {secretarias.map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
+              </select>
             </div>
 
             <div>
               <label className="text-[10px] font-black text-slate-500 block mb-2 uppercase tracking-widest">Dirección</label>
-              <div className="relative group">
-                <select
-                  value={selectedDir}
-                  onChange={e => { setSelectedDir(e.target.value); setSelectedUni(''); }}
-                  disabled={!selectedSec}
-                  className="w-full bg-slate-950/40 border border-white/10 hover:border-brand-500/50 rounded-xl p-4 text-sm text-white focus:border-brand-500 outline-none appearance-none transition-all cursor-pointer backdrop-blur-md disabled:opacity-20 disabled:cursor-not-allowed"
-                >
-                  <option value="" className="bg-slate-950">Seleccione Dirección...</option>
-                  {direcciones.map(d => <option key={d.id} value={d.id} className="bg-slate-950">{d.nombre}</option>)}
-                </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 group-hover:text-brand-400 transition-colors">
-                  <ChevronRight size={18} className="rotate-90" />
-                </div>
-              </div>
+              <select
+                value={selectedDir}
+                onChange={e => { setSelectedDir(e.target.value); setSelectedUni(''); }}
+                disabled={!selectedSec}
+                className="w-full bg-slate-900/50 border border-white/5 rounded-xl p-4 text-sm text-white focus:border-brand-500 outline-none appearance-none disabled:opacity-30"
+              >
+                <option value="">Seleccione Dirección...</option>
+                {direcciones.map(d => <option key={d.id} value={d.id}>{d.nombre}</option>)}
+              </select>
             </div>
 
             <div>
               <label className="text-[10px] font-black text-slate-500 block mb-2 uppercase tracking-widest">Unidad</label>
-              <div className="relative group">
-                <select
-                  value={selectedUni}
-                  onChange={e => setSelectedUni(e.target.value)}
-                  disabled={!selectedDir}
-                  className="w-full bg-slate-950/40 border border-white/10 hover:border-brand-500/50 rounded-xl p-4 text-sm text-white focus:border-brand-500 outline-none appearance-none transition-all cursor-pointer backdrop-blur-md disabled:opacity-20 disabled:cursor-not-allowed"
-                >
-                  <option value="" className="bg-slate-950">Seleccione Unidad...</option>
-                  {unidades.map(u => <option key={u.id} value={u.id} className="bg-slate-950">{u.nombre}</option>)}
-                </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 group-hover:text-brand-400 transition-colors">
-                  <ChevronRight size={18} className="rotate-90" />
-                </div>
-              </div>
+              <select
+                value={selectedUni}
+                onChange={e => setSelectedUni(e.target.value)}
+                disabled={!selectedDir}
+                className="w-full bg-slate-900/50 border border-white/5 rounded-xl p-4 text-sm text-white focus:border-brand-500 outline-none appearance-none disabled:opacity-30"
+              >
+                <option value="">Seleccione Unidad...</option>
+                {unidades.map(u => <option key={u.id} value={u.id}>{u.nombre}</option>)}
+              </select>
             </div>
           </div>
         </div>
 
         {isSelectionComplete && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className="glass-card p-8 rounded-3xl"
@@ -631,7 +608,7 @@ const EditorView = ({
                   <input
                     type="text"
                     value={data[field.key]}
-                    onChange={e => setData({...data, [field.key]: e.target.value})}
+                    onChange={e => setData({ ...data, [field.key]: e.target.value })}
                     className="w-full bg-slate-900/50 border border-white/5 rounded-xl p-4 text-sm text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all placeholder:text-slate-700"
                   />
                 </div>
@@ -640,7 +617,7 @@ const EditorView = ({
                 <label className="text-[10px] font-black text-slate-500 block mb-2 uppercase tracking-widest">Alerta Principal</label>
                 <textarea
                   value={data.alerta}
-                  onChange={e => setData({...data, alerta: e.target.value})}
+                  onChange={e => setData({ ...data, alerta: e.target.value })}
                   rows={3}
                   className="w-full bg-slate-900/50 border border-white/5 rounded-xl p-4 text-sm text-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all resize-none"
                 />
@@ -650,7 +627,7 @@ const EditorView = ({
                 <label className="text-[10px] font-black text-slate-500 block mb-4 uppercase tracking-widest flex items-center gap-2">
                   <Upload size={14} /> Subir Información / Evidencia
                 </label>
-                <div 
+                <div
                   className="border-2 border-dashed border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center hover:border-brand-500/50 transition-all cursor-pointer group"
                   onClick={() => document.getElementById('file-upload').click()}
                 >
@@ -715,7 +692,7 @@ const EditorView = ({
                     <input
                       type="text"
                       value={ind.label}
-                      onChange={e => setIndicadores(indicadores.map(x => x.id === ind.id ? {...x, label: e.target.value.toUpperCase()} : x))}
+                      onChange={e => setIndicadores(indicadores.map(x => x.id === ind.id ? { ...x, label: e.target.value.toUpperCase() } : x))}
                       className="bg-transparent text-sm font-black text-white border-b border-transparent focus:border-brand-500 outline-none w-full mr-4"
                     />
                     <button
@@ -725,32 +702,32 @@ const EditorView = ({
                       <Trash2 size={18} />
                     </button>
                   </div>
-                  
+
                   <div className="space-y-6">
                     <div className="flex items-center gap-6">
                       <input
                         type="range"
                         value={ind.value}
-                        onChange={e => setIndicadores(indicadores.map(x => x.id === ind.id ? {...x, value: parseInt(e.target.value)} : x))}
+                        onChange={e => setIndicadores(indicadores.map(x => x.id === ind.id ? { ...x, value: parseInt(e.target.value) } : x))}
                         min="0"
                         max="100"
                         className="flex-1 accent-brand-500"
                       />
                       <span className="text-xl font-black text-white min-w-[3rem] text-right font-display">{ind.value}%</span>
                     </div>
-                    
+
                     <div className="flex items-center gap-4">
                       <div className="relative group/color">
                         <input
                           type="color"
                           value={ind.color}
-                          onChange={e => setIndicadores(indicadores.map(x => x.id === ind.id ? {...x, color: e.target.value} : x))}
+                          onChange={e => setIndicadores(indicadores.map(x => x.id === ind.id ? { ...x, color: e.target.value } : x))}
                           className="w-12 h-12 rounded-xl cursor-pointer bg-transparent border-none"
                         />
                         <div className="absolute inset-0 rounded-xl pointer-events-none border border-white/10"></div>
                       </div>
                       <div className="flex-1 h-3 bg-slate-800 rounded-full overflow-hidden">
-                        <div 
+                        <div
                           className="h-full transition-all duration-500"
                           style={{ width: `${ind.value}%`, backgroundColor: ind.color, boxShadow: `0 0 15px ${ind.color}66` }}
                         ></div>
@@ -774,7 +751,7 @@ const ListViewComponent = ({ reports, onSelect, onDelete, onCreate }) => (
         <h3 className="text-2xl font-black text-white tracking-tight font-display">Archivo de Reportes</h3>
         <p className="text-sm text-slate-500 font-medium">Gestión histórica de auditorías estratégicas.</p>
       </div>
-      <button 
+      <button
         onClick={onCreate}
         className="flex items-center gap-2 px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-xl shadow-brand-600/20"
       >
@@ -784,7 +761,7 @@ const ListViewComponent = ({ reports, onSelect, onDelete, onCreate }) => (
 
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       {reports.map((r, i) => (
-        <motion.div 
+        <motion.div
           key={r.id}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -792,7 +769,7 @@ const ListViewComponent = ({ reports, onSelect, onDelete, onCreate }) => (
           className="glass-card p-8 flex flex-col group relative overflow-hidden"
         >
           <div className="absolute -top-4 -right-4 w-24 h-24 bg-brand-500/5 rounded-full blur-2xl group-hover:bg-brand-500/10 transition-colors"></div>
-          
+
           <div className="flex items-start justify-between mb-8">
             <div className="p-3 rounded-2xl bg-white/5 text-brand-400 group-hover:bg-brand-500 group-hover:text-white transition-all duration-500">
               <FileText size={24} />
@@ -826,9 +803,9 @@ const ListViewComponent = ({ reports, onSelect, onDelete, onCreate }) => (
 
       {reports.length === 0 && (
         <div className="col-span-full py-20 flex flex-col items-center justify-center glass-card rounded-3xl border-dashed border-2">
-           <Layers size={48} className="text-slate-700 mb-4" />
-           <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">No hay reportes archivados</p>
-           <button onClick={onCreate} className="mt-6 text-brand-500 font-black text-xs uppercase tracking-widest hover:underline">Crear el primero ahora</button>
+          <Layers size={48} className="text-slate-700 mb-4" />
+          <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">No hay reportes archivados</p>
+          <button onClick={onCreate} className="mt-6 text-brand-500 font-black text-xs uppercase tracking-widest hover:underline">Crear el primero ahora</button>
         </div>
       )}
     </div>
@@ -970,7 +947,7 @@ const App = () => {
       // Sync Indicators
       // First delete old indicators for this report to simplify sync
       await supabase.from('indicadores').delete().eq('report_id', reportId);
-      
+
       const indicatorsToInsert = indicadores.map(ind => ({
         report_id: reportId,
         label: ind.label,
@@ -984,14 +961,14 @@ const App = () => {
       // Update local state and archive
       const newReports = [...reports];
       const reportToSave = { ...data, id: reportId, indicadores, updatedAt: new Date().toISOString() };
-      
+
       const idx = newReports.findIndex(r => r.id === reportId);
       if (idx !== -1) {
         newReports[idx] = reportToSave;
       } else {
         newReports.push(reportToSave);
       }
-      
+
       saveReports(newReports);
       alert('✅ Reporte sincronizado con Supabase exitosamente');
     } catch (error) {
@@ -1071,18 +1048,18 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-brand-500/30">
-      <Sidebar 
-        currentView={view} 
-        onViewChange={setView} 
-        isOpen={isSidebarOpen} 
-        setIsOpen={setIsSidebarOpen} 
+      <Sidebar
+        currentView={view}
+        onViewChange={setView}
+        isOpen={isSidebarOpen}
+        setIsOpen={setIsSidebarOpen}
       />
 
       <div className="lg:pl-72 flex flex-col min-h-screen">
-        <TopBar 
-          title={viewTitles[view]} 
-          subtitle={viewSubtitles[view]} 
-          onSave={handleSave} 
+        <TopBar
+          title={viewTitles[view]}
+          subtitle={viewSubtitles[view]}
+          onSave={handleSave}
           isSaveActive={true}
           onMenuClick={() => setIsSidebarOpen(true)}
         />
@@ -1103,12 +1080,12 @@ const App = () => {
                 <HierarchyView />
               )}
               {view === 'editor' && (
-                <EditorView 
-                  data={data} 
-                  setData={setData} 
-                  indicadores={indicadores} 
-                  setIndicadores={setIndicadores} 
-                  onImport={handleImport} 
+                <EditorView
+                  data={data}
+                  setData={setData}
+                  indicadores={indicadores}
+                  setIndicadores={setIndicadores}
+                  onImport={handleImport}
                   onDownloadCSV={downloadCSV}
                   secretarias={secretarias}
                   direcciones={direcciones}
@@ -1136,8 +1113,8 @@ const App = () => {
               )}
               {view === 'settings' && (
                 <div className="py-20 flex flex-col items-center justify-center glass-card rounded-3xl border-dashed border-2">
-                   <Settings size={48} className="text-slate-700 mb-4" />
-                   <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">Configuración del Sistema en Desarrollo</p>
+                  <Settings size={48} className="text-slate-700 mb-4" />
+                  <p className="text-slate-500 font-bold uppercase tracking-widest text-sm">Configuración del Sistema en Desarrollo</p>
                 </div>
               )}
             </motion.div>
@@ -1147,14 +1124,14 @@ const App = () => {
         <footer className="px-6 lg:px-10 py-8 border-t border-white/5 bg-slate-950/40 no-print mt-auto">
           <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-6">
-               <div className="text-sm font-bold text-slate-500 flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                  Sistemas Operativos
-               </div>
-               <div className="text-sm font-bold text-slate-500 flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                  Conexión Supabase
-               </div>
+              <div className="text-sm font-bold text-slate-500 flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                Sistemas Operativos
+              </div>
+              <div className="text-sm font-bold text-slate-500 flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                Conexión Supabase
+              </div>
             </div>
             <div className="text-xs text-slate-600 font-medium">
               &copy; 2026 GAMEA - Auditoría de Transición Estratégica. Todos los derechos reservados.
