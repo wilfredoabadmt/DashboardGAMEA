@@ -32,11 +32,20 @@ const ListViewComponent = ({ reports, onSelect, onDelete, onCreate }) => (
             <div className="p-3 rounded-2xl bg-white/5 text-brand-400 group-hover:bg-brand-500 group-hover:text-white transition-all duration-500">
               <FileText size={24} />
             </div>
-            <div className="flex gap-1">
-              <button onClick={() => onDelete(r.id)} className="p-2 text-slate-600 hover:text-red-500 hover:bg-red-500/5 rounded-lg transition-all">
-                <Trash2 size={18} />
-              </button>
-            </div>
+          <div className="flex gap-1 items-center">
+                <button
+                  onClick={() => {
+                    if (window.confirm('¿Seguro que deseas eliminar este reporte?')) {
+                      onDelete(r.id);
+                    }
+                  }}
+                  className="flex items-center gap-1 text-sm text-red-500 hover:text-white hover:bg-red-500/10 rounded-lg px-2 py-1 transition-colors"
+                  title="Eliminar reporte"
+                >
+                  <Trash2 size={18} />
+                  <span className="hidden sm:inline">Eliminar</span>
+                </button>
+              </div>
           </div>
 
           <div className="mb-8">
