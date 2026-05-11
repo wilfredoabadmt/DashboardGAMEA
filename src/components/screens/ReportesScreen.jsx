@@ -1,7 +1,8 @@
 import React from 'react';
 import { 
-  PieChart, Clock, Building2, Download, Filter, FileCheck
+  PieChart, Clock, Building2, Filter, FileCheck
 } from 'lucide-react';
+import CloudDownload from 'lucide-react/dist/esm/icons/cloud-download.mjs';
 import { motion } from 'framer-motion';
 
 const Card = ({ title, subtitle, icon: Icon, children }) => (
@@ -43,7 +44,7 @@ const ReportesScreen = () => {
           <p style={{ color: 'var(--text-muted)', marginTop: '8px', fontSize: '14px' }}>Normativa Municipal Boliviana —— Ley 1178 (SAFCO) y Ley 482 (GAM).</p>
         </div>
         <div style={{ display: 'flex', gap: '12px' }}>
-           <button className="btn btn-ghost"><Download size={14} /> DESCARGAR COMPILADO</button>
+           <button className="btn btn-ghost"><CloudDownload size={14} /> DESCARGAR COMPILADO</button>
         </div>
       </div>
 

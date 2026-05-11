@@ -1,5 +1,7 @@
 import React from 'react';
-import { Search, Download, Bell, Save, Menu } from 'lucide-react';
+import { Search, Bell, Save, Menu } from 'lucide-react';
+import CloudDownload from 'lucide-react/dist/esm/icons/cloud-download.mjs';
+import { exportPdf } from '../../lib/exportPdf';
 
 const TopBar = ({ title, subtitle, onSave, isSaveActive, onMenuClick }) => (
   <header className="sticky top-0 z-30 bg-slate-950/60 backdrop-blur-xl border-b border-white/5 px-6 lg:px-10 py-4 no-print">
@@ -31,7 +33,7 @@ const TopBar = ({ title, subtitle, onSave, isSaveActive, onMenuClick }) => (
           onClick={() => window.print()}
           className="hidden lg:flex items-center gap-2 px-4 py-2.5 bg-white/5 text-slate-300 hover:text-white hover:bg-white/10 rounded-xl border border-white/5 transition-all text-xs font-black uppercase tracking-widest"
         >
-          <Download size={18} /> PDF
+          <CloudDownload size={18} /> PDF
         </button>
 
         <button className="p-2.5 bg-white/5 text-slate-400 hover:text-white rounded-xl border border-white/5 transition-all relative">

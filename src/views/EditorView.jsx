@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Building2, Settings, Upload, Download, Layers, Activity, BarChart3, 
+  Building2, Settings, Upload, Layers, Activity, BarChart3, 
   ShieldAlert, AlertTriangle, PlusCircle, Trash2, X, ChevronRight 
 } from 'lucide-react';
+import CloudDownload from 'lucide-react/dist/esm/icons/cloud-download.mjs';
 
 const EditorView = ({
   data, setData, indicadores, setIndicadores,
@@ -170,7 +171,7 @@ const EditorView = ({
             <p className="text-xs text-slate-500 mb-6 font-medium">Automatiza la carga de indicadores mediante archivos CSV estructurados.</p>
             <div className="grid grid-cols-2 gap-3">
               <button onClick={onDownloadCSV} className="px-4 py-3 bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 border border-white/5">
-                <Download size={16} /> Plantilla
+                <CloudDownload size={16} /> Plantilla
               </button>
               <button onClick={() => document.getElementById('csv-input').click()} className="px-4 py-3 bg-brand-600 hover:bg-brand-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-brand-600/20">
                 <Upload size={16} /> Importar

@@ -1,7 +1,8 @@
 import React from 'react';
 import { 
-  AlertTriangle, Building2, Scale, Users, Download 
+  AlertTriangle, Building2, Scale, Users
 } from 'lucide-react';
+import CloudDownload from 'lucide-react/dist/esm/icons/cloud-download.mjs';
 import { motion } from 'framer-motion';
 
 const Card = ({ title, subtitle, icon: Icon, children }) => (
@@ -38,7 +39,7 @@ const SeguimientoScreen = () => {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '12px' }}>
-          <button className="btn btn-ghost"><Download size={14} /> EXPORTAR REPORTE</button>
+          <button className="btn btn-ghost"><CloudDownload size={14} /> EXPORTAR REPORTE</button>
           <button className="btn btn-primary" style={{ background: 'var(--accent-cyan)', color: '#020617' }}><Users size={14} /> NOTIFICAR A TODOS</button>
         </div>
       </div>

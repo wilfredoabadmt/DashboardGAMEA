@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { 
-  Building2, Activity, Search, Target, Layers, ChevronRight, ChevronDown, Download, Plus, Map, Network
+  Building2, Activity, Search, Target, Layers, ChevronRight, ChevronDown, Plus, Map, Network
 } from 'lucide-react';
+import CloudDownload from 'lucide-react/dist/esm/icons/cloud-download.mjs';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ORGANIGRAMA } from '../../lib/constants';
 
