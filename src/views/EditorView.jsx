@@ -14,7 +14,8 @@ const EditorView = ({
   selectedSec, setSelectedSec,
   selectedDir, setSelectedDir,
   selectedUni, setSelectedUni,
-  fetchDirecciones, fetchUnidades, loadUnitReport
+  fetchDirecciones, fetchUnidades, loadUnitReport,
+  onDeleteReport,
 }) => {
   const [activeTab, setActiveTab] = useState('indicadores');
   const isSelectionComplete = selectedSec && selectedDir && selectedUni;
