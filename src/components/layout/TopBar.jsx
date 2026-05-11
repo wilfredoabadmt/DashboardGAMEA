@@ -3,7 +3,7 @@ import { Search, Bell, Save, Menu } from 'lucide-react';
 import CloudDownload from 'lucide-react/dist/esm/icons/cloud-download.mjs';
 import { exportPdf } from '../../lib/exportPdf';
 
-const TopBar = ({ title, subtitle, onSave, isSaveActive, onMenuClick }) => (
+const TopBar = ({ title, subtitle, onSave, isSaveActive, onMenuClick, lastSync }) => (
   <header className="sticky top-0 z-30 bg-slate-950/60 backdrop-blur-xl border-b border-white/5 px-6 lg:px-10 py-4 no-print">
     <div className="flex items-center justify-between gap-4 max-w-[1600px] mx-auto">
       <div className="flex items-center gap-4">
@@ -36,7 +36,13 @@ const TopBar = ({ title, subtitle, onSave, isSaveActive, onMenuClick }) => (
           <CloudDownload size={18} /> PDF
         </button>
 
-        <button className="p-2.5 bg-white/5 text-slate-400 hover:text-white rounded-xl border border-white/5 transition-all relative">
+        {lastSync && (
+  <div className="flex items-center gap-1 text-xs text-green-400" title="Última sincronización">
+    <span className="w-2 h-2 bg-green-400 rounded-full"></span>
+    <span>{lastSync}</span>
+  </div>
+)}
+<button className="p-2.5 bg-white/5 text-slate-400 hover:text-white rounded-xl border border-white/5 transition-all relative">
           <Bell size={20} />
           <span className="absolute top-2 right-2 w-2 h-2 bg-brand-500 rounded-full border-2 border-slate-950"></span>
         </button>

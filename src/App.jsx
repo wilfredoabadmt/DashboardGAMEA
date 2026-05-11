@@ -29,15 +29,16 @@ const INITIAL_REPORT_STATE = {
 };
 
 const App = () => {
-  const { 
-    reports, setReports, 
-    secretarias, 
-    direcciones, setDirecciones,
-    unidades, setUnidades, 
-    isSaving, setIsSaving,
-    fetchReports, fetchSecretarias, fetchDirecciones, fetchUnidades,
-    handleDelete 
-  } = useReports();
+    const { 
+      reports, setReports, 
+      secretarias, 
+      direcciones, setDirecciones,
+      unidades, setUnidades, 
+      isSaving, setIsSaving,
+      fetchReports, fetchSecretarias, fetchDirecciones, fetchUnidades,
+      handleDelete,
+      lastSync 
+    } = useReports();
 
 
   const [currentView, setCurrentView] = useState('preview');
@@ -204,15 +205,16 @@ const App = () => {
       />
 
       <main className="lg:ml-72 transition-all duration-300">
-        <TopBar
-          title={currentView === 'preview' ? 'Visualización Estratégica' :
-            currentView === 'editor' ? 'Editor de Reporte' :
-              currentView === 'list' ? 'Archivo de Reportes' : 'Configuración'}
-          subtitle="Sistema de Control de Transición Municipal - El Alto"
-          onSave={handleSave}
-          isSaveActive={currentView === 'editor' && selectedUni}
-          onMenuClick={() => setIsSidebarOpen(true)}
-        />
+          <TopBar
+            title={currentView === 'preview' ? 'Visualización Estratégica' :
+              currentView === 'editor' ? 'Editor de Reporte' :
+                currentView === 'list' ? 'Archivo de Reportes' : 'Configuración'}
+            subtitle="Sistema de Control de Transición Municipal - El Alto"
+            onSave={handleSave}
+            isSaveActive={currentView === 'editor' && selectedUni}
+            onMenuClick={() => setIsSidebarOpen(true)}
+            lastSync={lastSync}
+          />
 
         <div className="p-6 lg:p-10 max-w-[1600px] mx-auto">
           {currentView === 'preview' && (

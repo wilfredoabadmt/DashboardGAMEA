@@ -7,6 +7,7 @@ export const useReports = () => {
   const [direcciones, setDirecciones] = useState([]);
   const [unidades, setUnidades] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [lastSync, setLastSync] = useState(null);
 
   const fetchReports = async () => {
     try {
@@ -15,7 +16,10 @@ export const useReports = () => {
         .select('*')
         .order('created_at', { ascending: false });
       if (error) throw error;
-      if (data) setReports(data);
+      if (data) {
+        setReports(data);
+        setLastSync(new Date().toLocaleString());
+      }
     } catch (err) {
       console.warn('Usando respaldo de localStorage:', err);
       const local = localStorage.getItem('gamea_reports');
@@ -96,6 +100,7 @@ export const useReports = () => {
     unidades, setUnidades,
     isSaving, setIsSaving,
     fetchReports, fetchSecretarias, fetchDirecciones, fetchUnidades,
-    handleDelete
+    handleDelete,
+    lastSync,
   };
 };
