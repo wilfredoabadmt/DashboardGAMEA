@@ -186,12 +186,34 @@ const App = () => {
   };
 
   const downloadCSVTemplate = () => {
-    const headers = 'ID,INDICADOR,VALOR,COLOR\\n1,EJECUCIÓN,80,#38abf8';
-    const blob = new Blob([headers], { type: 'text/csv' });
+    const template = [
+      '# INDICADORES (id, label, value, color)',
+      'ID,INDICADOR,VALOR,COLOR',
+      '1,EJECUCIÓN PRESUPUESTARIA,80,#38abf8',
+      '2,CUMPLIMIENTO DE METAS POI,90,#10b981',
+      '3,SITUACIÓN DE ACTIVOS,45,#f59e0b',
+      '',
+      '# ESTADISTICAS (id, label, val, trend)',
+      'ID,ESTADISTICA,VALOR,TENDENCIA',
+      '1,Proyectos Concluidos,124,up',
+      '2,Procesos Legales,12,down',
+      '3,Personal Vigente,450,up',
+      '',
+      '# RIESGOS (id, title, imp, cat)',
+      'ID,RIESGO,IMP,CAT',
+      '1,Déficit presupuestario,3,FINANCIERO',
+      '2,Falta de conciliación,2,ADMINISTRATIVO',
+      '3,Contratos vencidos,3,LEGAL',
+      '',
+      '# BLOQUEOS (etiquetas separadas por punto y coma)',
+      'BLOQUEOS',
+      'ACTIVOS FIJOS;PRESUPUESTO 2024;PERSONAL',
+    ].join('\n');
+    const blob = new Blob([template], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'plantilla_indicadores.csv';
+    a.download = 'plantilla_dashboard.csv';
     a.click();
   };
 
@@ -275,11 +297,11 @@ const App = () => {
                       }
                     }
                   }
-                  setData(r);
-                  setIndicadores(r.indicadores || []);
-                  setEstadisticas(r.estadisticas || []);
-                  setRiesgos(r.riesgos || []);
-                  setCurrentView('editor');
+                    setData({ ...r });
+                    setIndicadores(r.indicadores ? [...r.indicadores] : []);
+                    setEstadisticas(r.estadisticas ? [...r.estadisticas] : []);
+                    setRiesgos(r.riesgos ? [...r.riesgos] : []);
+                    setCurrentView('editor');
                 }
               }}
               onDelete={handleDelete}
