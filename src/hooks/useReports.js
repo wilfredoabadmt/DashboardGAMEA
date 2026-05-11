@@ -8,6 +8,8 @@ export const useReports = () => {
   const [unidades, setUnidades] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSync, setLastSync] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
 
   const fetchReports = async () => {
     try {
@@ -72,7 +74,6 @@ export const useReports = () => {
     if (!window.confirm('¿Estás seguro de que deseas eliminar este reporte? Esta acción no se puede deshacer.')) {
       return;
     }
-
     try {
       if (typeof id === 'string' && id.length > 20) {
         const { error } = await supabase.from('reports').delete().eq('id', id);
@@ -82,10 +83,26 @@ export const useReports = () => {
       console.error('Error al eliminar en Supabase:', err);
       alert('Error al eliminar el reporte del servidor, pero se quitará de la vista local.');
     }
-
     const updated = reports.filter(r => r.id !== id);
     setReports(updated);
     localStorage.setItem('gamea_reports', JSON.stringify(updated));
+  };
+
+  const searchReports = async (term) => {
+    if (!term) {
+      setSearchResults([]);
+      return;
+    }
+    try {
+      const { data, error } = await supabase
+        .from('reports')
+        .or(`titulo.ilike.%${term}%,subtitulo.ilike.%${term}%,secretaria.ilike.%${term}%,direccion.ilike.%${term}%,unidad.ilike.%${term}%`);
+      if (error) throw error;
+      setSearchResults(data);
+    } catch (err) {
+      console.error('Error searching reports:', err);
+      setSearchResults([]);
+    }
   };
 
   useEffect(() => {
@@ -102,5 +119,8 @@ export const useReports = () => {
     fetchReports, fetchSecretarias, fetchDirecciones, fetchUnidades,
     handleDelete,
     lastSync,
+    searchTerm, setSearchTerm,
+    searchResults,
+    searchReports,
   };
 };
