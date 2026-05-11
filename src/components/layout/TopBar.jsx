@@ -30,7 +30,7 @@ const TopBar = ({ title, subtitle, onSave, isSaveActive, onMenuClick }) => (
         </div>
 
         <button
-          onClick={() => window.print()}
+          onClick={() => exportPdf(document.body, 'Reporte')}
           className="hidden lg:flex items-center gap-2 px-4 py-2.5 bg-white/5 text-slate-300 hover:text-white hover:bg-white/10 rounded-xl border border-white/5 transition-all text-xs font-black uppercase tracking-widest"
         >
           <CloudDownload size={18} /> PDF
