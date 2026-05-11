@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { FileText, Trash2, Clock, ChevronRight, PlusCircle } from 'lucide-react';
 
-const ListViewComponent = ({ reports, onSelect, onDelete, onCreate, onSearch }) => (
+const ListViewComponent = ({ reports, onSelect, onDelete, onCreate, onSearch, searchTerm }) => (
   <div className="space-y-8">
     <div className="flex items-center justify-between px-2">
       <div>
@@ -15,6 +15,17 @@ const ListViewComponent = ({ reports, onSelect, onDelete, onCreate, onSearch }) 
       >
         <PlusCircle size={18} /> Nuevo Reporte
       </button>
+    </div>
+
+    {/* Search input */}
+    <div className="mb-4">
+      <input
+        type="text"
+        placeholder="Buscar reportes..."
+        value={searchTerm}
+        onChange={e => onSearch(e.target.value)}
+        className="w-full bg-slate-900/40 border border-white/5 rounded-xl p-3 text-sm text-white placeholder:text-slate-600"
+      />
     </div>
 
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">

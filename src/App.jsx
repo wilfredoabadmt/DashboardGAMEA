@@ -29,16 +29,19 @@ const INITIAL_REPORT_STATE = {
 };
 
 const App = () => {
-    const { 
-      reports, setReports, 
-      secretarias, 
-      direcciones, setDirecciones,
-      unidades, setUnidades, 
-      isSaving, setIsSaving,
-      fetchReports, fetchSecretarias, fetchDirecciones, fetchUnidades,
-      handleDelete,
-      lastSync 
-    } = useReports();
+  const {
+    reports, setReports,
+    secretarias,
+    direcciones, setDirecciones,
+    unidades, setUnidades,
+    isSaving, setIsSaving,
+    fetchReports, fetchSecretarias, fetchDirecciones, fetchUnidades,
+    handleDelete,
+    lastSync,
+    searchTerm, setSearchTerm,
+    searchResults,
+    searchReports,
+  } = useReports();
 
 
   const [currentView, setCurrentView] = useState('preview');
@@ -277,7 +280,7 @@ const App = () => {
 
           {currentView === 'list' && (
             <ListViewComponent
-              reports={reports}
+                reports={searchTerm ? searchResults : reports}
               onSelect={async (r) => {
                 const sec = secretarias.find(s => s.nombre === r.secretaria);
                 if (sec) {
@@ -326,7 +329,12 @@ const App = () => {
                   { id: 3, title: 'Contratos con vencimiento próximo', imp: 3, cat: 'LEGAL' },
                 ]);
                 setCurrentView('editor');
-              }}
+                }}
+                searchTerm={searchTerm}
+                onSearch={(term) => {
+                  setSearchTerm(term);
+                  searchReports(term);
+                }}
             />
           )}
 
