@@ -1,8 +1,5 @@
 import { jsPDF } from 'jspdf';
 
-/**
- * Load an image from a URL and return a base64 data URL.
- */
 async function loadImageAsBase64(url) {
   const res = await fetch(url);
   const blob = await res.blob();
@@ -14,17 +11,9 @@ async function loadImageAsBase64(url) {
 }
 
 /**
- * Generate a PDF report with real text in two columns using the provided report data.
- *
- * @param {Object}   data         - Report metadata (titulo, subtitulo, secretaria, etc.)
- * @param {Array}    indicadores  - Gauge indicators
- * @param {Array}    estadisticas - Statistics cards
- * @param {Array}    riesgos      - Risk items
- * @param {HTMLElement} contentEl - (unused) element reference kept for API compatibility
- * @returns {Promise<string>} Blob URL of the generated PDF
+ * Generate a professional PDF report with text in two columns.
  */
 export async function generateReportPdf(data, indicadores, estadisticas, riesgos, contentEl) {
-  // Load logos
   let gameaLogo = null;
   let eliserLogo = null;
   try {
@@ -39,119 +28,177 @@ export async function generateReportPdf(data, indicadores, estadisticas, riesgos
   const pdf = new jsPDF('p', 'mm', 'a4');
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
-  const marginX = 12;
-  const marginY = 15;
+  const marginX = 14;
+  const marginY = 18;
   const usableWidth = pageWidth - 2 * marginX;
-  const footerY = pageHeight - 8;
-  const colGap = 10;
+  const footerY = pageHeight - 10;
+  const colGap = 12;
   const colWidth = (usableWidth - colGap) / 2;
   const col1X = marginX;
   const col2X = marginX + colWidth + colGap;
+  const headerY = marginY + 4;
 
   let currentPage = 1;
-  let y = marginY + 5;
+  let y = headerY;
 
-  // Hex to RGB
-  const hexToRgb = hex => {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return [r, g, b];
+  // Color palette
+  const C = {
+    primary: [10, 37, 64],       // deep blue
+    accent: [14, 165, 233],       // brand blue
+    dark: [30, 30, 46],           // slate-900
+    slate: [71, 85, 105],         // slate-500
+    light: [248, 250, 252],       // slate-50
+    white: [255, 255, 255],
+    gray: [150, 150, 170],
+    muted: [200, 205, 215],
   };
 
-  // ── Decorations ──
-  const addDecorations = () => {
-    // Logo GAMEA (esquina superior izquierda, sin deformar)
+  const hexToRgb = hex => {
+    const c = hex.replace('#', '');
+    return [parseInt(c.slice(0, 2), 16), parseInt(c.slice(2, 4), 16), parseInt(c.slice(4, 6), 16)];
+  };
+
+  // ─────────────── Decorations ───────────────
+  const addHeader = () => {
+    // Top accent line
+    pdf.setDrawColor(...C.accent);
+    pdf.setLineWidth(0.6);
+    pdf.line(marginX, 5, pageWidth - marginX, 5);
+
+    // Logos
     if (gameaLogo) {
       const ip = pdf.getImageProperties(gameaLogo);
-      const h = 12;
+      const h = 14;
       const w = h * (ip.width / ip.height);
-      pdf.addImage(gameaLogo, 'PNG', marginX, 5, w, h);
+      pdf.addImage(gameaLogo, 'PNG', marginX, 8, w, h);
     }
-    // Logo ELISER (esquina superior derecha, sin deformar)
     if (eliserLogo) {
       const ip = pdf.getImageProperties(eliserLogo);
-      const h = 8;
+      const h = 10;
       const w = h * (ip.width / ip.height);
-      pdf.addImage(eliserLogo, 'PNG', pageWidth - marginX - w, 5, w, h);
+      pdf.addImage(eliserLogo, 'PNG', pageWidth - marginX - w, 10, w, h);
     }
-    pdf.setFontSize(14);
-    pdf.setTextColor(40, 40, 40);
-    pdf.text('REPORTE ESTRATÉGICO DE TRANSICIÓN', pageWidth / 2, marginY, { align: 'center' });
+
+    // Centered title
+    pdf.setFontSize(16);
+    pdf.setTextColor(...C.primary);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('REPORTE ESTRATÉGICO', pageWidth / 2, 16, { align: 'center' });
+    pdf.setFontSize(7);
+    pdf.setTextColor(...C.slate);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text('GOBIERNO AUTÓNOMO MUNICIPAL DE EL ALTO  ·  TRANSICIÓN MUNICIPAL', pageWidth / 2, 21, { align: 'center' });
+
+    // Header bottom line
+    pdf.setDrawColor(...C.muted);
+    pdf.setLineWidth(0.3);
+    pdf.line(marginX, 25, pageWidth - marginX, 25);
   };
 
   const addFooter = () => {
-    pdf.setFontSize(8);
-    pdf.setTextColor(150, 150, 150);
-    pdf.text('Gobierno Autónomo Municipal de El Alto', marginX, footerY);
+    pdf.setDrawColor(...C.muted);
+    pdf.setLineWidth(0.3);
+    pdf.line(marginX, pageHeight - 11, pageWidth - marginX, pageHeight - 11);
+    pdf.setFontSize(7);
+    pdf.setTextColor(...C.gray);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text('Gobierno Autónomo Municipal de El Alto · Sistema de Control de Transición', marginX, footerY);
     pdf.text(`Página ${currentPage}`, pageWidth - marginX, footerY, { align: 'right' });
   };
 
   const newPage = () => {
     pdf.addPage();
     currentPage++;
-    y = marginY + 5;
-    addDecorations();
+    y = headerY;
+    addHeader();
     addFooter();
   };
 
-  const ensureSpace = (needed = 12) => {
+  const ensureSpace = (needed = 15) => {
     if (y + needed > pageHeight - marginY - 10) newPage();
   };
 
+  // Draw a section title with left accent bar
+  const sectionTitle = (text, top) => {
+    ensureSpace(12);
+    pdf.setDrawColor(...C.accent);
+    pdf.setFillColor(...C.accent);
+    pdf.rect(marginX, top, 3, 10, 'F');
+    pdf.setFontSize(11);
+    pdf.setTextColor(...C.primary);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text(text, marginX + 8, top + 8);
+    return top + 12;
+  };
+
+  // Draw a colored metric bar
+  const metricBar = (x, y, w, label, value, color) => {
+    const barH = 10;
+    const gap = 3;
+    pdf.setFillColor(...hexToRgb(color));
+    pdf.roundedRect(x, y, w, barH, 2, 2, 'F');
+    pdf.setTextColor(...C.white);
+    pdf.setFontSize(7);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text(label.substring(0, 28), x + gap, y + 4);
+    pdf.setFontSize(10);
+    pdf.text(`${value}%`, x + w - gap, y + barH - gap, { align: 'right' });
+  };
+
   // Init first page
-  addDecorations();
+  addHeader();
   addFooter();
 
-  // ═══════════════════ HEADER ═══════════════════
-  y += 2;
-  pdf.setFontSize(18);
-  pdf.setTextColor(30, 30, 30);
+  // ═══════════════════ MAIN HEADER ═══════════════════
+  y += 6;
+  // Big title
+  pdf.setFontSize(22);
+  pdf.setTextColor(...C.primary);
   pdf.setFont('helvetica', 'bold');
-  const titleLines = pdf.splitTextToSize(data.titulo || 'REPORTE ESTRATÉGICO', usableWidth);
-  pdf.text(titleLines, pageWidth / 2, y, { align: 'center' });
-  y += titleLines.length * 6 + 3;
+  const tLines = pdf.splitTextToSize(data.titulo || 'REPORTE ESTRATÉGICO DE TRANSICIÓN', usableWidth);
+  pdf.text(tLines, pageWidth / 2, y, { align: 'center' });
+  y += tLines.length * 8 + 4;
 
+  // Subtitle with background stripe
   if (data.subtitulo) {
-    pdf.setFontSize(10);
-    pdf.setTextColor(80, 80, 80);
+    pdf.setFontSize(9);
+    pdf.setTextColor(...C.slate);
     pdf.setFont('helvetica', 'normal');
     const subLines = pdf.splitTextToSize(data.subtitulo, usableWidth);
     pdf.text(subLines, pageWidth / 2, y, { align: 'center' });
-    y += subLines.length * 4 + 4;
+    y += subLines.length * 5 + 5;
   }
 
+  // Info row: secretaria · direccion · unidad · fecha · responsable
   const infoChips = [data.secretaria, data.direccion, data.unidad].filter(Boolean);
+  pdf.setFillColor(241, 245, 249);
+  pdf.roundedRect(marginX, y - 2, usableWidth, infoChips.length > 0 ? 18 : 14, 3, 3, 'F');
   if (infoChips.length > 0) {
     pdf.setFontSize(8);
-    pdf.setTextColor(100, 100, 100);
+    pdf.setTextColor(...C.slate);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text(infoChips.join('  ·  '), pageWidth / 2, y + 3, { align: 'center' });
+    y += 7;
+  }
+  if (data.fecha) {
+    pdf.setFontSize(7);
+    pdf.setTextColor(...C.gray);
     pdf.setFont('helvetica', 'normal');
-    pdf.text(infoChips.join('  •  '), pageWidth / 2, y, { align: 'center' });
+    pdf.text(`Fecha: ${data.fecha}`, pageWidth / 2, y + 3, { align: 'center' });
     y += 5;
   }
-
-  if (data.fecha) {
-    pdf.setFontSize(8);
-    pdf.setTextColor(120, 120, 120);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text(`Fecha: ${data.fecha}`, pageWidth / 2, y, { align: 'center' });
-    y += 4;
-  }
   if (data.acreditado) {
-    pdf.setFontSize(8);
-    pdf.setTextColor(120, 120, 120);
-    pdf.text(`Responsable: ${data.acreditado}`, pageWidth / 2, y, { align: 'center' });
-    y += 6;
+    pdf.setFontSize(7);
+    pdf.setTextColor(...C.gray);
+    pdf.text(`Responsable: ${data.acreditado}`, pageWidth / 2, y + 3, { align: 'center' });
+    y += 3;
   }
+  y += 6;
 
-  // ═══════════════════ INDICADORES (dos columnas) ═══════════════════
+  // ═══════════════════ INDICADORES ═══════════════════
   if (indicadores.length > 0) {
-    ensureSpace(10);
-    pdf.setFontSize(12);
-    pdf.setTextColor(30, 30, 30);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('MÉTRICAS CRÍTICAS', pageWidth / 2, y, { align: 'center' });
-    y += 7;
+    y = sectionTitle('MÉTRICAS CRÍTICAS DE TRANSICIÓN', y);
+    y += 2;
 
     indicadores.forEach((ind, i) => {
       const col = i % 2;
@@ -165,66 +212,56 @@ export async function generateReportPdf(data, indicadores, estadisticas, riesgos
         return;
       }
 
-      const [r, g, b] = hexToRgb(ind.color || '#0ea5e9');
-      pdf.setFillColor(r, g, b);
-      pdf.roundedRect(xPos, yPos, colWidth, 12, 2, 2, 'F');
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(8);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text(ind.label.substring(0, 30), xPos + 3, yPos + 5);
-      pdf.setFontSize(10);
-      pdf.text(`${ind.value}%`, xPos + colWidth - 6, yPos + 9, { align: 'right' });
+      metricBar(xPos, yPos, colWidth, ind.label, ind.value, ind.color || '#0ea5e9');
     });
 
-    y += Math.ceil(indicadores.length / 2) * 14 + 6;
+    y += Math.ceil(indicadores.length / 2) * 14 + 8;
   }
 
-  // ═══════════════════ ESTADÍSTICAS (dos columnas) ═══════════════════
+  // ═══════════════════ ESTADÍSTICAS ═══════════════════
   if (estadisticas.length > 0) {
-    ensureSpace(10);
-    pdf.setFontSize(12);
-    pdf.setTextColor(30, 30, 30);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('ESTADÍSTICAS', pageWidth / 2, y, { align: 'center' });
-    y += 7;
+    y = sectionTitle('ESTADÍSTICAS', y);
+    y += 2;
 
     estadisticas.forEach((stat, i) => {
       const col = i % 2;
       const row = Math.floor(i / 2);
       const xPos = col === 0 ? col1X : col2X;
-      const yPos = y + row * 16;
+      const yPos = y + row * 17;
 
-      if (yPos + 16 > pageHeight - marginY - 10) {
+      if (yPos + 17 > pageHeight - marginY - 10) {
         newPage();
-        y = marginY + 5 + row * 16;
+        y = marginY + 5 + row * 17;
         return;
       }
 
-      pdf.setDrawColor(200, 200, 200);
-      pdf.setFillColor(248, 248, 248);
-      pdf.roundedRect(xPos, yPos, colWidth, 14, 2, 2, 'FD');
-      pdf.setTextColor(80, 80, 80);
+      // Card background
+      pdf.setFillColor(248, 250, 252);
+      pdf.setDrawColor(226, 232, 240);
+      pdf.roundedRect(xPos, yPos, colWidth, 15, 3, 3, 'FD');
+      // Label
+      pdf.setTextColor(...C.slate);
       pdf.setFontSize(8);
       pdf.setFont('helvetica', 'normal');
-      pdf.text((stat.label || '').substring(0, 28), xPos + 3, yPos + 4);
-      pdf.setTextColor(30, 30, 30);
-      pdf.setFontSize(12);
+      pdf.text((stat.label || '').substring(0, 25), xPos + 4, yPos + 5);
+      // Value
+      pdf.setTextColor(...C.primary);
+      pdf.setFontSize(14);
       pdf.setFont('helvetica', 'bold');
       const trendSym = stat.trend === 'up' ? '↗' : stat.trend === 'down' ? '↘' : '→';
-      pdf.text(`${stat.val}${trendSym}`, xPos + colWidth - 6, yPos + 10, { align: 'right' });
+      pdf.text(`${stat.val} ${trendSym}`, xPos + colWidth - 5, yPos + 12, { align: 'right' });
+      // Trend indicator dot
+      pdf.setFillColor(stat.trend === 'up' ? 16 : 185, 185, 185);
+      pdf.circle(xPos + colWidth - 16, yPos + 4, 1.5, 'F');
     });
 
-    y += Math.ceil(estadisticas.length / 2) * 16 + 6;
+    y += Math.ceil(estadisticas.length / 2) * 17 + 8;
   }
 
-  // ═══════════════════ RIESGOS (dos columnas) ═══════════════════
+  // ═══════════════════ RIESGOS ═══════════════════
   if (riesgos.length > 0) {
-    ensureSpace(10);
-    pdf.setFontSize(12);
-    pdf.setTextColor(30, 30, 30);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('RIESGOS IDENTIFICADOS', pageWidth / 2, y, { align: 'center' });
-    y += 7;
+    y = sectionTitle('RIESGOS IDENTIFICADOS', y);
+    y += 2;
 
     riesgos.forEach((riesgo, i) => {
       const col = i % 2;
@@ -238,70 +275,80 @@ export async function generateReportPdf(data, indicadores, estadisticas, riesgos
         return;
       }
 
-      pdf.setDrawColor(200, 180, 180);
-      pdf.setFillColor(255, 245, 245);
-      pdf.roundedRect(xPos, yPos, colWidth, 14, 2, 2, 'FD');
-      pdf.setTextColor(180, 60, 60);
+      // Card background with red tint
+      pdf.setFillColor(254, 242, 242);
+      pdf.setDrawColor(220, 38, 38, 0.3);
+      pdf.roundedRect(xPos, yPos, colWidth, 14, 3, 3, 'FD');
+      // Category tag
+      pdf.setFillColor(239, 68, 68);
+      pdf.roundedRect(xPos + 3, yPos + 2, 16, 5, 2, 2, 'F');
+      pdf.setTextColor(...C.white);
+      pdf.setFontSize(5);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text((riesgo.cat || 'RX').substring(0, 3), xPos + 11, yPos + 5.5, { align: 'center' });
+      // Title
+      pdf.setTextColor(127, 29, 29);
       pdf.setFontSize(7);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text((riesgo.cat || 'RIESGO').substring(0, 20), xPos + 3, yPos + 4);
-      pdf.setTextColor(100, 40, 40);
-      pdf.setFontSize(6);
       pdf.setFont('helvetica', 'normal');
-      pdf.text((riesgo.title || '').substring(0, 50), xPos + 3, yPos + 9);
-
-      const impColors = ['#10b981', '#f59e0b', '#ef4444'];
-      const impColor = impColors[riesgo.imp - 1] || '#f59e0b';
-      const [ri, gi, bi] = hexToRgb(impColor);
-      pdf.setTextColor(ri, gi, bi);
-      pdf.setFontSize(8);
+      pdf.text((riesgo.title || '').substring(0, 42), xPos + 22, yPos + 5);
+      // Priority badge
+      const impColors = { 1: '#10b981', 2: '#f59e0b', 3: '#ef4444' };
+      const impColor = impColors[riesgo.imp] || '#f59e0b';
+      pdf.setFillColor(...hexToRgb(impColor));
+      pdf.roundedRect(xPos + colWidth - 12, yPos + 2, 9, 5, 2, 2, 'F');
+      pdf.setTextColor(...C.white);
+      pdf.setFontSize(6);
       pdf.setFont('helvetica', 'bold');
-      pdf.text(`P${riesgo.imp}`, xPos + colWidth - 6, yPos + 10, { align: 'right' });
+      pdf.text(`P${riesgo.imp}`, xPos + colWidth - 7, yPos + 5.5, { align: 'center' });
     });
 
-    y += Math.ceil(riesgos.length / 2) * 16 + 6;
+    y += Math.ceil(riesgos.length / 2) * 16 + 8;
   }
 
   // ═══════════════════ ALERTA ═══════════════════
   if (data.alerta) {
     ensureSpace(10);
-    pdf.setFontSize(9);
-    pdf.setTextColor(180, 80, 0);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('ALERTA', marginX, y);
-    y += 5;
+    pdf.setFillColor(255, 247, 237);
+    pdf.setDrawColor(251, 191, 36);
+    pdf.roundedRect(marginX, y, usableWidth, 6, 3, 3, 'F');
+    y += 4;
+    pdf.setTextColor(146, 64, 14);
     pdf.setFontSize(8);
-    pdf.setTextColor(120, 60, 0);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('⚠ ALERTA', marginX + 4, y + 1);
+    y += 7;
+    pdf.setFontSize(8);
+    pdf.setTextColor(120, 53, 15);
     pdf.setFont('helvetica', 'normal');
-    const alertLines = pdf.splitTextToSize(data.alerta, usableWidth);
-    pdf.text(alertLines, marginX, y);
-    y += alertLines.length * 4 + 6;
+    const alertLines = pdf.splitTextToSize(data.alerta, usableWidth - 16);
+    pdf.text(alertLines, marginX + 8, y);
+    y += alertLines.length * 4 + 10;
   }
 
   // ═══════════════════ OBSERVACIONES ═══════════════════
   if (data.observaciones) {
-    ensureSpace(10);
-    pdf.setFontSize(9);
-    pdf.setTextColor(30, 30, 30);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('OBSERVACIONES', marginX, y);
-    y += 5;
+    y = sectionTitle('OBSERVACIONES', y);
+    y += 2;
     pdf.setFontSize(8);
-    pdf.setTextColor(80, 80, 80);
+    pdf.setTextColor(55, 65, 81);
     pdf.setFont('helvetica', 'normal');
     const obsLines = pdf.splitTextToSize(data.observaciones, usableWidth);
     pdf.text(obsLines, marginX, y);
     y += obsLines.length * 4 + 6;
   }
 
-  // ═══════════════════ FINAL: Números de página correctos ═══════════════════
+  // ═══════════════════ FINAL: footers ═══════════════════
   const totalPages = pdf.getNumberOfPages();
   for (let i = 1; i <= totalPages; i++) {
     pdf.setPage(i);
-    pdf.setFontSize(8);
-    pdf.setTextColor(150, 150, 150);
+    pdf.setDrawColor(...C.muted);
+    pdf.setLineWidth(0.3);
+    pdf.line(marginX, pageHeight - 11, pageWidth - marginX, pageHeight - 11);
+    pdf.setFontSize(7);
+    pdf.setTextColor(...C.gray);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text('Gobierno Autónomo Municipal de El Alto · Sistema de Control de Transición', marginX, footerY);
     pdf.text(`Página ${i} de ${totalPages}`, pageWidth - marginX, footerY, { align: 'right' });
-    pdf.text('Gobierno Autónomo Municipal de El Alto', marginX, footerY);
   }
 
   const blob = pdf.output('blob');
