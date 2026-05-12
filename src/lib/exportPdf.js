@@ -58,12 +58,8 @@ const clone = element.cloneNode(true);
       document.body.removeChild(dummy);
       return rgb;
     });
-  clone.querySelectorAll('[style]').forEach(el => {
-    const s = el.getAttribute('style');
-    if (s && s.includes('oklch(')) {
-      el.setAttribute('style', replaceOklch(s));
-    }
-  });
+  // Remove any <style> tags that may have been copied into the clone (they are not needed after inlining)
+  clone.querySelectorAll('style').forEach(st => st.remove());
 
   // Preserve the original width so the column layout matches the on‑screen size.
   clone.style.width = `${element.clientWidth}px`;
