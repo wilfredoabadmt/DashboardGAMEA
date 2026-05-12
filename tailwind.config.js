@@ -26,5 +26,10 @@ export default {
       }
     },
   },
+  // Desactivar la generación de colores con la función oklch (Tailwind 4 experimental)
+  experimental: {
+    // Cuando está en false, Tailwind usa valores hex/rgb en lugar de `oklch()`
+    colorFunction: false,
+  },
   plugins: [],
 }
