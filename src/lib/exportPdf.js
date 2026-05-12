@@ -11,22 +11,25 @@ async function loadImageAsBase64(url) {
 }
 
 export async function generateReportPdf(data, indicadores, estadisticas, riesgos, contentEl) {
-  let gameaLogo = null, eliserLogo = null;
   try {
-    [gameaLogo, eliserLogo] = await Promise.all([
-      loadImageAsBase64('/dist/gamea.png'),
-      loadImageAsBase64('/dist/eliser.png'),
-    ]);
-  } catch (e) {}
+    let gameaLogo = null, eliserLogo = null;
+    try {
+      [gameaLogo, eliserLogo] = await Promise.all([
+        loadImageAsBase64('/gamea.png'),
+        loadImageAsBase64('/eliser.png'),
+      ]);
+    } catch (e) {
+      console.warn('PDF: no se pudieron cargar los logos', e);
+    }
 
-  const pdf = new jsPDF('p', 'mm', 'letter');
-  const PW = pdf.internal.pageSize.getWidth();
-  const PH = pdf.internal.pageSize.getHeight();
-  const M = 20;
-  const UW = PW - 2 * M;
-  const FY = PH - 12;
-  let page = 1;
-  let y = 34;
+    const pdf = new jsPDF('p', 'mm', 'letter');
+    const PW = pdf.internal.pageSize.getWidth();
+    const PH = pdf.internal.pageSize.getHeight();
+    const M = 20;
+    const UW = PW - 2 * M;
+    const FY = PH - 12;
+    let page = 1;
+    let y = 34;
 
   const hexRgb = h => {
     const c = h.replace('#','');
@@ -169,4 +172,8 @@ export async function generateReportPdf(data, indicadores, estadisticas, riesgos
   }
 
   return URL.createObjectURL(pdf.output('blob'));
+  } catch (err) {
+    console.error('PDF: error al generar', err);
+    throw err;
+  }
 }
