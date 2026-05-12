@@ -82,8 +82,16 @@ export async function exportPdf(element = document.body, filename = 'document') 
   // ---- Eliminar <style> residuales del clon ----
   clone.querySelectorAll('style').forEach(st => st.remove());
 
-  // ---- 3️⃣ AHORA deshabilitar TODAS las hojas de estilo para que html2canvas no las lea ----
-  allSheets.forEach(sheet => { sheet.disabled = true; });
+  // ---- 3️⃣ AHORA deshabilitar y VACIAR las hojas de estilo ----
+  allSheets.forEach(sheet => {
+    sheet.disabled = true;
+    // Eliminar todas las reglas para que html2canvas no intente parsearlas
+    if (sheet.cssRules) {
+      while (sheet.cssRules.length > 0) {
+        sheet.deleteRule(0);
+      }
+    }
+  });
   headStyleNodes.forEach(node => node.parentNode && node.parentNode.removeChild(node));
 
   // ---- 4️⃣ Aplicar el layout de PDF (dos columnas) y ocultar el clon ----
