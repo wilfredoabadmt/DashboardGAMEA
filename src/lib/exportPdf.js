@@ -60,13 +60,21 @@ export async function generateReportPdf(data, indicadores, estadisticas, riesgos
 
   // ---------- Decoration helpers ----------
   const addPageDecorations = () => {
+    // Logo gamea.png (esquina superior izquierda, pequeño, sin deformar)
     if (backgroundData) {
-      pdf.addImage(backgroundData, 'PNG', 0, 0, pageWidth, pageHeight);
+      const imgProps = pdf.getImageProperties(backgroundData);
+      const aspect = imgProps.width / imgProps.height;
+      const logoH = 15;
+      const logoW = logoH * aspect;
+      pdf.addImage(backgroundData, 'PNG', marginX, 5, logoW, logoH);
     }
+    // Logo eliser.png (esquina superior derecha, pequeño, sin deformar)
     if (logoData) {
-      const logoWidth = 25;
-      const logoHeight = logoWidth * 0.33;
-      pdf.addImage(logoData, 'PNG', pageWidth - logoWidth - 5, 5, logoWidth, logoHeight);
+      const imgProps = pdf.getImageProperties(logoData);
+      const aspect = imgProps.width / imgProps.height;
+      const logoH = 10;
+      const logoW = logoH * aspect;
+      pdf.addImage(logoData, 'PNG', pageWidth - logoW - 5, 5, logoW, logoH);
     }
     pdf.setFontSize(14);
     pdf.setTextColor(40, 40, 40);
