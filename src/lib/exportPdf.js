@@ -147,6 +147,42 @@ export async function generateReportPdf(data, indicadores, estadisticas, riesgos
 
   // ─────────────── Helpers de gráficos ───────────────
 
+  // Gauge semicircular (velocímetro)
+  const drawGauge = (cx, cy, r, pct, label, color) => {
+    const start = -Math.PI;
+    const end = Math.PI;
+    const angle = start + (end - start) * (pct / 100);
+    const [cr, cg, cb] = hexToRgb(color);
+    // Track
+    pdf.setDrawColor(226, 232, 240);
+    pdf.setLineWidth(3);
+    pdf.circle(cx, cy, r, 'D');
+    // Arco de progreso
+    pdf.setDrawColor(cr, cg, cb);
+    pdf.setLineWidth(3);
+    const steps = 40;
+    for (let i = 0; i < steps; i++) {
+      const a1 = start + (end - start) * (i / steps);
+      const a2 = start + (end - start) * ((i + 1) / steps);
+      if (a1 <= angle) {
+        const x1 = cx + r * Math.cos(a1);
+        const y1 = cy + r * Math.sin(a1);
+        const x2 = cx + r * Math.cos(Math.min(a2, angle));
+        const y2 = cy + r * Math.sin(Math.min(a2, angle));
+        pdf.line(x1, y1, x2, y2);
+      }
+    }
+    // Valor central
+    pdf.setTextColor(...C.primary);
+    pdf.setFontSize(14);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text(`${pct}%`, cx, cy + 2, { align: 'center' });
+    pdf.setFontSize(6);
+    pdf.setTextColor(...C.slate);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(label || '', cx, cy + 8, { align: 'center' });
+  };
+
   // Barra de progreso horizontal con track
   const progressBar = (x, y, w, h, pct, color, label, value) => {
     pdf.setFillColor(238, 242, 246);
