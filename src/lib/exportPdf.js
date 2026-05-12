@@ -82,22 +82,15 @@ export async function exportPdf(element = document.body, filename = 'document') 
   // ---- Eliminar <style> residuales del clon ----
   clone.querySelectorAll('style').forEach(st => st.remove());
 
-  // ---- 3️⃣ AHORA deshabilitar y VACIAR las hojas de estilo ----
-  allSheets.forEach(sheet => {
-    sheet.disabled = true;
-    // Intentar vaciar las reglas, omitir hojas cross‑origin (lanzan SecurityError)
-    try {
-      if (sheet.cssRules) {
-        while (sheet.cssRules.length > 0) {
-          sheet.deleteRule(0);
-        }
-      }
-    } catch (e) {
-      // Hoja externa (Google Fonts, etc.) – no se puede modificar, pero ya está deshabilitada
-      console.warn('ExportPDF: no se pudieron vaciar las reglas de una hoja externa', e.message);
+  // ---- 3️⃣ Vaciar los <style> internos (Tailwind) y deshabilitar los <link> externos ----
+  // Con esto html2canvas no encuentra ninguna regla CSS con oklch.
+  headStyleNodes.forEach(node => {
+    if (node.tagName === 'STYLE') {
+      node.textContent = '';               // Elimina todas las reglas del style
+    } else if (node.tagName === 'LINK') {
+      node.disabled = true;                // Desactiva la hoja enlazada (Google Fonts, etc.)
     }
   });
-  headStyleNodes.forEach(node => node.parentNode && node.parentNode.removeChild(node));
 
   // ---- 4️⃣ Aplicar el layout de PDF (dos columnas) y ocultar el clon ----
   clone.style.width = `${element.clientWidth}px`;
