@@ -11,7 +11,7 @@ import EditorView from './views/EditorView';
 import ListViewComponent from './views/ListViewComponent';
 import PdfPreviewModal from './components/ui/PdfPreviewModal';
 import { useReports } from './hooks/useReports';
-import { exportPdf } from './lib/exportPdf';
+import { generateReportPdf } from './lib/exportPdf';
 
 const INITIAL_REPORT_STATE = {
   id: null,
@@ -57,7 +57,7 @@ const App = () => {
 
   const handlePdfPreview = async () => {
     try {
-      const url = await exportPdf(document.body, 'Reporte');
+      const url = await generateReportPdf(data, indicadores, estadisticas, riesgos);
       setPdfPreviewUrl(url);
     } catch (err) {
       console.error('Error al generar PDF:', err);
