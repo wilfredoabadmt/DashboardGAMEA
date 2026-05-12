@@ -68,16 +68,18 @@ export async function exportPdf(element = document.body, filename = 'document') 
   inlineComputedStyles(element, clone);
 
   // ---- Convert any remaining inline oklch values to RGB ----
+  const convertOklch = val => {
+    const dummy = document.createElement('div');
+    dummy.style.color = val;
+    document.body.appendChild(dummy);
+    const rgb = getComputedStyle(dummy).color;
+    document.body.removeChild(dummy);
+    return rgb;
+  };
   clone.querySelectorAll('[style]').forEach(el => {
     const s = el.getAttribute('style');
     if (s && s.includes('oklch(')) {
-      const dummy = document.createElement('div');
-      dummy.style.color = 'red'; // placeholder, will be replaced below
-      document.body.appendChild(dummy);
-      const rgb = getComputedStyle(dummy).color;
-      document.body.removeChild(dummy);
-      const newS = s.replace(/oklch\([^)]*\)/g, () => rgb);
-      el.setAttribute('style', newS);
+      el.setAttribute('style', s.replace(/oklch\([^)]*\)/g, convertOklch));
     }
   });
 
@@ -125,16 +127,18 @@ try {
     });
 } catch (err) {
   console.error('ExportPDF: html2canvas failed', err);
-  // Restore head styles before exiting
-  headStyles.forEach(node => document.head.appendChild(node));
+  // Restore head styles and sheets before exiting
+  headStyleNodes.forEach(node => document.head.appendChild(node));
+  allSheets.forEach(sheet => { sheet.disabled = false; });
   document.body.removeChild(clone);
   return;
 }
 
 // Clean up the temporary clone now that we have the canvas.
 document.body.removeChild(clone);
-// Restore head styles after capture
-headStyles.forEach(node => document.head.appendChild(node));
+// Restore head styles and re-enable sheets after capture
+headStyleNodes.forEach(node => document.head.appendChild(node));
+allSheets.forEach(sheet => { sheet.disabled = false; });
 
 const imgData = canvas.toDataURL('image/png');
 
