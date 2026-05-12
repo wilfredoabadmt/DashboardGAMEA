@@ -85,11 +85,16 @@ export async function exportPdf(element = document.body, filename = 'document') 
   // ---- 3️⃣ AHORA deshabilitar y VACIAR las hojas de estilo ----
   allSheets.forEach(sheet => {
     sheet.disabled = true;
-    // Eliminar todas las reglas para que html2canvas no intente parsearlas
-    if (sheet.cssRules) {
-      while (sheet.cssRules.length > 0) {
-        sheet.deleteRule(0);
+    // Intentar vaciar las reglas, omitir hojas cross‑origin (lanzan SecurityError)
+    try {
+      if (sheet.cssRules) {
+        while (sheet.cssRules.length > 0) {
+          sheet.deleteRule(0);
+        }
       }
+    } catch (e) {
+      // Hoja externa (Google Fonts, etc.) – no se puede modificar, pero ya está deshabilitada
+      console.warn('ExportPDF: no se pudieron vaciar las reglas de una hoja externa', e.message);
     }
   });
   headStyleNodes.forEach(node => node.parentNode && node.parentNode.removeChild(node));
