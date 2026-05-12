@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ORGANIGRAMA } from './lib/constants';
 import { supabase } from './lib/supabase';
@@ -54,10 +54,12 @@ const App = () => {
   const [selectedUni, setSelectedUni] = useState('');
 
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
+  const contentRef = useRef(null);
 
   const handlePdfPreview = async () => {
     try {
-      const url = await generateReportPdf(data, indicadores, estadisticas, riesgos);
+      const el = contentRef.current || document.querySelector('main > div:last-child');
+      const url = await generateReportPdf(data, indicadores, estadisticas, riesgos, el);
       setPdfPreviewUrl(url);
     } catch (err) {
       console.error('Error al generar PDF:', err);
@@ -262,7 +264,7 @@ const App = () => {
             onPdfPreview={handlePdfPreview}
           />
 
-        <div className="p-6 lg:p-10 max-w-[1600px] mx-auto">
+        <div ref={contentRef} className="p-6 lg:p-10 max-w-[1600px] mx-auto">
           {currentView === 'preview' && (
             <PreviewView
               data={data}
