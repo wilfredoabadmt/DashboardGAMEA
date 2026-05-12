@@ -145,6 +145,77 @@ export async function generateReportPdf(data, indicadores, estadisticas, riesgos
     pdf.text(`${value}%`, x + w - gap, y + barH - gap, { align: 'right' });
   };
 
+  // ─────────────── Helpers de gráficos ───────────────
+
+  // Barra de progreso horizontal con track
+  const progressBar = (x, y, w, h, pct, color, label, value) => {
+    pdf.setFillColor(238, 242, 246);
+    pdf.roundedRect(x, y, w, h, 2, 2, 'F');
+    const fillW = (pct / 100) * (w - 2);
+    if (fillW > 0) {
+      pdf.setFillColor(...hexToRgb(color));
+      pdf.roundedRect(x + 1, y + 1, fillW, h - 2, 1.5, 1.5, 'F');
+    }
+    pdf.setTextColor(...C.slate);
+    pdf.setFontSize(6);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text(label, x + 2, y + h + 3);
+    pdf.setTextColor(...C.primary);
+    pdf.setFontSize(9);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text(`${value}%`, x + w - 2, y + h + 3, { align: 'right' });
+  };
+
+  // Gráfico de barras para estadísticas
+  const statBar = (x, y, w, label, val, trend, maxVal) => {
+    const pct = maxVal > 0 ? val / maxVal : 0;
+    // fondo tarjeta
+    pdf.setFillColor(248, 250, 252);
+    pdf.setDrawColor(226, 232, 240);
+    pdf.roundedRect(x, y, w, 20, 3, 3, 'FD');
+    // label
+    pdf.setTextColor(...C.slate);
+    pdf.setFontSize(7);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text((label || '').substring(0, 22), x + 3, y + 4);
+    // track barra
+    pdf.setFillColor(226, 232, 240);
+    pdf.roundedRect(x + 3, y + 8, w - 6, 4, 2, 2, 'F');
+    // fill
+    const fillW = pct * (w - 6);
+    const trendColor = trend === 'up' ? '#10b981' : trend === 'down' ? '#ef4444' : '#f59e0b';
+    pdf.setFillColor(...hexToRgb(trendColor));
+    pdf.roundedRect(x + 3, y + 8, Math.max(fillW, 0), 4, 2, 2, 'F');
+    // valor
+    pdf.setTextColor(...C.primary);
+    pdf.setFontSize(10);
+    pdf.setFont('helvetica', 'bold');
+    const sym = trend === 'up' ? '↗' : trend === 'down' ? '↘' : '→';
+    pdf.text(`${val} ${sym}`, x + w - 4, y + 18, { align: 'right' });
+  };
+
+  // Círculo de prioridad para riesgos
+  const riskDot = (x, y, r, label, cat, priority) => {
+    const colors = { 1: '#10b981', 2: '#f59e0b', 3: '#ef4444' };
+    const col = colors[priority] || '#f59e0b';
+    pdf.setFillColor(...hexToRgb(col));
+    pdf.circle(x, y, r, 'F');
+    pdf.setTextColor(...C.white);
+    pdf.setFontSize(5);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text(`${priority}`, x, y + 1, { align: 'center' });
+    // Label a la derecha
+    pdf.setTextColor(100, 40, 40);
+    pdf.setFontSize(5);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text((label || '').substring(0, 40), x + r + 2, y + 1);
+    // Categoría en gris
+    pdf.setTextColor(150, 120, 120);
+    pdf.setFontSize(4);
+    pdf.setFont('helvetica', 'italic');
+    pdf.text((cat || '').substring(0, 8), x + r + 2, y + 5);
+  };
+
   // Init first page
   addHeader();
   addFooter();
@@ -200,22 +271,31 @@ export async function generateReportPdf(data, indicadores, estadisticas, riesgos
     y = sectionTitle('MÉTRICAS CRÍTICAS DE TRANSICIÓN', y);
     y += 2;
 
+    // Gauge de resumen (promedio de indicadores)
+    const avg = Math.round(indicadores.reduce((s, ind) => s + ind.value, 0) / indicadores.length);
+    const gaugeCx = pageWidth / 2;
+    const gaugeCy = y + 18;
+    const gaugeR = 18;
+    drawGauge(gaugeCx, gaugeCy, gaugeR, avg, 'PROMEDIO GENERAL', '#0ea5e9');
+    y += 40;
+
+    // Indicadores en dos columnas con progressBar
     indicadores.forEach((ind, i) => {
       const col = i % 2;
       const row = Math.floor(i / 2);
       const xPos = col === 0 ? col1X : col2X;
-      const yPos = y + row * 14;
+      const yPos = y + row * 22;
 
-      if (yPos + 14 > pageHeight - marginY - 10) {
+      if (yPos + 22 > pageHeight - marginY - 10) {
         newPage();
-        y = marginY + 5 + row * 14;
+        y = marginY + 5 + row * 22;
         return;
       }
 
-      metricBar(xPos, yPos, colWidth, ind.label, ind.value, ind.color || '#0ea5e9');
+      progressBar(xPos, yPos, colWidth, 8, ind.value, ind.color || '#0ea5e9', ind.label, ind.value);
     });
 
-    y += Math.ceil(indicadores.length / 2) * 14 + 8;
+    y += Math.ceil(indicadores.length / 2) * 22 + 8;
   }
 
   // ═══════════════════ ESTADÍSTICAS ═══════════════════
@@ -223,39 +303,23 @@ export async function generateReportPdf(data, indicadores, estadisticas, riesgos
     y = sectionTitle('ESTADÍSTICAS', y);
     y += 2;
 
+    const maxVal = Math.max(...estadisticas.map(s => s.val));
     estadisticas.forEach((stat, i) => {
       const col = i % 2;
       const row = Math.floor(i / 2);
       const xPos = col === 0 ? col1X : col2X;
-      const yPos = y + row * 17;
+      const yPos = y + row * 24;
 
-      if (yPos + 17 > pageHeight - marginY - 10) {
+      if (yPos + 24 > pageHeight - marginY - 10) {
         newPage();
-        y = marginY + 5 + row * 17;
+        y = marginY + 5 + row * 24;
         return;
       }
 
-      // Card background
-      pdf.setFillColor(248, 250, 252);
-      pdf.setDrawColor(226, 232, 240);
-      pdf.roundedRect(xPos, yPos, colWidth, 15, 3, 3, 'FD');
-      // Label
-      pdf.setTextColor(...C.slate);
-      pdf.setFontSize(8);
-      pdf.setFont('helvetica', 'normal');
-      pdf.text((stat.label || '').substring(0, 25), xPos + 4, yPos + 5);
-      // Value
-      pdf.setTextColor(...C.primary);
-      pdf.setFontSize(14);
-      pdf.setFont('helvetica', 'bold');
-      const trendSym = stat.trend === 'up' ? '↗' : stat.trend === 'down' ? '↘' : '→';
-      pdf.text(`${stat.val} ${trendSym}`, xPos + colWidth - 5, yPos + 12, { align: 'right' });
-      // Trend indicator dot
-      pdf.setFillColor(stat.trend === 'up' ? 16 : 185, 185, 185);
-      pdf.circle(xPos + colWidth - 16, yPos + 4, 1.5, 'F');
+      statBar(xPos, yPos, colWidth, stat.label, stat.val, stat.trend, maxVal);
     });
 
-    y += Math.ceil(estadisticas.length / 2) * 17 + 8;
+    y += Math.ceil(estadisticas.length / 2) * 24 + 8;
   }
 
   // ═══════════════════ RIESGOS ═══════════════════
@@ -267,42 +331,18 @@ export async function generateReportPdf(data, indicadores, estadisticas, riesgos
       const col = i % 2;
       const row = Math.floor(i / 2);
       const xPos = col === 0 ? col1X : col2X;
-      const yPos = y + row * 16;
+      const yPos = y + row * 10;
 
-      if (yPos + 16 > pageHeight - marginY - 10) {
+      if (yPos + 10 > pageHeight - marginY - 10) {
         newPage();
-        y = marginY + 5 + row * 16;
+        y = marginY + 5 + row * 10;
         return;
       }
 
-      // Card background with red tint
-      pdf.setFillColor(254, 242, 242);
-      pdf.setDrawColor(220, 38, 38, 0.3);
-      pdf.roundedRect(xPos, yPos, colWidth, 14, 3, 3, 'FD');
-      // Category tag
-      pdf.setFillColor(239, 68, 68);
-      pdf.roundedRect(xPos + 3, yPos + 2, 16, 5, 2, 2, 'F');
-      pdf.setTextColor(...C.white);
-      pdf.setFontSize(5);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text((riesgo.cat || 'RX').substring(0, 3), xPos + 11, yPos + 5.5, { align: 'center' });
-      // Title
-      pdf.setTextColor(127, 29, 29);
-      pdf.setFontSize(7);
-      pdf.setFont('helvetica', 'normal');
-      pdf.text((riesgo.title || '').substring(0, 42), xPos + 22, yPos + 5);
-      // Priority badge
-      const impColors = { 1: '#10b981', 2: '#f59e0b', 3: '#ef4444' };
-      const impColor = impColors[riesgo.imp] || '#f59e0b';
-      pdf.setFillColor(...hexToRgb(impColor));
-      pdf.roundedRect(xPos + colWidth - 12, yPos + 2, 9, 5, 2, 2, 'F');
-      pdf.setTextColor(...C.white);
-      pdf.setFontSize(6);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text(`P${riesgo.imp}`, xPos + colWidth - 7, yPos + 5.5, { align: 'center' });
+      riskDot(xPos + 4, yPos + 5, 4, riesgo.title || '', riesgo.cat || 'RX', riesgo.imp || 2);
     });
 
-    y += Math.ceil(riesgos.length / 2) * 16 + 8;
+    y += Math.ceil(riesgos.length / 2) * 10 + 10;
   }
 
   // ═══════════════════ ALERTA ═══════════════════
