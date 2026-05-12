@@ -48,6 +48,23 @@ const clone = element.cloneNode(true);
   };
   inlineComputedStyles(element, clone);
 
+  // ---- Convert any remaining inline oklch values to RGB ----
+  const replaceOklch = css =>
+    css.replace(/oklch\([^)]*\)/g, match => {
+      const dummy = document.createElement('div');
+      dummy.style.color = match;
+      document.body.appendChild(dummy);
+      const rgb = getComputedStyle(dummy).color;
+      document.body.removeChild(dummy);
+      return rgb;
+    });
+  clone.querySelectorAll('[style]').forEach(el => {
+    const s = el.getAttribute('style');
+    if (s && s.includes('oklch(')) {
+      el.setAttribute('style', replaceOklch(s));
+    }
+  });
+
   // Preserve the original width so the column layout matches the on‑screen size.
   clone.style.width = `${element.clientWidth}px`;
   // Preserve full height to capture all scrollable content.
