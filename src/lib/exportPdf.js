@@ -61,31 +61,9 @@ const clone = element.cloneNode(true);
   clone.style.top = '0';
 
 
-  // Elimina reglas CSS que usen la función oklch y las reemplaza por valores RGB.
-  const replaceOklch = css =>
-    css.replace(/oklch\([^)]*\)/g, match => {
-      const dummy = document.createElement('div');
-      dummy.style.color = match;
-      document.body.appendChild(dummy);
-      const rgb = getComputedStyle(dummy).color;
-      document.body.removeChild(dummy);
-      return rgb;
-    });
-
-  // 1️⃣ Procesar los <style> internos del clon
-  clone.querySelectorAll('style').forEach(st => {
-    if (st.textContent.includes('oklch(')) {
-      st.textContent = replaceOklch(st.textContent);
-    }
-  });
-
-  // 2️⃣ Procesar atributos inline que contengan oklch
-  clone.querySelectorAll('[style]').forEach(el => {
-    const s = el.getAttribute('style');
-    if (s && s.includes('oklch(')) {
-      el.setAttribute('style', replaceOklch(s));
-    }
-  });
+  // ---- Temporarily detach external style sheets to avoid parsing okLCH ----
+  const headStyles = Array.from(document.head.querySelectorAll('style, link[rel="stylesheet"]'));
+  headStyles.forEach(node => node.parentNode && node.parentNode.removeChild(node));
 
 
 document.body.appendChild(clone);
@@ -105,15 +83,26 @@ try {
 }
 
 // Capture the **clone** (with two‑column layout) as a high‑resolution canvas.
-const canvas = await html2canvas(clone, {
-  scale: 2,
-  useCORS: true,
-  logging: false,
-  allowTaint: true,
-});
+let canvas;
+try {
+  canvas = await html2canvas(clone, {
+    scale: 2,
+    useCORS: true,
+    logging: false,
+    allowTaint: true,
+  });
+} catch (err) {
+  console.error('ExportPDF: html2canvas failed', err);
+  // Restore head styles before exiting
+  headStyles.forEach(node => document.head.appendChild(node));
+  document.body.removeChild(clone);
+  return;
+}
 
 // Clean up the temporary clone now that we have the canvas.
 document.body.removeChild(clone);
+// Restore head styles after capture
+headStyles.forEach(node => document.head.appendChild(node));
 
 const imgData = canvas.toDataURL('image/png');
 
