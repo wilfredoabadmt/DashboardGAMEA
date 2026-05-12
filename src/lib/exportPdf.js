@@ -36,9 +36,23 @@ const clone = element.cloneNode(true);
 // ---------------------------------------------------------------------------
   const inlineComputedStyles = (source, target) => {
     const computed = getComputedStyle(source);
-    // Construir una cadena CSS con todas las propiedades que aparecen en computed.
+    // Helper to convert oklch values to RGB using a dummy element
+    const maybeConvert = val => {
+      if (typeof val === 'string' && val.includes('oklch(')) {
+        const dummy = document.createElement('div');
+        dummy.style.color = val;
+        document.body.appendChild(dummy);
+        const rgb = getComputedStyle(dummy).color;
+        document.body.removeChild(dummy);
+        return rgb;
+      }
+      return val;
+    };
+    // Build a CSS text string with all computed properties, converting oklch if needed
     const cssText = Array.from(computed).reduce((acc, prop) => {
-      return `${acc}${prop}:${computed.getPropertyValue(prop)};`;
+      const raw = computed.getPropertyValue(prop);
+      const safe = maybeConvert(raw);
+      return `${acc}${prop}:${safe};`;
     }, '');
     target.style.cssText = cssText;
     // Recorrer hijos recursivamente.
