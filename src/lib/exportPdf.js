@@ -30,6 +30,8 @@ export async function exportPdf(element = document.body, filename = 'document') 
 const clone = element.cloneNode(true);
 // Preserve the original width so the column layout matches the on‑screen size.
 clone.style.width = `${element.clientWidth}px`;
+// Preserve full height to capture all scrollable content.
+clone.style.height = `${element.scrollHeight}px`;
 // Apply CSS columns – two columns with a comfortable gap for readability.
 clone.style.columnCount = '2';
 clone.style.columnGap = '24px'; // slightly larger gap for a more spacious look
