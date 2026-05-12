@@ -25,22 +25,18 @@ async function loadImageAsBase64(url) {
  * @param {string} filename - Desired filename without extension.
  */
 export async function exportPdf(element = document.body, filename = 'document') {
-  // ---- 1️⃣ Deshabilitar TODAS las hojas de estilo del documento ----
-  const headStyleNodes = Array.from(document.head.querySelectorAll('style, link[rel="stylesheet"]'));
-  // Deshabilitar las sheets primero (html2canvas las lee desde document.styleSheets)
-  const allSheets = Array.from(document.styleSheets);
-  allSheets.forEach(sheet => { sheet.disabled = true; });
-  // Luego remover los nodos del DOM para que no se propaguen al clon
-  headStyleNodes.forEach(node => node.parentNode && node.parentNode.removeChild(node));
+  // ---- 1️⃣ Clonar y capturar estilos computados ANTES de deshabilitar las hojas ----
 
-  // ---- 2️⃣ Clonar el elemento (sin estilos externos) ----
+  // Hacer referencia a las hojas de estilo para deshabilitarlas después
+  const allSheets = Array.from(document.styleSheets);
+  const headStyleNodes = Array.from(document.head.querySelectorAll('style, link[rel="stylesheet"]'));
+
+  // Clonar el elemento (sheets aún activas, los estilos computados serán correctos)
   const clone = element.cloneNode(true);
 
   // ---------------------------------------------------------------------------
-  // 3️⃣ Inlinear los estilos computados en cada elemento del clon.
-  //    getComputedStyle se ejecuta ANTES de deshabilitar las sheets (gracias a que
-  //    las sheets aún están activas en el momento del llamado a getComputedStyle).
-  //    La función convierte cualquier `oklch` a RGB mediante un dummy element.
+  // 2️⃣ Inlinear los estilos computados (convierte oklch a RGB automáticamente)
+  //    getComputedStyle se ejecuta mientras las sheets siguen activas.
   // ---------------------------------------------------------------------------
   const inlineComputedStyles = (source, target) => {
     const computed = getComputedStyle(source);
@@ -67,7 +63,7 @@ export async function exportPdf(element = document.body, filename = 'document') 
   };
   inlineComputedStyles(element, clone);
 
-  // ---- Convert any remaining inline oklch values to RGB ----
+  // ---- Convertir cualquier oklch residual en atributos style ----
   const convertOklch = val => {
     const dummy = document.createElement('div');
     dummy.style.color = val;
@@ -83,8 +79,12 @@ export async function exportPdf(element = document.body, filename = 'document') 
     }
   });
 
-  // Remove any <style> tags that were rendered inside the component
+  // ---- Eliminar <style> residuales del clon ----
   clone.querySelectorAll('style').forEach(st => st.remove());
+
+  // ---- 3️⃣ AHORA deshabilitar TODAS las hojas de estilo para que html2canvas no las lea ----
+  allSheets.forEach(sheet => { sheet.disabled = true; });
+  headStyleNodes.forEach(node => node.parentNode && node.parentNode.removeChild(node));
 
   // ---- 4️⃣ Aplicar el layout de PDF (dos columnas) y ocultar el clon ----
   clone.style.width = `${element.clientWidth}px`;
@@ -120,10 +120,6 @@ try {
       useCORS: true,
       logging: false,
       allowTaint: true,
-      ignoreElements: el => {
-        const s = el.getAttribute && el.getAttribute('style');
-        return s && s.includes('oklch(');
-      },
     });
 } catch (err) {
   console.error('ExportPDF: html2canvas failed', err);
