@@ -39,8 +39,32 @@ clone.style.columnGap = '24px'; // slightly larger gap for a more spacious look
 clone.style.position = 'absolute';
 clone.style.left = '-9999px';
 clone.style.top = '0';
-// Ensure the clone is part of the DOM so that styles are resolved.
-document.body.appendChild(clone);
+  // Elimina reglas CSS que usen la función oklch y las reemplaza por valores RGB.
+  const replaceOklch = css =>
+    css.replace(/oklch\([^)]*\)/g, match => {
+      const dummy = document.createElement('div');
+      dummy.style.color = match;
+      document.body.appendChild(dummy);
+      const rgb = getComputedStyle(dummy).color;
+      document.body.removeChild(dummy);
+      return rgb;
+    });
+
+  // 1️⃣ Procesar los <style> internos del clon
+  clone.querySelectorAll('style').forEach(st => {
+    if (st.textContent.includes('oklch(')) {
+      st.textContent = replaceOklch(st.textContent);
+    }
+  });
+
+  // 2️⃣ Procesar atributos inline que contengan oklch
+  clone.querySelectorAll('[style]').forEach(el => {
+    const s = el.getAttribute('style');
+    if (s && s.includes('oklch(')) {
+      el.setAttribute('style', replaceOklch(s));
+    }
+  });
+
 
 // Wait for the browser to render the clone before capturing.
 await new Promise(r => requestAnimationFrame(r));
@@ -146,6 +170,7 @@ for (let i = 1; i <= totalPages; i++) {
 }
 
 pdf.save(`${filename}.pdf`);
+}
 
 
 
