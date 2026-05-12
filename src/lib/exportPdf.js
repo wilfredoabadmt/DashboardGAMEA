@@ -81,8 +81,9 @@ const clone = element.cloneNode(true);
   });
 
 
-  // Preserve the original width so the column layout matches the on‑screen size.
-  clone.style.width = `${element.clientWidth}px`;
+  // Remove any <style> tags that were rendered inside the component (they may contain Tailwind CSS with oklch)
+  clone.querySelectorAll('style').forEach(st => st.remove());
+
   // Preserve full height to capture all scrollable content.
   clone.style.height = `${element.scrollHeight}px`;
   // Apply CSS columns – two columns with a comfortable gap for readability.
