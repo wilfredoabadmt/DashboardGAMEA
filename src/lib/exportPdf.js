@@ -10,423 +10,163 @@ async function loadImageAsBase64(url) {
   });
 }
 
-/**
- * Generate a professional PDF report with text in two columns.
- */
 export async function generateReportPdf(data, indicadores, estadisticas, riesgos, contentEl) {
-  let gameaLogo = null;
-  let eliserLogo = null;
+  let gameaLogo = null, eliserLogo = null;
   try {
     [gameaLogo, eliserLogo] = await Promise.all([
       loadImageAsBase64('/dist/gamea.png'),
       loadImageAsBase64('/dist/eliser.png'),
     ]);
-  } catch (e) {
-    console.warn('Could not load logo images – proceeding without logos.', e);
-  }
+  } catch (e) {}
 
-  const pdf = new jsPDF('p', 'mm', 'a4');
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
-  const marginX = 14;
-  const marginY = 18;
-  const usableWidth = pageWidth - 2 * marginX;
-  const footerY = pageHeight - 10;
-  const colGap = 12;
-  const colWidth = (usableWidth - colGap) / 2;
-  const col1X = marginX;
-  const col2X = marginX + colWidth + colGap;
-  const headerY = marginY + 4;
+  const pdf = new jsPDF('p', 'mm', 'letter');
+  const PW = pdf.internal.pageSize.getWidth();
+  const PH = pdf.internal.pageSize.getHeight();
+  const M = 20;
+  const UW = PW - 2 * M;
+  const FY = PH - 12;
+  let page = 1;
+  let y = 34;
 
-  let currentPage = 1;
-  let y = headerY;
-
-  // Color palette
-  const C = {
-    primary: [10, 37, 64],       // deep blue
-    accent: [14, 165, 233],       // brand blue
-    dark: [30, 30, 46],           // slate-900
-    slate: [71, 85, 105],         // slate-500
-    light: [248, 250, 252],       // slate-50
-    white: [255, 255, 255],
-    gray: [150, 150, 170],
-    muted: [200, 205, 215],
+  const hexRgb = h => {
+    const c = h.replace('#','');
+    return [parseInt(c.slice(0,2),16), parseInt(c.slice(2,4),16), parseInt(c.slice(4,6),16)];
   };
 
-  const hexToRgb = hex => {
-    const c = hex.replace('#', '');
-    return [parseInt(c.slice(0, 2), 16), parseInt(c.slice(2, 4), 16), parseInt(c.slice(4, 6), 16)];
+  // ── Page setup ──
+  const header = () => {
+    pdf.setDrawColor(14, 165, 233); pdf.setLineWidth(0.5); pdf.line(M, 12, PW-M, 12);
+    if (gameaLogo) { const ip = pdf.getImageProperties(gameaLogo); const h=13; const w=h*ip.width/ip.height; pdf.addImage(gameaLogo, 'PNG', M, 15, w, h); }
+    if (eliserLogo) { const ip = pdf.getImageProperties(eliserLogo); const h=9; const w=h*ip.width/ip.height; pdf.addImage(eliserLogo, 'PNG', PW-M-w, 16, w, h); }
+    pdf.setFontSize(15); pdf.setTextColor(14, 37, 64); pdf.setFont('helvetica', 'bold'); pdf.text('REPORTE ESTRATÉGICO', PW/2, 20, {align:'center'});
+    pdf.setFontSize(7); pdf.setTextColor(71,85,105); pdf.setFont('helvetica', 'normal'); pdf.text('GOBIERNO AUTÓNOMO MUNICIPAL DE EL ALTO · TRANSICIÓN MUNICIPAL', PW/2, 25, {align:'center'});
+    pdf.setDrawColor(200,205,215); pdf.setLineWidth(0.3); pdf.line(M, 29, PW-M, 29);
   };
-
-  // ─────────────── Decorations ───────────────
-  const addHeader = () => {
-    // Top accent line
-    pdf.setDrawColor(...C.accent);
-    pdf.setLineWidth(0.6);
-    pdf.line(marginX, 5, pageWidth - marginX, 5);
-
-    // Logos
-    if (gameaLogo) {
-      const ip = pdf.getImageProperties(gameaLogo);
-      const h = 14;
-      const w = h * (ip.width / ip.height);
-      pdf.addImage(gameaLogo, 'PNG', marginX, 8, w, h);
-    }
-    if (eliserLogo) {
-      const ip = pdf.getImageProperties(eliserLogo);
-      const h = 10;
-      const w = h * (ip.width / ip.height);
-      pdf.addImage(eliserLogo, 'PNG', pageWidth - marginX - w, 10, w, h);
-    }
-
-    // Centered title
-    pdf.setFontSize(16);
-    pdf.setTextColor(...C.primary);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('REPORTE ESTRATÉGICO', pageWidth / 2, 16, { align: 'center' });
-    pdf.setFontSize(7);
-    pdf.setTextColor(...C.slate);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text('GOBIERNO AUTÓNOMO MUNICIPAL DE EL ALTO  ·  TRANSICIÓN MUNICIPAL', pageWidth / 2, 21, { align: 'center' });
-
-    // Header bottom line
-    pdf.setDrawColor(...C.muted);
-    pdf.setLineWidth(0.3);
-    pdf.line(marginX, 25, pageWidth - marginX, 25);
+  const footer = () => {
+    pdf.setDrawColor(200,205,215); pdf.setLineWidth(0.3); pdf.line(M, PH-11, PW-M, PH-11);
+    pdf.setFontSize(7); pdf.setTextColor(150,150,170); pdf.setFont('helvetica','normal');
+    pdf.text('Gobierno Autónomo Municipal de El Alto · Sistema de Control de Transición', M, FY);
+    pdf.text(`Página ${page}`, PW-M, FY, {align:'right'});
   };
+  const newPage = () => { pdf.addPage(); page++; y=34; header(); footer(); };
+  const check = (n=12) => { if (y+n > PH-M-10) newPage(); };
 
-  const addFooter = () => {
-    pdf.setDrawColor(...C.muted);
-    pdf.setLineWidth(0.3);
-    pdf.line(marginX, pageHeight - 11, pageWidth - marginX, pageHeight - 11);
-    pdf.setFontSize(7);
-    pdf.setTextColor(...C.gray);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text('Gobierno Autónomo Municipal de El Alto · Sistema de Control de Transición', marginX, footerY);
-    pdf.text(`Página ${currentPage}`, pageWidth - marginX, footerY, { align: 'right' });
-  };
+  header(); footer();
 
-  const newPage = () => {
-    pdf.addPage();
-    currentPage++;
-    y = headerY;
-    addHeader();
-    addFooter();
-  };
-
-  const ensureSpace = (needed = 15) => {
-    if (y + needed > pageHeight - marginY - 10) newPage();
-  };
-
-  // Draw a section title with left accent bar
-  const sectionTitle = (text, top) => {
-    ensureSpace(12);
-    pdf.setDrawColor(...C.accent);
-    pdf.setFillColor(...C.accent);
-    pdf.rect(marginX, top, 3, 10, 'F');
-    pdf.setFontSize(11);
-    pdf.setTextColor(...C.primary);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text(text, marginX + 8, top + 8);
-    return top + 12;
-  };
-
-  // Draw a colored metric bar
-  const metricBar = (x, y, w, label, value, color) => {
-    const barH = 10;
-    const gap = 3;
-    pdf.setFillColor(...hexToRgb(color));
-    pdf.roundedRect(x, y, w, barH, 2, 2, 'F');
-    pdf.setTextColor(...C.white);
-    pdf.setFontSize(7);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text(label.substring(0, 28), x + gap, y + 4);
-    pdf.setFontSize(10);
-    pdf.text(`${value}%`, x + w - gap, y + barH - gap, { align: 'right' });
-  };
-
-  // ─────────────── Helpers de gráficos ───────────────
-
-  // Gauge semicircular (velocímetro)
-  const drawGauge = (cx, cy, r, pct, label, color) => {
-    const start = -Math.PI;
-    const end = Math.PI;
-    const angle = start + (end - start) * (pct / 100);
-    const [cr, cg, cb] = hexToRgb(color);
-    // Track
-    pdf.setDrawColor(226, 232, 240);
-    pdf.setLineWidth(3);
-    pdf.circle(cx, cy, r, 'D');
-    // Arco de progreso
-    pdf.setDrawColor(cr, cg, cb);
-    pdf.setLineWidth(3);
-    const steps = 40;
-    for (let i = 0; i < steps; i++) {
-      const a1 = start + (end - start) * (i / steps);
-      const a2 = start + (end - start) * ((i + 1) / steps);
-      if (a1 <= angle) {
-        const x1 = cx + r * Math.cos(a1);
-        const y1 = cy + r * Math.sin(a1);
-        const x2 = cx + r * Math.cos(Math.min(a2, angle));
-        const y2 = cy + r * Math.sin(Math.min(a2, angle));
-        pdf.line(x1, y1, x2, y2);
-      }
-    }
-    // Valor central
-    pdf.setTextColor(...C.primary);
-    pdf.setFontSize(14);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text(`${pct}%`, cx, cy + 2, { align: 'center' });
-    pdf.setFontSize(6);
-    pdf.setTextColor(...C.slate);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text(label || '', cx, cy + 8, { align: 'center' });
-  };
-
-  // Barra de progreso horizontal con track
-  const progressBar = (x, y, w, h, pct, color, label, value) => {
-    pdf.setFillColor(238, 242, 246);
-    pdf.roundedRect(x, y, w, h, 2, 2, 'F');
-    const fillW = (pct / 100) * (w - 2);
-    if (fillW > 0) {
-      pdf.setFillColor(...hexToRgb(color));
-      pdf.roundedRect(x + 1, y + 1, fillW, h - 2, 1.5, 1.5, 'F');
-    }
-    pdf.setTextColor(...C.slate);
-    pdf.setFontSize(6);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text(label, x + 2, y + h + 3);
-    pdf.setTextColor(...C.primary);
-    pdf.setFontSize(9);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text(`${value}%`, x + w - 2, y + h + 3, { align: 'right' });
-  };
-
-  // Gráfico de barras para estadísticas
-  const statBar = (x, y, w, label, val, trend, maxVal) => {
-    const pct = maxVal > 0 ? val / maxVal : 0;
-    // fondo tarjeta
-    pdf.setFillColor(248, 250, 252);
-    pdf.setDrawColor(226, 232, 240);
-    pdf.roundedRect(x, y, w, 20, 3, 3, 'FD');
-    // label
-    pdf.setTextColor(...C.slate);
-    pdf.setFontSize(7);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text((label || '').substring(0, 22), x + 3, y + 4);
-    // track barra
-    pdf.setFillColor(226, 232, 240);
-    pdf.roundedRect(x + 3, y + 8, w - 6, 4, 2, 2, 'F');
-    // fill
-    const fillW = pct * (w - 6);
-    const trendColor = trend === 'up' ? '#10b981' : trend === 'down' ? '#ef4444' : '#f59e0b';
-    pdf.setFillColor(...hexToRgb(trendColor));
-    pdf.roundedRect(x + 3, y + 8, Math.max(fillW, 0), 4, 2, 2, 'F');
-    // valor
-    pdf.setTextColor(...C.primary);
-    pdf.setFontSize(10);
-    pdf.setFont('helvetica', 'bold');
-    const sym = trend === 'up' ? '↗' : trend === 'down' ? '↘' : '→';
-    pdf.text(`${val} ${sym}`, x + w - 4, y + 18, { align: 'right' });
-  };
-
-  // Círculo de prioridad para riesgos
-  const riskDot = (x, y, r, label, cat, priority) => {
-    const colors = { 1: '#10b981', 2: '#f59e0b', 3: '#ef4444' };
-    const col = colors[priority] || '#f59e0b';
-    pdf.setFillColor(...hexToRgb(col));
-    pdf.circle(x, y, r, 'F');
-    pdf.setTextColor(...C.white);
-    pdf.setFontSize(5);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text(`${priority}`, x, y + 1, { align: 'center' });
-    // Label a la derecha
-    pdf.setTextColor(100, 40, 40);
-    pdf.setFontSize(5);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text((label || '').substring(0, 40), x + r + 2, y + 1);
-    // Categoría en gris
-    pdf.setTextColor(150, 120, 120);
-    pdf.setFontSize(4);
-    pdf.setFont('helvetica', 'italic');
-    pdf.text((cat || '').substring(0, 8), x + r + 2, y + 5);
-  };
-
-  // Init first page
-  addHeader();
-  addFooter();
-
-  // ═══════════════════ MAIN HEADER ═══════════════════
-  y += 6;
-  // Big title
-  pdf.setFontSize(22);
-  pdf.setTextColor(...C.primary);
-  pdf.setFont('helvetica', 'bold');
-  const tLines = pdf.splitTextToSize(data.titulo || 'REPORTE ESTRATÉGICO DE TRANSICIÓN', usableWidth);
-  pdf.text(tLines, pageWidth / 2, y, { align: 'center' });
-  y += tLines.length * 8 + 4;
-
-  // Subtitle with background stripe
+  // ── TITLE ──
+  y += 2;
+  pdf.setFontSize(20); pdf.setTextColor(14,37,64); pdf.setFont('helvetica','bold');
+  const tl = pdf.splitTextToSize(data.titulo||'REPORTE ESTRATÉGICO DE TRANSICIÓN', UW);
+  pdf.text(tl, PW/2, y, {align:'center'}); y += tl.length*7 + 3;
   if (data.subtitulo) {
-    pdf.setFontSize(9);
-    pdf.setTextColor(...C.slate);
-    pdf.setFont('helvetica', 'normal');
-    const subLines = pdf.splitTextToSize(data.subtitulo, usableWidth);
-    pdf.text(subLines, pageWidth / 2, y, { align: 'center' });
-    y += subLines.length * 5 + 5;
+    pdf.setFontSize(9); pdf.setTextColor(71,85,105); pdf.setFont('helvetica','normal');
+    const sl = pdf.splitTextToSize(data.subtitulo, UW);
+    pdf.text(sl, PW/2, y, {align:'center'}); y += sl.length*4 + 4;
   }
-
-  // Info row: secretaria · direccion · unidad · fecha · responsable
-  const infoChips = [data.secretaria, data.direccion, data.unidad].filter(Boolean);
-  pdf.setFillColor(241, 245, 249);
-  pdf.roundedRect(marginX, y - 2, usableWidth, infoChips.length > 0 ? 18 : 14, 3, 3, 'F');
-  if (infoChips.length > 0) {
-    pdf.setFontSize(8);
-    pdf.setTextColor(...C.slate);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text(infoChips.join('  ·  '), pageWidth / 2, y + 3, { align: 'center' });
-    y += 7;
+  // Info card
+  const chips = [data.secretaria, data.direccion, data.unidad].filter(Boolean);
+  check(20);
+  pdf.setFillColor(241,245,249); pdf.roundedRect(M, y, UW, chips.length?16:12, 3,3, 'F');
+  if (chips.length) {
+    pdf.setFontSize(8); pdf.setTextColor(71,85,105); pdf.setFont('helvetica','bold');
+    pdf.text(chips.join('  ·  '), PW/2, y+6, {align:'center'}); y+=10;
   }
-  if (data.fecha) {
-    pdf.setFontSize(7);
-    pdf.setTextColor(...C.gray);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text(`Fecha: ${data.fecha}`, pageWidth / 2, y + 3, { align: 'center' });
-    y += 5;
-  }
-  if (data.acreditado) {
-    pdf.setFontSize(7);
-    pdf.setTextColor(...C.gray);
-    pdf.text(`Responsable: ${data.acreditado}`, pageWidth / 2, y + 3, { align: 'center' });
-    y += 3;
-  }
+  if (data.fecha) { pdf.setFontSize(7); pdf.setTextColor(150,150,170); pdf.text(`Fecha: ${data.fecha}`, PW/2, y+3, {align:'center'}); y+=5; }
+  if (data.acreditado) { pdf.setFontSize(7); pdf.setTextColor(150,150,170); pdf.text(`Responsable: ${data.acreditado}`, PW/2, y+3, {align:'center'}); y+=3; }
   y += 6;
 
-  // ═══════════════════ INDICADORES ═══════════════════
-  if (indicadores.length > 0) {
-    y = sectionTitle('MÉTRICAS CRÍTICAS DE TRANSICIÓN', y);
-    y += 2;
+  // ── SECTION TITLE ──
+  const sec = (text) => {
+    check(14);
+    pdf.setDrawColor(14,165,233); pdf.setFillColor(14,165,233); pdf.rect(M, y, 3, 9, 'F');
+    pdf.setFontSize(11); pdf.setTextColor(14,37,64); pdf.setFont('helvetica','bold');
+    pdf.text(text, M+7, y+7); y += 12;
+  };
 
-    // Gauge de resumen (promedio de indicadores)
-    const avg = Math.round(indicadores.reduce((s, ind) => s + ind.value, 0) / indicadores.length);
-    const gaugeCx = pageWidth / 2;
-    const gaugeCy = y + 18;
-    const gaugeR = 18;
-    drawGauge(gaugeCx, gaugeCy, gaugeR, avg, 'PROMEDIO GENERAL', '#0ea5e9');
-    y += 40;
-
-    // Indicadores en dos columnas con progressBar
-    indicadores.forEach((ind, i) => {
-      const col = i % 2;
-      const row = Math.floor(i / 2);
-      const xPos = col === 0 ? col1X : col2X;
-      const yPos = y + row * 22;
-
-      if (yPos + 22 > pageHeight - marginY - 10) {
-        newPage();
-        y = marginY + 5 + row * 22;
-        return;
-      }
-
-      progressBar(xPos, yPos, colWidth, 8, ind.value, ind.color || '#0ea5e9', ind.label, ind.value);
+  // ── INDICADORES ──
+  if (indicadores.length) {
+    sec('MÉTRICAS CRÍTICAS');
+    indicadores.forEach(ind => {
+      check(16);
+      const [cr,cg,cb] = hexRgb(ind.color||'#0ea5e9');
+      // bar track
+      pdf.setFillColor(238,242,246); pdf.roundedRect(M, y, UW, 8, 2, 2, 'F');
+      // bar fill
+      const fw = (ind.value/100)*(UW-2);
+      if (fw>0) { pdf.setFillColor(cr,cg,cb); pdf.roundedRect(M+1, y+1, fw, 6, 1.5,1.5, 'F'); }
+      // label
+      pdf.setTextColor(55,65,81); pdf.setFontSize(7); pdf.setFont('helvetica','bold');
+      pdf.text(ind.label.substring(0, 40), M+3, y+12);
+      // value
+      pdf.setTextColor(14,37,64); pdf.setFontSize(10); pdf.setFont('helvetica','bold');
+      pdf.text(`${ind.value}%`, PW-M-3, y+12, {align:'right'});
+      y += 16;
     });
-
-    y += Math.ceil(indicadores.length / 2) * 22 + 8;
-  }
-
-  // ═══════════════════ ESTADÍSTICAS ═══════════════════
-  if (estadisticas.length > 0) {
-    y = sectionTitle('ESTADÍSTICAS', y);
-    y += 2;
-
-    const maxVal = Math.max(...estadisticas.map(s => s.val));
-    estadisticas.forEach((stat, i) => {
-      const col = i % 2;
-      const row = Math.floor(i / 2);
-      const xPos = col === 0 ? col1X : col2X;
-      const yPos = y + row * 24;
-
-      if (yPos + 24 > pageHeight - marginY - 10) {
-        newPage();
-        y = marginY + 5 + row * 24;
-        return;
-      }
-
-      statBar(xPos, yPos, colWidth, stat.label, stat.val, stat.trend, maxVal);
-    });
-
-    y += Math.ceil(estadisticas.length / 2) * 24 + 8;
-  }
-
-  // ═══════════════════ RIESGOS ═══════════════════
-  if (riesgos.length > 0) {
-    y = sectionTitle('RIESGOS IDENTIFICADOS', y);
-    y += 2;
-
-    riesgos.forEach((riesgo, i) => {
-      const col = i % 2;
-      const row = Math.floor(i / 2);
-      const xPos = col === 0 ? col1X : col2X;
-      const yPos = y + row * 10;
-
-      if (yPos + 10 > pageHeight - marginY - 10) {
-        newPage();
-        y = marginY + 5 + row * 10;
-        return;
-      }
-
-      riskDot(xPos + 4, yPos + 5, 4, riesgo.title || '', riesgo.cat || 'RX', riesgo.imp || 2);
-    });
-
-    y += Math.ceil(riesgos.length / 2) * 10 + 10;
-  }
-
-  // ═══════════════════ ALERTA ═══════════════════
-  if (data.alerta) {
-    ensureSpace(10);
-    pdf.setFillColor(255, 247, 237);
-    pdf.setDrawColor(251, 191, 36);
-    pdf.roundedRect(marginX, y, usableWidth, 6, 3, 3, 'F');
     y += 4;
-    pdf.setTextColor(146, 64, 14);
-    pdf.setFontSize(8);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('⚠ ALERTA', marginX + 4, y + 1);
-    y += 7;
-    pdf.setFontSize(8);
-    pdf.setTextColor(120, 53, 15);
-    pdf.setFont('helvetica', 'normal');
-    const alertLines = pdf.splitTextToSize(data.alerta, usableWidth - 16);
-    pdf.text(alertLines, marginX + 8, y);
-    y += alertLines.length * 4 + 10;
   }
 
-  // ═══════════════════ OBSERVACIONES ═══════════════════
+  // ── ESTADÍSTICAS ──
+  if (estadisticas.length) {
+    sec('ESTADÍSTICAS');
+    estadisticas.forEach(st => {
+      check(16);
+      const tcol = st.trend==='up' ? '#10b981' : st.trend==='down' ? '#ef4444' : '#f59e0b';
+      pdf.setFillColor(249,250,251); pdf.setDrawColor(229,231,235); pdf.roundedRect(M, y, UW, 13, 3,3, 'FD');
+      pdf.setTextColor(75,85,99); pdf.setFontSize(8); pdf.setFont('helvetica','bold');
+      pdf.text(st.label.substring(0, 40), M+4, y+5);
+      pdf.setTextColor(...hexRgb(tcol)); pdf.setFontSize(14); pdf.setFont('helvetica','bold');
+      const sym = st.trend==='up' ? '↗' : st.trend==='down' ? '↘' : '→';
+      pdf.text(`${st.val} ${sym}`, PW-M-4, y+11, {align:'right'});
+      y += 16;
+    });
+    y += 4;
+  }
+
+  // ── RIESGOS ──
+  if (riesgos.length) {
+    sec('RIESGOS IDENTIFICADOS');
+    riesgos.forEach(r => {
+      check(14);
+      const ic = {1:'#10b981',2:'#f59e0b',3:'#ef4444'};
+      const ci = ic[r.imp]||'#f59e0b';
+      pdf.setFillColor(...hexRgb(ci)); pdf.roundedRect(M, y, 3, 10, 1,1, 'F');
+      pdf.setFillColor(255,255,255); pdf.setDrawColor(243,244,246); pdf.roundedRect(M+3, y, UW-3, 10, 3,3, 'FD');
+      pdf.setTextColor(107,114,128); pdf.setFontSize(6); pdf.setFont('helvetica','bold');
+      pdf.text((r.cat||'RX').substring(0,8), M+8, y+4);
+      pdf.setTextColor(75,85,99); pdf.setFontSize(7); pdf.setFont('helvetica','normal');
+      pdf.text(r.title.substring(0, 55), M+8, y+9);
+      pdf.setTextColor(...hexRgb(ci)); pdf.setFontSize(9); pdf.setFont('helvetica','bold');
+      pdf.text(`P${r.imp}`, PW-M-5, y+8, {align:'right'});
+      y += 14;
+    });
+    y += 4;
+  }
+
+  // ── ALERTA ──
+  if (data.alerta) {
+    check(8);
+    pdf.setFillColor(255,247,237); pdf.setDrawColor(251,191,36); pdf.roundedRect(M, y, UW, 5, 3,3, 'F'); y+=3;
+    pdf.setTextColor(146,64,14); pdf.setFontSize(8); pdf.setFont('helvetica','bold'); pdf.text('⚠ ALERTA', M+4, y+1); y+=6;
+    pdf.setFontSize(7); pdf.setTextColor(120,53,15); pdf.setFont('helvetica','normal');
+    const al = pdf.splitTextToSize(data.alerta, UW-16); pdf.text(al, M+8, y); y += al.length*3.5+6;
+  }
+
+  // ── OBSERVACIONES ──
   if (data.observaciones) {
-    y = sectionTitle('OBSERVACIONES', y);
-    y += 2;
-    pdf.setFontSize(8);
-    pdf.setTextColor(55, 65, 81);
-    pdf.setFont('helvetica', 'normal');
-    const obsLines = pdf.splitTextToSize(data.observaciones, usableWidth);
-    pdf.text(obsLines, marginX, y);
-    y += obsLines.length * 4 + 6;
+    sec('OBSERVACIONES');
+    pdf.setFontSize(7); pdf.setTextColor(55,65,81); pdf.setFont('helvetica','normal');
+    const ol = pdf.splitTextToSize(data.observaciones, UW); pdf.text(ol, M, y); y += ol.length*3.5+4;
   }
 
-  // ═══════════════════ FINAL: footers ═══════════════════
-  const totalPages = pdf.getNumberOfPages();
-  for (let i = 1; i <= totalPages; i++) {
+  // ── FINAL FOOTERS ──
+  const tp = pdf.getNumberOfPages();
+  for (let i=1; i<=tp; i++) {
     pdf.setPage(i);
-    pdf.setDrawColor(...C.muted);
-    pdf.setLineWidth(0.3);
-    pdf.line(marginX, pageHeight - 11, pageWidth - marginX, pageHeight - 11);
-    pdf.setFontSize(7);
-    pdf.setTextColor(...C.gray);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text('Gobierno Autónomo Municipal de El Alto · Sistema de Control de Transición', marginX, footerY);
-    pdf.text(`Página ${i} de ${totalPages}`, pageWidth - marginX, footerY, { align: 'right' });
+    pdf.setDrawColor(200,205,215); pdf.setLineWidth(0.3); pdf.line(M, PH-11, PW-M, PH-11);
+    pdf.setFontSize(7); pdf.setTextColor(150,150,170); pdf.setFont('helvetica','normal');
+    pdf.text('Gobierno Autónomo Municipal de El Alto · Sistema de Control de Transición', M, FY);
+    pdf.text(`Página ${i} de ${tp}`, PW-M, FY, {align:'right'});
   }
 
-  const blob = pdf.output('blob');
-  return URL.createObjectURL(blob);
+  return URL.createObjectURL(pdf.output('blob'));
 }
