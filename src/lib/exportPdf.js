@@ -25,18 +25,25 @@ async function loadImageAsBase64(url) {
  * @param {string} filename - Desired filename without extension.
  */
 export async function exportPdf(element = document.body, filename = 'document') {
-// Clone the element and apply two‑column layout for PDF capture.
-// This clone is used only for PDF rendering and does not affect the visible page.
-const clone = element.cloneNode(true);
+  // ---- 1️⃣ Deshabilitar TODAS las hojas de estilo del documento ----
+  const headStyleNodes = Array.from(document.head.querySelectorAll('style, link[rel="stylesheet"]'));
+  // Deshabilitar las sheets primero (html2canvas las lee desde document.styleSheets)
+  const allSheets = Array.from(document.styleSheets);
+  allSheets.forEach(sheet => { sheet.disabled = true; });
+  // Luego remover los nodos del DOM para que no se propaguen al clon
+  headStyleNodes.forEach(node => node.parentNode && node.parentNode.removeChild(node));
 
-// ---------------------------------------------------------------------------
-// 1️⃣ Inlinear los estilos computados en cada elemento del clon.
-//    Esta rutina copia todos los estilos computados (ya convertidos a RGB) al
-//    clon, de modo que html2canvas solo ve valores que entiende.
-// ---------------------------------------------------------------------------
+  // ---- 2️⃣ Clonar el elemento (sin estilos externos) ----
+  const clone = element.cloneNode(true);
+
+  // ---------------------------------------------------------------------------
+  // 3️⃣ Inlinear los estilos computados en cada elemento del clon.
+  //    getComputedStyle se ejecuta ANTES de deshabilitar las sheets (gracias a que
+  //    las sheets aún están activas en el momento del llamado a getComputedStyle).
+  //    La función convierte cualquier `oklch` a RGB mediante un dummy element.
+  // ---------------------------------------------------------------------------
   const inlineComputedStyles = (source, target) => {
     const computed = getComputedStyle(source);
-    // Helper to convert oklch values to RGB using a dummy element
     const maybeConvert = val => {
       if (typeof val === 'string' && val.includes('oklch(')) {
         const dummy = document.createElement('div');
@@ -48,14 +55,12 @@ const clone = element.cloneNode(true);
       }
       return val;
     };
-    // Build a CSS text string with all computed properties, converting oklch if needed
     const cssText = Array.from(computed).reduce((acc, prop) => {
       const raw = computed.getPropertyValue(prop);
       const safe = maybeConvert(raw);
       return `${acc}${prop}:${safe};`;
     }, '');
     target.style.cssText = cssText;
-    // Recorrer hijos recursivamente.
     for (let i = 0; i < source.children.length; i++) {
       inlineComputedStyles(source.children[i], target.children[i]);
     }
@@ -63,41 +68,30 @@ const clone = element.cloneNode(true);
   inlineComputedStyles(element, clone);
 
   // ---- Convert any remaining inline oklch values to RGB ----
-  const replaceOklch = css =>
-    css.replace(/oklch\([^)]*\)/g, match => {
-      const dummy = document.createElement('div');
-      dummy.style.color = match;
-      document.body.appendChild(dummy);
-      const rgb = getComputedStyle(dummy).color;
-      document.body.removeChild(dummy);
-      return rgb;
-    });
-  // Replace any oklch values that might still be present in inline styles after inlining
   clone.querySelectorAll('[style]').forEach(el => {
     const s = el.getAttribute('style');
     if (s && s.includes('oklch(')) {
-      el.setAttribute('style', replaceOklch(s));
+      const dummy = document.createElement('div');
+      dummy.style.color = 'red'; // placeholder, will be replaced below
+      document.body.appendChild(dummy);
+      const rgb = getComputedStyle(dummy).color;
+      document.body.removeChild(dummy);
+      const newS = s.replace(/oklch\([^)]*\)/g, () => rgb);
+      el.setAttribute('style', newS);
     }
   });
 
-
-  // Remove any <style> tags that were rendered inside the component (they may contain Tailwind CSS with oklch)
+  // Remove any <style> tags that were rendered inside the component
   clone.querySelectorAll('style').forEach(st => st.remove());
 
-  // Preserve full height to capture all scrollable content.
+  // ---- 4️⃣ Aplicar el layout de PDF (dos columnas) y ocultar el clon ----
+  clone.style.width = `${element.clientWidth}px`;
   clone.style.height = `${element.scrollHeight}px`;
-  // Apply CSS columns – two columns with a comfortable gap for readability.
   clone.style.columnCount = '2';
-  clone.style.columnGap = '24px'; // slightly larger gap for a more spacious look
-  // Hide the clone off‑screen.
+  clone.style.columnGap = '24px';
   clone.style.position = 'absolute';
   clone.style.left = '-9999px';
   clone.style.top = '0';
-
-
-  // ---- Temporarily detach external style sheets to avoid parsing okLCH ----
-  const headStyles = Array.from(document.head.querySelectorAll('style, link[rel="stylesheet"]'));
-  headStyles.forEach(node => node.parentNode && node.parentNode.removeChild(node));
 
 
 document.body.appendChild(clone);
