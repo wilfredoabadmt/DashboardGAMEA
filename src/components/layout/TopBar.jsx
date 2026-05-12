@@ -1,9 +1,8 @@
 import React from 'react';
 import { Search, Bell, Save, Menu } from 'lucide-react';
 import CloudDownload from 'lucide-react/dist/esm/icons/cloud-download.mjs';
-import { exportPdf } from '../../lib/exportPdf';
 
-const TopBar = ({ title, subtitle, onSave, isSaveActive, onMenuClick, lastSync }) => (
+const TopBar = ({ title, subtitle, onSave, isSaveActive, onMenuClick, lastSync, onPdfPreview }) => (
   <header className="sticky top-0 z-30 bg-slate-950/60 backdrop-blur-xl border-b border-white/5 px-6 lg:px-10 py-4 no-print">
     <div className="flex items-center justify-between gap-4 max-w-[1600px] mx-auto">
       <div className="flex items-center gap-4">
@@ -30,7 +29,7 @@ const TopBar = ({ title, subtitle, onSave, isSaveActive, onMenuClick, lastSync }
         </div>
 
         <button
-          onClick={() => exportPdf(document.body, 'Reporte')}
+          onClick={onPdfPreview}
           className="hidden lg:flex items-center gap-2 px-4 py-2.5 bg-white/5 text-slate-300 hover:text-white hover:bg-white/10 rounded-xl border border-white/5 transition-all text-xs font-black uppercase tracking-widest"
         >
           <CloudDownload size={18} /> PDF

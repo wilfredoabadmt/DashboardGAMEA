@@ -9,7 +9,9 @@ import TopBar from './components/layout/TopBar';
 import PreviewView from './views/PreviewView';
 import EditorView from './views/EditorView';
 import ListViewComponent from './views/ListViewComponent';
+import PdfPreviewModal from './components/ui/PdfPreviewModal';
 import { useReports } from './hooks/useReports';
+import { exportPdf } from './lib/exportPdf';
 
 const INITIAL_REPORT_STATE = {
   id: null,
@@ -50,6 +52,24 @@ const App = () => {
   const [selectedSec, setSelectedSec] = useState('');
   const [selectedDir, setSelectedDir] = useState('');
   const [selectedUni, setSelectedUni] = useState('');
+
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
+
+  const handlePdfPreview = async () => {
+    try {
+      const url = await exportPdf(document.body, 'Reporte');
+      setPdfPreviewUrl(url);
+    } catch (err) {
+      console.error('Error al generar PDF:', err);
+    }
+  };
+
+  const closePdfPreview = () => {
+    if (pdfPreviewUrl) {
+      URL.revokeObjectURL(pdfPreviewUrl);
+      setPdfPreviewUrl(null);
+    }
+  };
 
   const [data, setData] = useState({
     ...INITIAL_REPORT_STATE,
@@ -239,6 +259,7 @@ const App = () => {
             isSaveActive={currentView === 'editor' && selectedUni}
             onMenuClick={() => setIsSidebarOpen(true)}
             lastSync={lastSync}
+            onPdfPreview={handlePdfPreview}
           />
 
         <div className="p-6 lg:p-10 max-w-[1600px] mx-auto">
@@ -362,6 +383,8 @@ const App = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <PdfPreviewModal pdfUrl={pdfPreviewUrl} onClose={closePdfPreview} />
     </div>
   );
 };

@@ -25,18 +25,12 @@ async function loadImageAsBase64(url) {
  * @param {string} filename - Desired filename without extension.
  */
 export async function exportPdf(element = document.body, filename = 'document') {
-  // ---- 1️⃣ Clonar y capturar estilos computados ANTES de deshabilitar las hojas ----
-
-  // Hacer referencia a las hojas de estilo para deshabilitarlas después
-  const allSheets = Array.from(document.styleSheets);
-  const headStyleNodes = Array.from(document.head.querySelectorAll('style, link[rel="stylesheet"]'));
-
-  // Clonar el elemento (sheets aún activas, los estilos computados serán correctos)
+  // Clonar el elemento para no alterar la página visible
   const clone = element.cloneNode(true);
 
   // ---------------------------------------------------------------------------
-  // 2️⃣ Inlinear los estilos computados (convierte oklch a RGB automáticamente)
-  //    getComputedStyle se ejecuta mientras las sheets siguen activas.
+  // 1️⃣ Inlinear los estilos computados para preservar la apariencia en el clon.
+  //    Convierte cualquier valor `oklch` a RGB manualmente como respaldo.
   // ---------------------------------------------------------------------------
   const inlineComputedStyles = (source, target) => {
     const computed = getComputedStyle(source);
@@ -82,24 +76,16 @@ export async function exportPdf(element = document.body, filename = 'document') 
   // ---- Eliminar <style> residuales del clon ----
   clone.querySelectorAll('style').forEach(st => st.remove());
 
-  // ---- 3️⃣ Vaciar los <style> internos (Tailwind) y deshabilitar los <link> externos ----
-  // Con esto html2canvas no encuentra ninguna regla CSS con oklch.
-  headStyleNodes.forEach(node => {
-    if (node.tagName === 'STYLE') {
-      node.textContent = '';               // Elimina todas las reglas del style
-    } else if (node.tagName === 'LINK') {
-      node.disabled = true;                // Desactiva la hoja enlazada (Google Fonts, etc.)
-    }
-  });
-
-  // ---- 4️⃣ Aplicar el layout de PDF (dos columnas) y ocultar el clon ----
+  // ---- 2️⃣ Aplicar el layout de PDF (dos columnas) y ocultar el clon detrás de todo ----
   clone.style.width = `${element.clientWidth}px`;
   clone.style.height = `${element.scrollHeight}px`;
   clone.style.columnCount = '2';
   clone.style.columnGap = '24px';
   clone.style.position = 'absolute';
-  clone.style.left = '-9999px';
+  clone.style.left = '0';
   clone.style.top = '0';
+  clone.style.zIndex = '-1';
+  clone.style.pointerEvents = 'none';
 
 
 document.body.appendChild(clone);
@@ -126,21 +112,16 @@ try {
       useCORS: true,
       logging: false,
       allowTaint: true,
+      foreignObjectRendering: true,
     });
 } catch (err) {
   console.error('ExportPDF: html2canvas failed', err);
-  // Restore head styles and sheets before exiting
-  headStyleNodes.forEach(node => document.head.appendChild(node));
-  allSheets.forEach(sheet => { sheet.disabled = false; });
   document.body.removeChild(clone);
   return;
 }
 
 // Clean up the temporary clone now that we have the canvas.
 document.body.removeChild(clone);
-// Restore head styles and re-enable sheets after capture
-headStyleNodes.forEach(node => document.head.appendChild(node));
-allSheets.forEach(sheet => { sheet.disabled = false; });
 
 const imgData = canvas.toDataURL('image/png');
 
@@ -219,7 +200,9 @@ for (let i = 1; i <= totalPages; i++) {
   pdf.text(`Página ${i} de ${totalPages}`, pageWidth - marginX, pageHeight - 5, { align: 'right' });
 }
 
-pdf.save(`${filename}.pdf`);
+const blob = pdf.output('blob');
+const url = URL.createObjectURL(blob);
+return url;
 }
 
 
