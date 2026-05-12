@@ -29,17 +29,11 @@ export async function exportPdf(element = document.body, filename = 'document') 
 // This clone is used only for PDF rendering and does not affect the visible page.
 const clone = element.cloneNode(true);
 
-  // Copiar estilos de <head> (style y hojas de estilo) al clon para que html2canvas los vea.
-  document.head.querySelectorAll('style, link[rel="stylesheet"]').forEach(node => {
-    // Clonar el nodo y añadirlo al clon (antes de los demás hijos)
-    clone.appendChild(node.cloneNode(true));
-  });
-
-  // ---------------------------------------------------------------------------
-  // 1️⃣ Inlinear los estilos computados en cada elemento del clon.
-  //    Esto convierte valores como `oklch(...)` a su equivalente RGB ya resuelto
-  //    por el navegador, evitando que html2canvas tenga que parsear la función.
-  // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// 1️⃣ Inlinear los estilos computados en cada elemento del clon.
+//    Esta rutina copia todos los estilos computados (ya convertidos a RGB) al
+//    clon, de modo que html2canvas solo ve valores que entiende.
+// ---------------------------------------------------------------------------
   const inlineComputedStyles = (source, target) => {
     const computed = getComputedStyle(source);
     // Construir una cadena CSS con todas las propiedades que aparecen en computed.
