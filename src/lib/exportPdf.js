@@ -119,12 +119,16 @@ try {
 // Capture the **clone** (with two‑column layout) as a high‑resolution canvas.
 let canvas;
 try {
-  canvas = await html2canvas(clone, {
-    scale: 2,
-    useCORS: true,
-    logging: false,
-    allowTaint: true,
-  });
+    canvas = await html2canvas(clone, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      allowTaint: true,
+      ignoreElements: el => {
+        const s = el.getAttribute && el.getAttribute('style');
+        return s && s.includes('oklch(');
+      },
+    });
 } catch (err) {
   console.error('ExportPDF: html2canvas failed', err);
   // Restore head styles before exiting
