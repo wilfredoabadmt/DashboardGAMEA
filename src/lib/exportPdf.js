@@ -28,17 +28,45 @@ export async function exportPdf(element = document.body, filename = 'document') 
 // Clone the element and apply two‑column layout for PDF capture.
 // This clone is used only for PDF rendering and does not affect the visible page.
 const clone = element.cloneNode(true);
-// Preserve the original width so the column layout matches the on‑screen size.
-clone.style.width = `${element.clientWidth}px`;
-// Preserve full height to capture all scrollable content.
-clone.style.height = `${element.scrollHeight}px`;
-// Apply CSS columns – two columns with a comfortable gap for readability.
-clone.style.columnCount = '2';
-clone.style.columnGap = '24px'; // slightly larger gap for a more spacious look
-// Hide the clone off‑screen.
-clone.style.position = 'absolute';
-clone.style.left = '-9999px';
-clone.style.top = '0';
+
+  // Copiar estilos de <head> (style y hojas de estilo) al clon para que html2canvas los vea.
+  document.head.querySelectorAll('style, link[rel="stylesheet"]').forEach(node => {
+    // Clonar el nodo y añadirlo al clon (antes de los demás hijos)
+    clone.appendChild(node.cloneNode(true));
+  });
+
+  // ---------------------------------------------------------------------------
+  // 1️⃣ Inlinear los estilos computados en cada elemento del clon.
+  //    Esto convierte valores como `oklch(...)` a su equivalente RGB ya resuelto
+  //    por el navegador, evitando que html2canvas tenga que parsear la función.
+  // ---------------------------------------------------------------------------
+  const inlineComputedStyles = (source, target) => {
+    const computed = getComputedStyle(source);
+    // Construir una cadena CSS con todas las propiedades que aparecen en computed.
+    const cssText = Array.from(computed).reduce((acc, prop) => {
+      return `${acc}${prop}:${computed.getPropertyValue(prop)};`;
+    }, '');
+    target.style.cssText = cssText;
+    // Recorrer hijos recursivamente.
+    for (let i = 0; i < source.children.length; i++) {
+      inlineComputedStyles(source.children[i], target.children[i]);
+    }
+  };
+  inlineComputedStyles(element, clone);
+
+  // Preserve the original width so the column layout matches the on‑screen size.
+  clone.style.width = `${element.clientWidth}px`;
+  // Preserve full height to capture all scrollable content.
+  clone.style.height = `${element.scrollHeight}px`;
+  // Apply CSS columns – two columns with a comfortable gap for readability.
+  clone.style.columnCount = '2';
+  clone.style.columnGap = '24px'; // slightly larger gap for a more spacious look
+  // Hide the clone off‑screen.
+  clone.style.position = 'absolute';
+  clone.style.left = '-9999px';
+  clone.style.top = '0';
+
+
   // Elimina reglas CSS que usen la función oklch y las reemplaza por valores RGB.
   const replaceOklch = css =>
     css.replace(/oklch\([^)]*\)/g, match => {
@@ -66,7 +94,8 @@ clone.style.top = '0';
   });
 
 
-// Wait for the browser to render the clone before capturing.
+document.body.appendChild(clone);
+
 await new Promise(r => requestAnimationFrame(r));
 
 // Load background and logo images (from the dist folder). If they fail, continue without them.
