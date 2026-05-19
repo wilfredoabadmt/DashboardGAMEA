@@ -1,8 +1,7 @@
 import React from 'react';
 import { 
-  AlertTriangle, Building2, Scale, Users
+  AlertTriangle, Building2, Scale, Users, CloudDownload
 } from 'lucide-react';
-import CloudDownload from 'lucide-react/dist/esm/icons/cloud-download.mjs';
 import { motion } from 'framer-motion';
 
 const Card = ({ title, subtitle, icon: Icon, children }) => (

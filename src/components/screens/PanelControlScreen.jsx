@@ -2,9 +2,9 @@ import React, { useState, useMemo } from 'react';
 import { 
   Shield, AlertTriangle, CheckCircle, Clock, 
   TrendingUp, TrendingDown, FileSearch, Building2,
-  AlertOctagon, BadgeCheck, FileText, BarChart3, Filter
+  AlertOctagon, BadgeCheck, FileText, BarChart3, Filter,
+  CloudDownload
 } from 'lucide-react';
-import CloudDownload from 'lucide-react/dist/esm/icons/cloud-download.mjs';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ORGANIGRAMA } from '../../lib/constants';
 

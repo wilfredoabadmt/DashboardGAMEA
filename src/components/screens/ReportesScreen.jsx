@@ -1,8 +1,7 @@
 import React from 'react';
 import { 
-  PieChart, Clock, Building2, Filter, FileCheck
+  PieChart, Clock, Building2, Filter, FileCheck, CloudDownload
 } from 'lucide-react';
-import CloudDownload from 'lucide-react/dist/esm/icons/cloud-download.mjs';
 import { motion } from 'framer-motion';
 
 const Card = ({ title, subtitle, icon: Icon, children }) => (

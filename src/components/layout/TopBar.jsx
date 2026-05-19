@@ -1,6 +1,4 @@
-import React from 'react';
-import { Search, Bell, Save, Menu } from 'lucide-react';
-import CloudDownload from 'lucide-react/dist/esm/icons/cloud-download.mjs';
+import { Search, Bell, Save, Menu, CloudDownload } from 'lucide-react';
 
 const TopBar = ({ title, subtitle, onSave, isSaveActive, onMenuClick, lastSync, onPdfPreview }) => (
   <header className="sticky top-0 z-30 bg-slate-950/60 backdrop-blur-xl border-b border-white/5 px-6 lg:px-10 py-4 no-print">
